@@ -1,0 +1,1267 @@
+{
+  "name": "b2c",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "16oaBqECEY39qC-ca-a4Nd4TDlvtWV7nAhYQmICJQ-go",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16oaBqECEY39qC-ca-a4Nd4TDlvtWV7nAhYQmICJQ-go/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "includeInOutput": "both",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -112
+      ],
+      "id": "634e2635-e0ec-4ae0-94cb-6d1ae6bbe2f7",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "4VbGw3fYWuE8PZqh",
+          "name": "Google Sheets Trigger Mohit"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/opportunities/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "location_id",
+              "value": "your_location_id"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -112,
+        -304
+      ],
+      "id": "765e1b42-7020-4505-b345-f72fa8cabf5c",
+      "name": "Search"
+    },
+    {
+      "parameters": {
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.opportunities[0].id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -416,
+        -144
+      ],
+      "id": "537350e3-76ed-4289-b8d5-6fa177a872ec",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5e0a52c8-5238-4578-9b22-42b7c1d7b1f4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -336,
+        -304
+      ],
+      "id": "302c2bf4-c7ab-4415-807b-64e0c54a045f",
+      "name": "Webhook",
+      "webhookId": "5e0a52c8-5238-4578-9b22-42b7c1d7b1f4"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Filters an array of opportunity objects based on name, phone, and pipelineId.\n * The Email filter has been removed.\n *\n * @param {Array<Object>} data The array of opportunity objects to filter.\n * @param {string} filterName The name to filter by.\n * @param {string} filterPhone The phone number to filter by.\n * @param {string} filterPipelineId The pipeline ID to filter by.\n * @returns {Object|null} The unique opportunity object that matches all filters, or null if not unique or no match.\n */\nfunction filterOpportunityByDetails(data, filterName, filterPhone, filterPipelineId) {\n  // 1. Normalize Filter Inputs\n  const nameLower = filterName ? String(filterName).toLowerCase().trim() : '';\n  // Remove all non-numeric characters for flexible phone matching\n  const phoneNormalized = filterPhone ? String(filterPhone).replace(/\\D/g, '') : '';\n  // Normalize pipeline ID for exact comparison\n  const pipelineIdFilter = filterPipelineId ? String(filterPipelineId).trim() : '';\n\n  console.log(`--- Filters Being Applied ---`);\n  console.log(`Name Filter (Normalized): \"${nameLower}\"`);\n  console.log(`Phone Filter (Normalized): \"${phoneNormalized}\"`);\n  console.log(`Pipeline ID Filter: \"${pipelineIdFilter}\"`);\n  console.log(`Total Opportunities to Check: ${data ? data.length : 0}`);\n  console.log(`-----------------------------`);\n\n  if (!data || data.length === 0) {\n    console.log(`🚫 INPUT ARRAY EMPTY. Returning null.`);\n    return null;\n  }\n\n  const matchingOpportunities = data.filter((opportunity, index) => {\n    // 2. Normalize Opportunity Contact Data\n    const contact = opportunity.contact || opportunity.relations?.[0]?.contact;\n\n    const contactName = contact?.name ? String(contact.name).toLowerCase() : String(opportunity.name || '').toLowerCase();\n    const contactPhone = contact?.phone ? String(contact.phone).replace(/\\D/g, '') : '';\n    // contactEmail is no longer needed for filtering, but logging it might be useful\n    const contactEmail = contact?.email ? String(contact.email).toLowerCase().trim() : ''; \n\n    // 3. Apply Match Logic\n\n    let nameMatch = true;\n    if (nameLower) {\n      // Name Match: Partial search is used\n      nameMatch = contactName.includes(nameLower);\n    }\n\n    let phoneMatch = true;\n    if (phoneNormalized) {\n      // Phone Match: Partial search is used on normalized (digits-only) strings\n      phoneMatch = contactPhone.includes(phoneNormalized);\n    }\n\n    let pipelineMatch = true;\n    if (pipelineIdFilter) {\n      // Pipeline Match: Exact match is mandatory\n      pipelineMatch = opportunity.pipelineId === pipelineIdFilter;\n    }\n\n    // Email match logic has been removed.\n    // The match now only depends on Name, Phone, and Pipeline ID.\n    const isMatch = nameMatch && phoneMatch && pipelineMatch;\n\n    if (isMatch) {\n        console.log(`✅ MATCH FOUND (Index ${index}): Name=\"${contactName}\", Phone=\"${contactPhone}\", PipelineID=\"${opportunity.pipelineId}\"`);\n    }\n\n    return isMatch;\n  });\n\n  // 4. Determine Output\n  if (matchingOpportunities.length === 1) {\n    console.log(`🎉 FINAL RESULT: UNIQUE MATCH FOUND.`);\n    return matchingOpportunities[0];\n  }\n\n  if (matchingOpportunities.length > 1) {\n    console.log(`⚠️ FINAL RESULT: AMBIGUITY. ${matchingOpportunities.length} opportunities matched. Returning null.`);\n    return null;\n  }\n\n  console.log(`❌ FINAL RESULT: NO MATCHES FOUND. Returning null.`);\n  return null;\n}\n\n// --- n8n Execution Block ---\n\n// 1. Get the array of opportunities from the previous node's output:\nconst opportunities = $input.first().json.opportunities;\n\n// 2. Define the filters using the variables provided from the trigger node:\n// The filterEmail variable has been removed from this section.\nconst filterName = $input.first().json.body.rowData.Name;\nconst filterPhone = $input.first().json.body.rowData.phone;\nconst filterPipelineId = $input.first().json.opportunities[0].pipelineId;\n\n// 3. Apply the filter function with the reduced parameter list\nconst uniqueOpportunity = filterOpportunityByDetails(\n  opportunities, \n  filterName, \n  filterPhone, \n  filterPipelineId // <-- Only these three filters remain\n);\n\n// 4. Output the filtered opportunity (or null) as the result\nconst output = [{\n  filteredOpportunity: uniqueOpportunity\n}];\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        -304
+      ],
+      "id": "6ad57124-4496-4818-954c-b7193b4ddb1b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3f993712-d0b3-44d3-8745-749db9788939",
+              "name": "opportunities",
+              "value": "={{ $json.opportunities }}",
+              "type": "array"
+            },
+            {
+              "id": "9c8cf464-2078-4e03-a0ac-f6d08f8016a6",
+              "name": "body",
+              "value": "={{ $('Webhook').item.json.body }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        -304
+      ],
+      "id": "ac8bf81e-1cf4-4c4a-923d-87d59f8fd79d",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "120243c4-3188-4095-917d-e2478b170e58",
+              "name": "filteredOpportunity",
+              "value": "={{ $json.filteredOpportunity }}",
+              "type": "object"
+            },
+            {
+              "id": "e1df54ac-0d8b-4e94-8c7e-941598d20136",
+              "name": "body.rowData.Calling_status",
+              "value": "={{ $('Edit Fields1').item.json.body.rowData.Calling_status }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        -304
+      ],
+      "id": "ec127266-7b1f-4859-8586-2a3910f63425",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6acfd2c1-0b2b-4b8f-9bcc-ac7de41e1e23",
+              "leftValue": "={{ $json.body.rowData.Calling_status }}",
+              "rightValue": "Not Picked",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "5f9883ec-67e3-4b9d-ae57-a26363394e4a",
+              "leftValue": "={{ $json.body.rowData.Calling_status }}",
+              "rightValue": "Call Later",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "4c15eb0d-a9e4-464e-8b3b-467fa2a1c3e9",
+              "leftValue": "={{ $json.body.rowData.Calling_status }}",
+              "rightValue": "Busy on call",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "e6fcfcc3-d892-4ca3-8771-aee19d6dcb96",
+              "leftValue": "={{ $json.body.rowData.Calling_status }}",
+              "rightValue": "Invalid No",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "5c52cc7a-2dcb-475d-93af-346031306e8b",
+              "leftValue": "={{ $json.body.rowData.Calling_status }}",
+              "rightValue": "Switched off",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "b35dbd0a-3b33-4080-a0d4-3b9662a499e5",
+              "leftValue": "={{ $json.body.rowData.Calling_status }}",
+              "rightValue": "Hang up",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "3c643098-0462-4a04-ab50-4cfce807f8ea",
+              "leftValue": "={{ $json.body.rowData.Calling_status }}",
+              "rightValue": "Not reachable",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        -304
+      ],
+      "id": "3dfea8f5-4793-493b-95cc-d6c12cff5a38",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        576,
+        -80
+      ],
+      "id": "611edd26-fbb5-42f2-b979-ed62241c2e63",
+      "name": "When clicking ‘Execute workflow’",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Meeting schedule",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "713006da-cd43-4647-a536-f9bc4d571829"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Meeting schedule"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "820d2971-b029-4f7f-a206-cb596d1d44fa",
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Meeting Reschedule",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Meeting Reschedule"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "32d80784-ef33-4e37-a79d-29d46b0e2a1e",
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Done",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Done"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0e2df5c9-b7c0-4da1-9390-e3a4e69e14e1",
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Scope of Work Awaiting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Scope of Work Awaiting"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c485fcad-338b-42ac-8e6a-db92662aa53d",
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Scope of Work Shared",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Scope of Work Shared"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "bb75daa9-d361-4332-9491-02a844ca976e",
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Quotation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Quotation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dfc8000f-b331-4c20-8d8d-1bc1bfee1bdf",
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Negotiation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Negotiation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "83896983-3c13-454a-8f91-e57d86d12057",
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Deal Won",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Deal Won"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "28f8b904-52e3-4203-93d0-ff5242d42eda",
+                    "leftValue": "={{ $json.body.rowData.Calling_status }}",
+                    "rightValue": "Deal Lost",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Deal Lost"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        960,
+        -176
+      ],
+      "id": "2c755213-be71-4cc2-b67c-739a8fd4cee0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/opportunities/pipelines",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "EaXGAfzywJxq3ORLrqkK"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer pit-4cbf656a-2ea1-4d5c-bd78-7852e5dc37df"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -144,
+        -144
+      ],
+      "id": "b65c6332-92c8-472c-9f17-84a3f420301f",
+      "name": "get pipeline"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"2e15da6a-cd10-43e0-ba75-163f1502d05a\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1296,
+        -736
+      ],
+      "id": "5be700c6-158f-4498-807e-3fc1682cae09",
+      "name": "Meeting Schedule",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"5156c720-9324-41e7-9586-823eeea2a3b1\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1296,
+        -576
+      ],
+      "id": "eaec3cc8-d9b9-436f-8086-4e174c08ea56",
+      "name": "Meeting Reschedule",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"dd24035a-9878-4500-bbe4-ff2bb3d8f1b1\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1296,
+        -432
+      ],
+      "id": "39ec5ffe-c757-4555-9dc9-a1205c64ff0d",
+      "name": "Done",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"6a72eac6-b799-43dc-bf38-edf04cc9ac4e\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1312,
+        -304
+      ],
+      "id": "e4199c24-53be-4d4d-8d0c-42c743eb26c7",
+      "name": "Scope Of Work Awaiting",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"61666223-cfff-480f-bbe4-c2adbb5b9e0f\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1328,
+        -128
+      ],
+      "id": "de2b94f2-feb8-41e2-af2e-4043fc6b1e4c",
+      "name": "Scope Of Work Shared",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"551de546-22af-4726-a8e6-e934cdfea5b1\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1328,
+        48
+      ],
+      "id": "7c1da537-1394-4832-96dd-04226eb63765",
+      "name": "Quotation",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"3734eb26-569f-4b02-af6f-f6928b237769\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1344,
+        208
+      ],
+      "id": "601bc1b5-3287-4c76-bcbd-43767da4b246",
+      "name": "Negotitation",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"c4c1c2fe-4734-4e98-85d3-be2a9a1ca620\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1360,
+        384
+      ],
+      "id": "824821f5-6b63-43f9-8695-1974b9adbd72",
+      "name": "Deal Won",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"pipelineId\": \"ll2YhgiqYIWQAboQG8kT\",\n  \"pipelineStageId\": \"ad4b9b35-66f9-444f-ad5c-4a451e493711\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1376,
+        560
+      ],
+      "id": "402e01c1-6bc5-44f1-8812-a5ca6d321c86",
+      "name": "Deal Lost",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/opportunities/{{ $json.filteredOpportunity.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"pipelineId\": \"{{ $json.filteredOpportunity.pipelineId }}\",\n  \"customFields\": [\n{\n      \"id\": \"fDqQqA6H9aMD9FZl3R4e\",\n      \"field_value\":\"{{ $json.body.rowData.Calling_status }}\"\n    }\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        880,
+        -608
+      ],
+      "id": "c99bb1fd-7a17-43c7-8748-8ba910aceb2a",
+      "name": "Calling Status",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "eNd5HyUFERpiT93l",
+          "name": "ghl bearer auth mk"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv825961.hstgr.cloud",
+            "user-agent": "Mozilla/5.0 (compatible; Google-Apps-Script; beanserver; +https://script.google.com; id: UAEmdDd_wvn8A-qdZO8gfrkf1-RVLRwKWW5s)",
+            "content-length": "777",
+            "accept-encoding": "gzip, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "107.178.195.169",
+            "x-forwarded-host": "n8n.srv825961.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "1396ea9a9a6c",
+            "x-real-ip": "107.178.195.169"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "spreadsheetId": "16oaBqECEY39qC-ca-a4Nd4TDlvtWV7nAhYQmICJQ-go",
+            "spreadsheetName": "Test b2c",
+            "sheetName": "Sheet1",
+            "rowIndex": 2,
+            "columnIndex": 5,
+            "editedCellA1": "E2",
+            "timestamp": "2025-12-08T04:54:38.443Z",
+            "rowData": {
+              "Name": "your_name",
+              "phone": "9999999999",
+              "Email": "your_mail",
+              "City_&_State": "",
+              "Calling_status": "Meeting schedule",
+              "Remarks": "6-10 i will call you back, i have budget issue, in both learing and by our team, invited for learning group demo",
+              "Nature_of_business": "finance consultant",
+              "Team_size": 1,
+              "Ads?": "No",
+              "Budget": "No",
+              "Authority": "",
+              "Need": "",
+              "Timeline": "",
+              "Implement_Status": "Self implement",
+              "Challenges": "Marketing",
+              "Follow_up_date": "",
+              "Meeting_by": "",
+              "Meeting_date_&_time": "",
+              "Meeting_status": "",
+              "Duration": "10 min",
+              "lead_status": "Cold"
+            }
+          },
+          "webhookUrl": "https://n8n.srv825961.hstgr.cloud/webhook/5e0a52c8-5238-4578-9b22-42b7c1d7b1f4",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Search": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Calling Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
+      ]
+    },
+    "get pipeline": {
+      "main": [
+        []
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Meeting Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Meeting Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scope Of Work Awaiting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scope Of Work Shared",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Quotation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Negotitation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deal Won",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deal Lost",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a1a9e5c7-0f91-43c6-8361-acf0bf781a23",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "526f89659892449f4359e4e059154fbaa57ef4f283a65ed8a22c2746476ada07"
+  },
+  "id": "EgmYkFmmHoq0W8rb",
+  "tags": []
+}

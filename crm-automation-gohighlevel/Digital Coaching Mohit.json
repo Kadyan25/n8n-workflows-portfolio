@@ -1,0 +1,235 @@
+{
+  "name": "Digital Coaching Mohit",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bothook.io/v1/public/triggers/webhooks/1487ab11-66bc-4a15-a08c-9b8218453bf6",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Name",
+              "value": "={{ $json.Name }}"
+            },
+            {
+              "name": "Mobile",
+              "value": "={{ $json.Number }}"
+            },
+            {
+              "name": "Course",
+              "value": "={{ $json.Course }}"
+            },
+            {
+              "name": "Current Class",
+              "value": "={{ $json['Current class'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        256,
+        0
+      ],
+      "id": "69176c8f-73f0-4173-b40c-2735683d073d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/upsert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "your auth token"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Google Sheets Trigger').item.json.Name }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $('Google Sheets Trigger').item.json.Number.toString() }}"
+            },
+            {
+              "name": "locationId",
+              "value": "your_location_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        496,
+        0
+      ],
+      "id": "463fb8b9-3ea7-466e-a2ac-94c67155689a",
+      "name": "Upsert Contact"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/upsert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "your auth token"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Google Sheets Trigger').item.json.Name }}"
+            },
+            {
+              "name": "locationId",
+              "value": "your_location_id"
+            },
+            {
+              "name": "pipelineId",
+              "value": "your_pipeline_id"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $json.contact.id }}"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        688,
+        0
+      ],
+      "id": "b40d408a-b6bf-4cb1-a95e-7c53e0393b58",
+      "name": "Create Opportunity"
+    },
+    {
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/opportunities/pipelines",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "your_location_id"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your auth token"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -16,
+        224
+      ],
+      "id": "b3556d13-1faa-42f1-a257-35e9833148a8",
+      "name": "Get Pipeline"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        224
+      ],
+      "id": "109d1d04-d3f5-4b4f-ba18-b7873833aa93",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upsert Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Contact": {
+      "main": [
+        [
+          {
+            "node": "Create Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d84f8b50-368c-4008-8172-1b64436007e7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "526f89659892449f4359e4e059154fbaa57ef4f283a65ed8a22c2746476ada07"
+  },
+  "id": "s1eRqm14Ky6i4w4R",
+  "tags": []
+}

@@ -1,0 +1,544 @@
+{
+  "name": "RSS Feed",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "dc0ed2f8-1064-421c-9d2a-b61b553eae82",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "54378e3a-393e-4bdd-b9b0-041761f68955",
+      "name": "Webhook",
+      "webhookId": "dc0ed2f8-1064-421c-9d2a-b61b553eae82"
+    },
+    {
+      "parameters": {
+        "formTitle": "Submission Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Subject for research",
+              "placeholder": "Input Subject Research",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "LookBack Period",
+              "fieldType": "number",
+              "placeholder": "Enter Number of lookback days",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Post Message for Linkedin",
+              "placeholder": "Post Message for Linkedin",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -2704,
+        -192
+      ],
+      "id": "6bc2e3fd-b8ea-4f94-aca5-579c13b7b7d0",
+      "name": "On form submission",
+      "webhookId": "3a473602-62eb-427b-9e09-8d3c37aafe98"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -2288,
+        -416
+      ],
+      "id": "3343fb3b-7bde-44ce-835a-978dca8d9ead",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "08517c53-00cc-4047-8ac9-5546172b6fb4",
+              "name": "url",
+              "value": "=https://news.google.com/rss/search?q=enterprise+storage+news",
+              "type": "string"
+            },
+            {
+              "id": "81ac6c97-5a98-4f0c-b4cd-5b52d39d4d06",
+              "name": "LookBack Period",
+              "value": "={{ $json['LookBack Period'] }}",
+              "type": "number"
+            },
+            {
+              "id": "26aa5396-ac2a-473b-9bf2-2c9cfffcec94",
+              "name": "Post Message for Linkedin",
+              "value": "={{ $json['Post Message for Linkedin'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b25e804a-30e3-4e05-8bc1-8563139d6a5b",
+              "name": "Subject for research",
+              "value": "={{ $json['Subject for research'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2464,
+        -192
+      ],
+      "id": "67337891-24ea-4dc0-9fa3-ba3b559a7bb3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const limit = $node[\"On form submission\"].json[\"LookBack Period\"];\nitems = items.slice(0, limit);\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1952,
+        -208
+      ],
+      "id": "b109bcfd-8331-4d37-907c-06c050d2de80",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\"From the provided news articles, identify and extract the most painful issues faced by clients specifically related to {{ $json.formData[0].subject }}. Focus on problems that cause significant distress, challenges, or dissatisfaction among clients within this domain. Summarize the top issue with supporting evidence from the articles, including affected client groups, the nature of their pain, and relevant quotes or data. Present the findings in a clear and structured manner.\"\n\n{{ $json.links }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1408,
+        -192
+      ],
+      "id": "055e5ac5-36c8-4768-b43a-129215a911ce",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        -16
+      ],
+      "id": "867f4012-a0e4-4fc3-b549-534ddb75d107",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the first item (form input data)\nconst formData = items[0].json;\n\n// Extract links from remaining items (RSS feed results)\nconst links = [];\nitems.slice(1).forEach(item => {\n  if (item.json.link) {\n    links.push(item.json.link);\n  }\n});\n\n// Create the two arrays\nconst formDataArray = [{\n  url: formData.url,\n  lookbackPeriod: formData[\"LookBack Period\"],\n  postMessage: formData[\"Post Message for Linkedin\"],\n  subject: formData[\"Subject for research\"]\n}];\n\nconst linksArray = links;\n\n// Return as a single item with both arrays\nreturn [{\n  json: {\n    formData: formDataArray,\n    links: linksArray\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1712,
+        -192
+      ],
+      "id": "cf4e2529-7e18-4d55-ae58-6fd2d0c47732",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2176,
+        -192
+      ],
+      "id": "380ce0c3-9568-4fde-b731-2a879e3a3820",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\"Using the insights from the previous analysis prompt ({{ $json.output }}) about the most significant and painful issue currently faced by clients, \ncreate a complete marketing concept for a 5-slide LinkedIn carousel post.\n\nDefine:\n\nThe core concept and angle of the carousel, clearly tied to the identified client pain point.\n\nThe Ideal Customer Profile (ICP), including industry/role, company size, main goals, and main frustrations.\n\nThe primary objective of the carousel (e.g., demand generation, lead nurture, authority building, or event/promo).\n\nFor each of the 5 slides, provide:\n\nSlide number and purpose in the narrative (hook, problem, insight, solution, CTA, etc.).\n\nExact, concise headline text (max ~10–12 words).\n\n1–2 short bullet points or a single short paragraph for body text.\n\nClear art direction for the image: describe the visual concept, style (e.g., minimalist, corporate, illustration, photo-based), suggested colors, and any key elements/objects or characters that should appear so a designer or image-generation AI can create the image.\n\nOptimize specifically for LinkedIn:\n\nEnsure the messaging is professional, pain-point-driven, and emotionally resonant while staying credible.\n\nMake sure each slide works as a standalone visual but also tells a coherent story when viewed in sequence.\n\nEnd slide 5 with a strong, specific call-to-action relevant to the ICP.\n\nOutput everything in a structured format, grouped by: 'Concept Overview', 'ICP', and 'Slides 1–5 (Copy + Image Brief)' so it can be handed directly to an image-generation and design workflow.\"",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -896,
+        -192
+      ],
+      "id": "49234e8a-b97b-4a58-9177-baac211cf48c",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4.1-fast:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        16
+      ],
+      "id": "901e3aac-a1d7-4837-91c7-d0210ca7d91f",
+      "name": "OpenRouter Chat Model"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}\n\nbased on above marketing strategy give me prompt for all five images of carousel which can be used directly in image generation models like nana banana and the carousel should be for linkedin which have some texts.in the last image you must add a specific logo",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -544,
+        -192
+      ],
+      "id": "ddc98d7f-dcc2-4c29-9462-82777117ba26",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4.1-fast:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        16
+      ],
+      "id": "d5e1d655-e28a-4836-a733-ba077ddbf5f9",
+      "name": "OpenRouter Chat Model1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"prompt1\":\"test1\",\n  \"prompt2\":\"test2\",\n  \"prompt3\":\"test3\",\n  \"prompt4\":\"test4\",\n  \"prompt5\":\"test5\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -368,
+        16
+      ],
+      "id": "aac1d0ac-bf5b-4cb9-90ba-a3b7bb00199d",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4.1-fast:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        224
+      ],
+      "id": "9d98d7dc-e204-40e6-9fd4-663497f01eec",
+      "name": "OpenRouter Chat Model2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "your_token"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "image/jpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "inputs",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        32,
+        -192
+      ],
+      "id": "de81a874-d923-4c1c-b456-2af01cf49805",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        -192
+      ],
+      "id": "d9a10b5b-0680-4aeb-80ce-f11b0cc76168",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "person": "3GJeN909am",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -192
+      ],
+      "id": "8b04c487-0e22-499e-8466-a461553af373",
+      "name": "Create a post"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Subject for research": "Enterprise storage news",
+          "LookBack Period": 5,
+          "Post Message for Linkedin": "Test post",
+          "submittedAt": "2025-11-26T21:45:37.218+05:30",
+          "formMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "d98e5bb3-c81c-4eb1-960b-690658f92be5",
+  "meta": {
+    "instanceId": "aedf7ea02e39fed9c7b98997abd26bd72bf6e273cf43911b5048202e91774b81"
+  },
+  "id": "DpDW1PLLD8Jl8U1m",
+  "tags": []
+}

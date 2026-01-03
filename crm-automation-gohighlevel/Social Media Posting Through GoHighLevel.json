@@ -1,0 +1,594 @@
+{
+  "name": "social mk",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/social-media-posting/1HQ756Ygo5AbvpyjLDBE/accounts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -112,
+        -384
+      ],
+      "id": "161b42e0-32a7-4947-9fd4-993436ede379",
+      "name": "get id ac"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "https://services.leadconnectorhq.com/social-media-posting/1HQ756Ygo5AbvpyjLDBE/posts/693129e0e84b5e4a100522a2",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -320,
+        -384
+      ],
+      "id": "e79808b3-d2a3-4e73-adf4-95a792ff11b0",
+      "name": "delete"
+    },
+    {
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/social-media-posting/1HQ756Ygo5AbvpyjLDBE/posts/693129e0e84b5e4a100522a2",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -528,
+        -384
+      ],
+      "id": "bb171055-178b-4801-bffd-a3039a9ddd3f",
+      "name": "gpost"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/social-media-posting/1HQ756Ygo5AbvpyjLDBE/posts/list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "all"
+            },
+            {
+              "name": "accounts",
+              "value": "68ee0b918212d09171b10056_1HQ756Ygo5AbvpyjLDBE_17841469525564705"
+            },
+            {
+              "name": "skip",
+              "value": "1"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "fromDate",
+              "value": "2025-12-03T00:00:00.000Z"
+            },
+            {
+              "name": "toDate",
+              "value": "2025-12-04T10:04:08.255Z"
+            },
+            {
+              "name": "includeUsers",
+              "value": "true"
+            },
+            {
+              "name": "postType",
+              "value": "post"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -736,
+        -384
+      ],
+      "id": "7d485c25-384c-4311-893e-fa22700faf56",
+      "name": "gposts"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/social-media-posting/1HQ756Ygo5AbvpyjLDBE/posts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"accountIds\": [\n    \"68ee0b918212d09171b10056_1HQ756Ygo5AbvpyjLDBE_17841469525564705\"\n  ],\n  \"summary\": \"{{ $('Webhook').item.json.body.Text }}\",\n  \"media\": [\n    {\n      \"url\": \"{{ $json.url }}\",\n      \"type\": \"image/jpg\"\n    }\n  ],\n  \"type\": \"post\",\n  \"userId\": \"4kywJ1hjzzTx9rQSbsvP\",\n  \"instagramPostDetails\": {\n    \"type\": \"post\"\n  }\n} ",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        -320
+      ],
+      "id": "4ed30711-542a-4a0c-8a8e-ab4809c2eeb2",
+      "name": "pposti"
+    },
+    {
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/users/?locationId=EaXGAfzywJxq3ORLrqkK",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        112,
+        -384
+      ],
+      "id": "694d3b02-338b-40fb-b8a5-8f731e33018e",
+      "name": "uid"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e0f3fde5-c1e4-469e-80eb-d3c9871b3cae",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -704,
+        -96
+      ],
+      "id": "87f8e10e-3d25-4e45-8b1c-3c1c553aad60",
+      "name": "Webhook",
+      "webhookId": "e0f3fde5-c1e4-469e-80eb-d3c9871b3cae"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.MEDIA }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        -96
+      ],
+      "id": "27ff55dd-f13a-496d-bdc9-3cf684799bce",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BRTIImTsDMd7cjXB",
+          "name": "DT AUTOMATION SAATHI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiration",
+              "value": "600"
+            },
+            {
+              "name": "key",
+              "value": "4d85acfb92a173778c3660025d4e78e2"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -96,
+        80
+      ],
+      "id": "0956e6c4-1b75-4359-a2ba-fde95aa2f197",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/medias/upload-file",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -176,
+        -96
+      ],
+      "id": "87f72bef-a887-44cb-bfed-33f45f04549e",
+      "name": "md up1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/social-media-posting/1HQ756Ygo5AbvpyjLDBE/posts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"accountIds\": [\n    \"692e7b1d5a89930206d3e745_1HQ756Ygo5AbvpyjLDBE_DWTM1v1nRZ_profile\"\n  ],\n  \"summary\": \"{{ $('Webhook').item.json.body.Text }}\",\n  \"media\": [\n    {\n      \"url\": \"{{ $json.url }}\",\n      \"type\": \"{{ $json.mediaType.type }}\"\n    }\n  ],\n  \"type\": \"post\",\n  \"userId\": \"4kywJ1hjzzTx9rQSbsvP\",\n  \"linkedinPostDetails\": {\n    \"pdfTitle\": \"test.pdf\",\n    \"postAsPdf\": true\n  }\n} ",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        -96
+      ],
+      "id": "560ee1c3-0161-4e0e-a461-31eff40e43b3",
+      "name": "ppostlink"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/social-media-posting/EaXGAfzywJxq3ORLrqkK/posts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Authorization",
+              "value": "your_auth_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"accountIds\": [\n    \"691ed5329465f826a1940211_EaXGAfzywJxq3ORLrqkK_889672238796961898_profile\"\n  ],\n  \"summary\": \"Hello Test\",\n  \"media\": [\n    {\n      \"url\": \"{{ $json.url }}\",\n      \"type\": \"{{ $json.mediaType.type }}\"\n    }\n  ],\n  \"type\": \"post\",\n  \"userId\": \"4kywJ1hjzzTx9rQSbsvP\",\n   \"pinterestPostDetails\": {\n    \"title\": \"My Pinterest Pin\",\n     \"boardIds\": {\n\n      \"691ed5329465f826a1940211\":\"889672170078836869\"\n}\n}, \n  \"mediaOptimization\": true\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        256,
+        64
+      ],
+      "id": "921f5936-0d03-4b3b-8fa7-9a1cc99dfe14",
+      "name": "ppostpinterm"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -512,
+        -96
+      ],
+      "id": "237114d4-66f2-4a88-a673-95c37cb22f5f",
+      "name": "Wait",
+      "webhookId": "ee0d3e72-e3f3-475e-8339-4b7f68e7cae8"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Function to determine media type based on URL extension\nconst getMediaTypeFromUrl = (url) => {\n    // 1. Define common media type mappings\n    const mediaTypes = {\n        // --- Image Formats ---\n        'jpg': 'image/jpeg',\n        'jpeg': 'image/jpeg',\n        'png': 'image/png',\n        'gif': 'image/gif',\n        'bmp': 'image/bmp',\n        'webp': 'image/webp',\n        'svg': 'image/svg+xml',\n\n        // --- Video Formats ---\n        'mp4': 'video/mp4',\n        'webm': 'video/webm',\n        'ogg': 'video/ogg', \n        'avi': 'video/x-msvideo',\n        'mov': 'video/quicktime',\n        'mkv': 'video/x-matroska',\n\n        // --- Audio Formats ---\n        'mp3': 'audio/mpeg',\n        'wav': 'audio/wav',\n        'flac': 'audio/flac',\n        'aac': 'audio/aac',\n        'm4a': 'audio/m4a',\n        'wma': 'audio/x-ms-wma'\n    };\n\n    // 2. Extract the file extension from the URL\n    let pathname;\n    try {\n        // Use the URL object to safely parse the URL\n        const urlObject = new URL(url);\n        pathname = decodeURIComponent(urlObject.pathname);\n    } catch (e) {\n        // Fallback if URL parsing fails\n        pathname = url; \n    }\n    \n    // Extract the extension using regex (handles query parameters and hashes)\n    const match = pathname.match(/\\.([0-9a-z]+)(?:[\\?#]|$)/i);\n    \n    let extension = null;\n    if (match) {\n        extension = match[1].toLowerCase(); \n    }\n\n    // 3. Determine the media type\n    let resultType = 'application/octet-stream'; // Default for unknown types\n\n    if (extension && mediaTypes[extension]) {\n        resultType = mediaTypes[extension];\n    }\n    \n    // 4. Return the result in the desired format\n    return {\n        \"type\": resultType\n    };\n};\n\n// n8n's Code node execution block\n// 'items' contains an array of items passed from the previous node\nfor (const item of $input.all()) {\n    // ⚠️ IMPORTANT: Change 'url' below if the field name is different\n    const url = $input.first().json.url;\n    \n    if (url) {\n        const mediaType = getMediaTypeFromUrl(url);\n        \n        // Add the new mediaType object to the item's JSON data\n        item.json.mediaType = mediaType;\n    } else {\n        // Handle case where URL field is missing or null\n        item.json.mediaType = { \"type\": \"error/no-url-provided\" };\n    }\n}\n\n// Return the updated items to the next node\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        -96
+      ],
+      "id": "1a37c1ab-0a99-4065-ab79-b397d82bdf34",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv825961.hstgr.cloud",
+            "user-agent": "axios/1.7.8",
+            "content-length": "533",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "multipart/form-data; boundary=--------------------------956c8eb19588d8fd29e4d7d9",
+            "x-forwarded-for": "13.203.208.106",
+            "x-forwarded-host": "n8n.srv825961.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "1396ea9a9a6c",
+            "x-real-ip": "13.203.208.106"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "Text": "https://data-storage.doubletick.io/org_Cd7XPuQi2C/chat-messages/7bce9d43-848e-4c6e-a188-cd7c8703c253/images/IMG20251206071917-BIw6N.jpg",
+            "MEDIA": "https://data-storage.doubletick.io/org_Cd7XPuQi2C/chat-messages/7bce9d43-848e-4c6e-a188-cd7c8703c253/images/IMG20251206071917-BIw6N.jpg"
+          },
+          "webhookUrl": "https://n8n.srv825961.hstgr.cloud/webhook/e0f3fde5-c1e4-469e-80eb-d3c9871b3cae",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "ppostlink": [
+      {
+        "json": {
+          "success": true,
+          "statusCode": 201,
+          "message": "Created Post",
+          "traceId": "bf0a1e1f-0580-43c2-84cb-92adb0680011"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "md up1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        []
+      ]
+    },
+    "md up1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "ppostpinterm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cef33ef1-bef1-4074-8ebf-4d91d19e067d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "526f89659892449f4359e4e059154fbaa57ef4f283a65ed8a22c2746476ada07"
+  },
+  "id": "pd4iRHo1wUtw0oC9",
+  "tags": []
+}

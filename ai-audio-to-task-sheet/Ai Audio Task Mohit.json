@@ -1,0 +1,484 @@
+{
+  "name": "Ai Audio Task Mohit",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.body.Audio }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "26bbf384-672a-46b8-91ce-9c143ee1c547",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BRTIImTsDMd7cjXB",
+          "name": "Doubletick API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "en"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        832,
+        0
+      ],
+      "id": "261607fa-0ca5-4830-9996-bdc60926fa69",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "20jSYx0Gcizt5ET7",
+          "name": "Open ai api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=You are a Task Automation Agent that receives task instructions in Hindi, English, or Hinglish and converts them into a structured task JSON. You do not copy the input text directly — you interpret it and summarize it clearly.\n\n---\n\n🛠️ Tools Available:\n\n1. **Google sheet employee**\n   - Use to look up the mobile number of the employee being assigned the task.\n   - Available columns:\n     - Name\n     - Contact\n\n2. **Audio Task Manager Sheet**\n   - Use to append new structured tasks extracted from user instructions.\n   - Expected columns:\n     - Assign By\n     - Assigned By Mob\n     - Assign To\n     - Assigned To Mob\n     - Task Name\n     - Task Details\n     - Due Date\n     - Due Time\n\n---\n\n📅 CONTEXT VARIABLES:\n\n- Current Date: {{ $now.format('DD/MM/YYYY') }}\n- Current Time: {{ $now.format('HH:mm') }}\n- Input Message: {{ $json.text }}\n\n\nYou should use these values when interpreting words like \"aaj\", \"kal\", etc.\n\n---\n\n🎯 OBJECTIVE:\n\nReturn a structured task object in **valid JSON** format. Follow this structure:\n\n{\n  \"Assign By\": \"{{ $('Webhook').item.json.body.Name }}\",\n  \"Assigned By Mob\": \"{{ $('Webhook').item.json.body.Mob }}\",\n  \"Assign To\": \"Employee Name from Input\",\n  \"Assigned To Mob\": \"Mobile from Employee Master\",\n  \"Task Name\": \"4–8 word summary of action\",\n  \"Task Details\": \"One-line interpreted summary of the task in clean Hindi or English\",\n  \"Due Date\": \"DD/MM/YYYY (based on input)\",\n  \"Due Time\": \"HH:MM (24-hr format)\",\n}\n\n---\n\n🧠 TASK INTERPRETATION RULES:\n\n- Do not copy raw text as task details. Summarize the action clearly.\n- Use common time phrases:\n  - \"aaj\" → today → {{ $now.format('dd/MM/yyyy') }}\n  - \"kal\" → tomorrow → add 1 day\n  - \"parso\" → day after tomorrow → add 2 days\n  - \"3 बजे\", \"6 PM\", etc. → convert to HH:MM (24-hour format)\n- Use Employee Master Sheet to look up employee’s full name and mobile.\n- If employee not found in master, return:\n\n{\n  \"error\": \"Employee not found in Employee Master Sheet.\"\n}\n\n- Always include:\n  - Task Name (summarized)\n  - Task Details (natural sentence summarizing the instruction)\n  - Due Date and Time\n  - Assignee and their mobile number\n\n---\n\n📥 EXAMPLE INPUT:\n\n\"अमित को एक टास्क असाइन कर दो बैसिकली जितनी हमारी फेज़बूक पर AI अटोमेशन एजन्सी की लीड आ गई हुई है उनको एक वाटसब ब्रोडकास्ट कर देगे आज 3 बज़े तक\"\n\n✅ EXPECTED OUTPUT:\n\n{\n  \"Assign By\": \"AI Agent\",\n  \"Assigned By Mob\": \"System\",\n  \"Assign To\": \"Amit\",\n  \"Assigned To Mob\": \"919971365681\",\n  \"Task Name\": \"Broadcast Facebook Leads on WhatsApp\",\n  \"Task Details\": \"AI Automation Agency की Facebook leads को आज 3 बजे तक WhatsApp पर भेजना है।\",\n  \"Due Date\": \"26/06/2025\",\n  \"Due Time\": \"15:00\",\n}\n\n---\n\n🚫 Do not include any explanation or commentary. Return ONLY the structured JSON object as output.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "ef6b9d2d-14a2-43ee-999f-c3bf82f3c488",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        304
+      ],
+      "id": "98f96d0e-1d3d-419f-8d52-1d9bc8b6f3f4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "20jSYx0Gcizt5ET7",
+          "name": "Open ai api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Raw AI output string\nconst raw = $json[\"result\"] || $json[\"output\"] || $json[\"text\"];\n\n// Clean and parse\nconst cleanJson = raw.replace(/\\\\n/g, '').replace(/\\\\\"/g, '\"');\n\nreturn [\n  {\n    json: JSON.parse(cleanJson)\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        0
+      ],
+      "id": "7264fdf1-7f87-457e-bd42-b31accb2cae9",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bothook.io/v1/public/triggers/webhooks/6450578c-8aa2-4a40-91c0-dfb94e428ee5",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Assigned by",
+              "value": "Mohit"
+            },
+            {
+              "name": "Assigned to Name",
+              "value": "=Mohit"
+            },
+            {
+              "name": "Assigned to Mob",
+              "value": "=919812345678"
+            },
+            {
+              "name": "Task Name",
+              "value": "=Mohit"
+            },
+            {
+              "name": "Task Details",
+              "value": "=Mohit"
+            },
+            {
+              "name": "Due Date",
+              "value": "=Mohit"
+            },
+            {
+              "name": "Due Time",
+              "value": "=Mohit"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1824,
+        0
+      ],
+      "id": "d66624b9-0e8d-4f7b-a18e-d52829b755ca",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1z1Acbqar8FPeKMIsmVhqDJCIFDJmhq7O01DEZpd08Zw",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 560237931,
+          "mode": "list",
+          "cachedResultName": "Audio Task Manager",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z1Acbqar8FPeKMIsmVhqDJCIFDJmhq7O01DEZpd08Zw/edit#gid=560237931"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Assign By",
+              "displayName": "Assign By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Assigned By Mob",
+              "displayName": "Assigned By Mob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Assign To",
+              "displayName": "Assign To",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Assigned To Mob",
+              "displayName": "Assigned To Mob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Task Details",
+              "displayName": "Task Details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due Date",
+              "displayName": "Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Due Time",
+              "displayName": "Due Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1600,
+        0
+      ],
+      "id": "a7a3a916-36cf-42fe-be50-b2e102ec1513",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "LfqfVBqtrwpNBQJK",
+          "name": "Google Sheets Mohit"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        0
+      ],
+      "id": "36a427e8-ebcd-4fc3-b277-194fc7abf1a6",
+      "name": "Wait FOR AUDIO ACCESS",
+      "webhookId": "3d287964-6edf-425b-9d9c-d8897eb9334d"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Read employee data from Employee Master",
+        "documentId": {
+          "__rl": true,
+          "value": "1z1Acbqar8FPeKMIsmVhqDJCIFDJmhq7O01DEZpd08Zw",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2084966046,
+          "mode": "list",
+          "cachedResultName": "Employee Master",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z1Acbqar8FPeKMIsmVhqDJCIFDJmhq7O01DEZpd08Zw/edit#gid=2084966046"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1248,
+        304
+      ],
+      "id": "62d0e075-abcd-46c3-9ef0-63598dc00644",
+      "name": "Google sheet employee",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "LfqfVBqtrwpNBQJK",
+          "name": "Google Sheets Mohit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a9cb8910-2f69-409a-a761-cf3bef1f3804",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "4043fa14-c4e6-4ed1-89d7-f551c976b357",
+      "name": "Webhook",
+      "webhookId": "a9cb8910-2f69-409a-a761-cf3bef1f3804"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv825961.hstgr.cloud",
+            "user-agent": "axios/1.7.8",
+            "content-length": "525",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "multipart/form-data; boundary=--------------------------3f27af558e9584471dfe915b",
+            "x-forwarded-for": "43.204.237.43",
+            "x-forwarded-host": "n8n.srv825961.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "bd8dcb6cb99b",
+            "x-real-ip": "43.204.237.43"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "Mob": "9999999999",
+            "Name": "Mohit Kadyan",
+            "Audio": "https://data-storage.doubletick.io/org_Cd7XPuQi2C/chat-messages/7bce9d43-848e-4c6e-a188-cd7c8703c253/audio/AUDIO20251018024534-uqGpl.ogg"
+          },
+          "webhookUrl": "your_webhook_url",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Wait FOR AUDIO ACCESS": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google sheet employee": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Wait FOR AUDIO ACCESS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "81ac1672-1683-413a-821d-09edd9dd4ec2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "526f89659892449f4359e4e059154fbaa57ef4f283a65ed8a22c2746476ada07"
+  },
+  "id": "xeo4zrNBGhvZEMpw",
+  "tags": []
+}
