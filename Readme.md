@@ -4,11 +4,11 @@ This repository showcases real n8n workflows Iâ€™ve built for AI, automatio
 
 ## Workflows
 
-1. **AI Java Tips â†’ X (Twitter) Auto-Posting**  
+1. **AI Java Tips’ X (Twitter) Auto-Posting**  
    - Folder: `social-media-java-tips-x/`  
    - Automates a daily schedule â†’ AI-generated Java tip â†’ auto-post to X (Twitter) via the Twitter node.
 
-2. **News â†’ AI Pain-Point Research**  
+2. **News’ AI Pain-Point Research**  
    - Folder: `news-pain-point-research/`  
    - Takes a topic from a form, reads Google News RSS, and uses an AI agent to extract client pain points and marketing insights.
 
@@ -16,7 +16,7 @@ This repository showcases real n8n workflows Iâ€™ve built for AI, automatio
    - Folder: `coaching-chatbot-whatsapp-style/`  
    - Webhook-based chatbot that uses an AI model + conversation memory per user, then forwards replies to an external system (e.g., WhatsApp/CRM).
 
-4. **Voice Instructions â†’ Structured Task Automation**  
+4. **Voice Instructions’ Structured Task Automation**  
    - Folder: `ai-audio-to-task-sheet/`  
    - Converts audio instructions to text, uses an AI agent to build a structured task JSON, and prepares it for storage in tools like Google Sheets or CRMs.
 
