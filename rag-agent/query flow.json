@@ -1,0 +1,257 @@
+{
+  "name": "query flow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "38091b0e-45e4-4924-b02e-a7a8f391e1cc",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "40d3f035-0d86-432d-b0db-1621f7a80943",
+              "name": "question",
+              "value": "What is the battery range of tesla model 3",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        0
+      ],
+      "id": "8cfacbe9-efa0-4506-b155-8b4b1b478287",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-goog-api-key",
+              "value": "AIzaSyBg4ow_cUtO_PgFhnndX4r9RVuzyT-XiXw"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"models/gemini-embedding-001\",\n  \"content\": {\n    \"parts\": [\n      {\n        \"text\": \"{{$json['question']}}\"\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        400,
+        0
+      ],
+      "id": "f71a9136-2468-453c-b3db-4c4c4bb72928",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:6333/collections/car_docs/points/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": [{{$json[\"embedding\"][\"values\"]}}],\n  \"limit\": 3,\n  \"with_payload\": true,\n  \"with_vector\": false,\n  \"filter\": {\n    \"must\": [\n      { \"key\": \"scope\", \"match\": { \"value\": \"model\" } },\n      { \"key\": \"brand\", \"match\": { \"value\": \"Tesla\" } },\n      { \"key\": \"model_name\", \"match\": { \"value\": \"Model 3\" } }\n    ]\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        384,
+        368
+      ],
+      "id": "e6c00b85-8ae8-40d2-aad4-03e9556e220a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert on Tesla cars. Use only the context below to answer.If the answer is not in the context, clearly say ‘Not in docs’ and do NOT guess any numbers\nContext:\n{{ $json.context }}\n\nQuestion:\n\n{{ $json.question }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "adf8b0d4-93d2-4740-8835-91cacdb9e4bc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4-fast",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        688,
+        208
+      ],
+      "id": "9665b725-03af-4d82-9c1a-b12d90cab391",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "zrfeGYsZbbZ3Rnvp",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const res = $json;          \nconst hits = res.result.points;\n\nconst previews = hits\n  .map(h => h.payload?.chunk_text || '')\n  .filter(t => t.trim().length > 0);\n\nreturn [\n  {\n    json: {\n      question:$('Edit Fields').first().json.question ,\n      context: previews.join('\\n---\\n'),\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "05ac22fa-60bb-4043-85e6-0d65a3c6d790",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "search",
+        "operation": "queryPoints",
+        "collectionName": {
+          "__rl": true,
+          "value": "car_docs",
+          "mode": "list",
+          "cachedResultName": "car_docs"
+        },
+        "query": "=[{{$json[\"embedding\"][\"values\"]}}]",
+        "limit": 3,
+        "filter": "\"must\": [\n      { \"key\": \"scope\", \"match\": { \"value\": \"model\" } },\n      { \"key\": \"brand\", \"match\": { \"value\": \"Tesla\" } },\n      { \"key\": \"model_name\", \"match\": { \"value\": \"Model 3\" } }\n    ]\n  }",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        592,
+        0
+      ],
+      "id": "c8366546-2182-461c-9aa9-cfa30ab5b04b",
+      "name": "Query Points Groups",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "ImIFqXEQwzeDrl83",
+          "name": "Qdrant account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Query Points Groups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Points Groups": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "4007e615-c8b4-457d-a0e7-4a26ce19a281",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48bfd836f7a0cf424742dd8bd4fe15b09e1a7726368493b726fdf8076ccf12b9"
+  },
+  "id": "XEdCZItMapoIOg9ckambv",
+  "tags": []
+}

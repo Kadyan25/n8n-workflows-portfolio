@@ -1,0 +1,131 @@
+{
+  "name": "categorization",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bda0e882-e5c3-4ffd-bc27-b3fb71c5460e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'1-c-n1TBEF6xV_vZh_hel0-HPapfvtAVt' in parents and mimeType = 'application/vnd.google-apps.folder'",
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        176,
+        0
+      ],
+      "id": "5eb6adb0-bfce-4f5c-9224-ad3161215c23",
+      "name": "Search files and folders",
+      "executeOnce": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "hWMwos6DO6U0wk0q",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = [];\nfor (const item of $items()) {\n  const name = item.json.name;\n  let folder_type = null;\n  let brand = null;\n\n  if (name.startsWith('Car Model:')) {\n    folder_type = 'model';\n    brand = name.replace('Car Model:', '').trim();\n  } else if (name === 'Car Company') {\n    folder_type = 'company';\n    brand = 'Tesla'; // abhi hardcode\n  }\n\n  if (!folder_type || !brand) {\n    // skip folders jinke paas valid data nahi\n    continue;\n  }\n\n  item.json.folder_type = folder_type;\n  item.json.brand = brand;\n  item.json.model_name = folder_type === 'model' ? 'Model 3' : null;\n\n  items.push(item);\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        0
+      ],
+      "id": "c55461be-4990-48f6-9091-bd35b7909442",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO brands (name)\nVALUES ('{{ $json[\"brand\"].replace(\"'\", \"''\") }}')\nON DUPLICATE KEY UPDATE name = '{{ $json[\"brand\"].replace(\"'\", \"''\") }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        560,
+        0
+      ],
+      "id": "e5d3c8dd-526f-47aa-ac26-addb19abb834",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "mySql": {
+          "id": "y6NAUXllInVkdnsB",
+          "name": "MySQL account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {},
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "8ca485f1-9b77-4b95-9026-e0de01be8e52",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48bfd836f7a0cf424742dd8bd4fe15b09e1a7726368493b726fdf8076ccf12b9"
+  },
+  "id": "m49mbvE6xku44rHF0PpsY",
+  "tags": []
+}

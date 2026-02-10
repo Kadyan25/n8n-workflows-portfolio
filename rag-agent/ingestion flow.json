@@ -1,0 +1,267 @@
+{
+  "name": "Injestion flow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "76a10183-a2a0-42dc-81ff-2b4e7a3f49ff",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "name = 'Tesla_Specs.pdf' and mimeType = 'application/pdf' and trashed = false",
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4468ca16-ce73-4648-b3af-759a8553160c",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "hWMwos6DO6U0wk0q",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "5b4278fa-4464-4b8d-a058-2951427bad5c",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "hWMwos6DO6U0wk0q",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b2f3873b-45e2-4e56-99d3-c3869d6bc2c9",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json[\"data\"] || $json[\"text\"] || \"\";\nconst maxChunks = 8;\nif (!text) {\n  return [];\n}\n\nconst chunkSize = Math.ceil(text.length / maxChunks);\nconst chunks = [];\n\nfor (let i = 0; i < maxChunks; i++) {\n  const start = i * chunkSize;\n  if (start >= text.length) break;\n\n  const end = Math.min(start + chunkSize, text.length);\n  const chunkText = text.slice(start, end);\n\n  // Preview (short)\n  const rawPreview = chunkText.slice(0, 180);\n  const safePreview = rawPreview\n    .replace(/\\r/g, \" \")\n    .replace(/\\n/g, \" \")\n    .replace(/\"/g, '\\\\\"');\n\n  // Full chunk text – safe for JSON\n  const safeChunkText = chunkText\n    .replace(/\\r/g, \" \")      // carriage return → space\n    .replace(/\\n/g, \" \")      // newline → space\n    .replace(/\"/g, '\\\\\"');    // quotes escape\n\n  chunks.push({\n    json: {\n      chunk_text: safeChunkText,     // sanitized full text\n      text_preview: safePreview,\n      scope: 'model',\n      brand: 'Tesla',\n      model_name: 'Model 3',\n      drive_file_id: $json[\"id\"],\n      chunk_id_in_file: i\n    }\n  });\n}\n\nreturn chunks;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "f87c52cc-dfe7-42d7-9c69-477e9f5b60fe",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-goog-api-key",
+              "value": "AIzaSyBg4ow_cUtO_PgFhnndX4r9RVuzyT-XiXw"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"models/gemini-embedding-001\",\n  \"content\": {\n    \"parts\": [\n      {\n        \"text\": \"{{$json['chunk_text']}}\"\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "a9ee2a4d-6089-4945-a8df-5ad42c9242ff",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "http://host.docker.internal:6333/collections/car_docs/points",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"points\": [\n    {\n      \"id\":{{ $('Code in JavaScript').item.json.chunk_id_in_file +1}},\n      \"vector\":[{{ $json.embedding.values }}] ,\n      \"payload\":{\n        \"text_preview\":\"{{ $('Code in JavaScript').item.json.text_preview }}\",\n        \"chunk_text\":\"{{ $('Code in JavaScript').item.json.chunk_text }}\",\n        \"brand\":\"{{ $('Code in JavaScript').item.json.brand }}\",\n        \"model_name\":\"{{ $('Code in JavaScript').item.json.model_name }}\",\n        \"scope\": \"{{ $('Code in JavaScript').item.json.scope }}\",\n        \"drive_file_id\":\"{{ $('Download file').item.json.id }}\",\n        \"chunk_id_in_file\":{{ $('Code in JavaScript').item.json.chunk_id_in_file }}\n      }\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "edc09708-878e-4f08-889e-07d7b1f8e74f",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO vector_chunks\n  (model_id, scope, brand_id, drive_file_id, chunk_id_in_file, text_preview, vector_id)\nVALUES\n  (\n    NULL,\n    '{{ $(\"Code in JavaScript\").item.json.scope }}',\n    NULL,\n    '{{ $(\"Download file\").item.json.id }}',\n    {{ $(\"Code in JavaScript\").item.json.chunk_id_in_file }},\n    '{{ $(\"Code in JavaScript\").item.json.text_preview.replace(/'/g, \"''\") }}',\n    '{{ $(\"Download file\").item.json.id }}-{{ $(\"Code in JavaScript\").item.json.chunk_id_in_file }}'\n  )\nON DUPLICATE KEY UPDATE\n  text_preview = VALUES(text_preview),\n  vector_id = VALUES(vector_id);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1456,
+        0
+      ],
+      "id": "004bffcd-9b1b-4a64-8eca-e483662eceab",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "mySql": {
+          "id": "y6NAUXllInVkdnsB",
+          "name": "MySQL account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {},
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "e60bfd73-4241-4ed3-8245-b879d4e5c61b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48bfd836f7a0cf424742dd8bd4fe15b09e1a7726368493b726fdf8076ccf12b9"
+  },
+  "id": "6Epo8nibrC19kbmmI3-ae",
+  "tags": []
+}
