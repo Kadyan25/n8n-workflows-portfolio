@@ -1,0 +1,279 @@
+{
+  "id": "sQ4nKb71NtmD98lS",
+  "name": "Leads Generation Agent",
+  "active": true,
+  "nodes": [
+    {
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [-1248, 544],
+      "parameters": {
+        "formTitle": "Leads Data Intake",
+        "formFields": {
+          "values": [
+            {"fieldLabel": "Your name", "placeholder": "Your name", "requiredField": true},
+            {"fieldLabel": "Work email", "placeholder": "Work email", "requiredField": true},
+            {"fieldLabel": "Company name", "placeholder": "Company name", "requiredField": true},
+            {"fieldLabel": "Company website URL", "placeholder": "Enter Website URL", "requiredField": true},
+            {"fieldLabel": "Your role at the company", "placeholder": "(e.g. owner, founder, sales, marketing, other)", "requiredField": true},
+            {"fieldLabel": "Company location", "placeholder": "(city, state/region, country)", "requiredField": true},
+            {"fieldLabel": "What does your company do?", "placeholder": "(short description)", "requiredField": true},
+            {"fieldLabel": "What kind of products or services do you sell? ", "placeholder": "(e.g. residential roofing, B2B SaaS for HR)", "requiredField": true},
+            {"fieldLabel": "Where do you want leads from?", "placeholder": "(cities/regions/countries)", "requiredField": true},
+            {"fieldLabel": "What type of companies do you want to target?", "placeholder": "(industries, niches, examples)", "requiredField": true},
+            {"fieldLabel": "Who inside those companies should we target?", "placeholder": "(roles, job titles, seniority)", "requiredField": true},
+            {"fieldLabel": "How many leads do you want approximately?", "placeholder": "50,100,1000 etc", "requiredField": true},
+            {"fieldLabel": "Anything we must avoid?", "placeholder": "(types of leads you don't want)", "requiredField": true},
+            {"fieldLabel": "Any other notes or instructions for us?"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Append row in sheet1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [-960, 544],
+      "parameters": {}
+    },
+    {
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [-576, 544],
+      "parameters": {
+        "promptType": "define",
+        "options": {
+          "systemMessage": "You are an expert B2B lead-generation strategist. Generate config objects for Apify Google Maps Email Extractor and Apify B2B Leads Finder based on the intake form."
+        }
+      }
+    },
+    {
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [-512, 768],
+      "parameters": {
+        "model": "gpt-4.1"
+      }
+    },
+    {
+      "name": "Data Cleaning",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-240, 544],
+      "parameters": {
+        "jsCode": "// Sanitize and validate AI output configs for seniority, functional level, size, industry"
+      }
+    },
+    {
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [0, 256],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/lukaskrivka~google-maps-with-contact-details/runs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.cleanConfig.gmaps_email_extractor,null,2) }}"
+      }
+    },
+    {
+      "name": "HTTP Request6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [0, 736],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/code_crafter~leads-finder/runs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.cleanConfig.leads_finder,null,2) }}"
+      }
+    },
+    {
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [224, 256],
+      "parameters": {"amount": 180}
+    },
+    {
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [224, 736],
+      "parameters": {"amount": 180}
+    },
+    {
+      "name": "HTTP Request2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [448, 256],
+      "parameters": {
+        "url": "=https://api.apify.com/v2/actor-runs/{{ $json.data.id }}"
+      }
+    },
+    {
+      "name": "HTTP Request7",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [448, 736],
+      "parameters": {
+        "url": "=https://api.apify.com/v2/actor-runs/{{ $json.data.id }}"
+      }
+    },
+    {
+      "name": "HTTP Request3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [672, 256],
+      "parameters": {
+        "url": "=https://api.apify.com/v2/datasets/{{ $json.data.defaultDatasetId }}/items?clean=true&format=json"
+      }
+    },
+    {
+      "name": "HTTP Request8",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [672, 736],
+      "parameters": {
+        "url": "=https://api.apify.com/v2/datasets/{{ $json.data.defaultDatasetId }}/items?clean=true&format=json"
+      }
+    },
+    {
+      "name": "gmaps email",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [896, 448],
+      "parameters": {}
+    },
+    {
+      "name": "gmaps no email",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [896, 608],
+      "parameters": {}
+    },
+    {
+      "name": "lead finder mail",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [896, 736],
+      "parameters": {}
+    },
+    {
+      "name": "lead finder no email",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [896, 896],
+      "parameters": {}
+    },
+    {
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [1600, 464],
+      "parameters": {}
+    },
+    {
+      "name": "Insert row",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [1120, 448],
+      "parameters": {
+        "dataTableId": "lBh58toelsSnWPzr"
+      }
+    },
+    {
+      "name": "Insert row1",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [1120, 608],
+      "parameters": {
+        "dataTableId": "lBh58toelsSnWPzr"
+      }
+    },
+    {
+      "name": "Insert row2",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [1120, 832],
+      "parameters": {
+        "dataTableId": "lBh58toelsSnWPzr"
+      }
+    },
+    {
+      "name": "Insert row3",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [-960, 700],
+      "parameters": {
+        "dataTableId": "lBh58toelsSnWPzr"
+      }
+    },
+    {
+      "name": "HTTP Request5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [2048, 464],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anymailfinder.com/v5.1/verify-email",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\"\n}"
+      }
+    },
+    {
+      "name": "Update row(s)",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [2272, 464],
+      "parameters": {}
+    },
+    {
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2496, 464],
+      "parameters": {}
+    },
+    {
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2720, 464],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "On form submission": {"main": [[{"node": "Insert row3", "type": "main", "index": 0}]]},
+    "Append row in sheet1": {"main": [[{"node": "AI Agent", "type": "main", "index": 0}]]},
+    "AI Agent": {"main": [[{"node": "Data Cleaning", "type": "main", "index": 0}]]},
+    "Data Cleaning": {"main": [[{"node": "HTTP Request6", "type": "main", "index": 0}, {"node": "HTTP Request1", "type": "main", "index": 0}]]},
+    "HTTP Request1": {"main": [[{"node": "Wait", "type": "main", "index": 0}]]},
+    "HTTP Request6": {"main": [[{"node": "Wait1", "type": "main", "index": 0}]]},
+    "Wait": {"main": [[{"node": "HTTP Request2", "type": "main", "index": 0}]]},
+    "Wait1": {"main": [[{"node": "HTTP Request7", "type": "main", "index": 0}]]},
+    "HTTP Request2": {"main": [[{"node": "HTTP Request3", "type": "main", "index": 0}]]},
+    "HTTP Request7": {"main": [[{"node": "HTTP Request8", "type": "main", "index": 0}]]},
+    "HTTP Request3": {"main": [[{"node": "gmaps email", "type": "main", "index": 0}, {"node": "gmaps no email", "type": "main", "index": 0}]]},
+    "HTTP Request8": {"main": [[{"node": "lead finder mail", "type": "main", "index": 0}, {"node": "lead finder no email", "type": "main", "index": 0}]]},
+    "gmaps email": {"main": [[{"node": "Merge", "type": "main", "index": 0}]]},
+    "lead finder mail": {"main": [[{"node": "Merge", "type": "main", "index": 1}]]},
+    "gmaps no email": {"main": [[{"node": "Insert row1", "type": "main", "index": 0}]]},
+    "lead finder no email": {"main": [[{"node": "Insert row2", "type": "main", "index": 0}]]},
+    "Merge": {"main": [[{"node": "Insert row", "type": "main", "index": 0}]]},
+    "Insert row": {"main": [[{"node": "HTTP Request5", "type": "main", "index": 0}]]},
+    "HTTP Request5": {"main": [[{"node": "Update row(s)", "type": "main", "index": 0}]]},
+    "Update row(s)": {"main": [[{"node": "If", "type": "main", "index": 0}]]},
+    "If": {"main": [[{"node": "Append row in sheet", "type": "main", "index": 0}]]},
+    "Insert row3": {"main": [[{"node": "Append row in sheet1", "type": "main", "index": 0}]]}
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
