@@ -1,0 +1,2122 @@
+﻿{
+  "name": "Leads Agent 1",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/lukaskrivka~google-maps-with-contact-details/runs?token=YOUR_APIFY_TOKEN",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.cleanConfig.gmaps_email_extractor,null,2) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        576,
+        560
+      ],
+      "id": "f0d004f4-4554-4c54-8e39-ccfb784a3e72",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        560
+      ],
+      "id": "5c7eff94-da6f-4a9c-81bd-6fabe136c3df",
+      "name": "Wait",
+      "webhookId": "0e3bbc09-7dfd-4653-8344-9750a5449c1b"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.apify.com/v2/actor-runs/{{ $('HTTP Request1').item.json.data.id }}?token=YOUR_APIFY_TOKEN",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1024,
+        496
+      ],
+      "id": "2719c167-d308-42a1-ad8e-951ec44cd760",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "gmaps-status-check",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "SUCCEEDED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1248,
+        496
+      ],
+      "id": "c79a5dfa-2901-4ee7-b8fe-0f72d080fe82",
+      "name": "GMaps Done?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "gmaps-fail-check",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "FAILED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1472,
+        800
+      ],
+      "id": "70351ce8-ab36-4dfa-b793-2969fc6d14b9",
+      "name": "GMaps Failed?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        800
+      ],
+      "id": "a4572a71-ccdd-48b0-81cc-a07560404a8a",
+      "name": "GMaps Run Failed â€” Stop"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.apify.com/v2/datasets/{{ $('HTTP Request2').item.json.data.defaultDatasetId }}/items?token=YOUR_APIFY_TOKEN&clean=true&format=json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1472,
+        448
+      ],
+      "id": "d047ab4d-c5ed-4f62-8ad5-69efa43cd335",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2528,
+        880
+      ],
+      "id": "9791bc6a-7f59-482f-ad30-d9bac0ed90b6",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anymailfinder.com/v5.1/verify-email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "lhFh9R0JQCNr9UmD2S8NtU8B"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\"\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2976,
+        880
+      ],
+      "id": "f2fde19d-f2f9-4141-9024-82d80f1098c3",
+      "name": "HTTP Request5",
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "lBh58toelsSnWPzr",
+          "mode": "list",
+          "cachedResultName": "Leads_table",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/lBh58toelsSnWPzr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "source": "={{ $json.source }}",
+            "first_name": "={{ $json.first_name }}",
+            "last_name": "={{ $json.last_name }}",
+            "title": "={{ $json.title }}",
+            "company_name": "={{ $json.company_name }}",
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.phone }}",
+            "website": "={{ $json.website }}",
+            "city": "={{ $json.city }}",
+            "country": "={{ $json.country }}",
+            "linkedin_url": "={{ $json.linkedin_url }}",
+            "email_status": "={{ $json.email_status }}",
+            "campaign_id": "={{ $json.campaign_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email_status",
+              "displayName": "email_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        640
+      ],
+      "id": "b3a17269-d138-4469-9d3f-ba0ad36afb89",
+      "name": "Insert row1"
+    },
+    {
+      "parameters": {
+        "formTitle": "Leads Data Intake",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Your name",
+              "placeholder": "Your name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Work email",
+              "placeholder": "Work email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company name",
+              "placeholder": "Company name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company website URL",
+              "placeholder": "Enter Website URL",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Your role at the company",
+              "placeholder": "(e.g. owner, founder, sales, marketing, other)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company location",
+              "placeholder": "(city, state/region, country)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What does your company do?",
+              "placeholder": "(short description)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What kind of products or services do you sell? ",
+              "placeholder": "(e.g. â€œresidential roofingâ€, â€œB2B SaaS for HRâ€)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Where do you want leads from?",
+              "placeholder": "(cities/regions/countries)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What type of companies do you want to target?",
+              "placeholder": "(industries, niches, examples)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Who inside those companies should we target?",
+              "placeholder": "(roles, job titles, seniority)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "How many leads do you want approximately?",
+              "placeholder": "50,100,1000 etc",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Anything we must avoid?",
+              "placeholder": "(types of leads you donâ€™t want, e.g. â€œstudents, job seekers, agenciesâ€)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Any other notes or instructions for us?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -864,
+        1104
+      ],
+      "id": "9a868c65-b4c6-47d5-b7d6-3378f82bc095",
+      "name": "On form submission",
+      "webhookId": "312f7554-4e0b-4897-9104-c132d766961d"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are given this intake form submission:\n\njson\n[\n  {\n    \"Your name\": \"{{ $('On form submission').item.json['Your name'] }}\",\n    \"Work email\": \"{{ $('On form submission').item.json['Work email'] }}\",\n    \"Company name\": \"{{ $('On form submission').item.json['Company name'] }}\",\n    \"Company website URL\": \"{{ $('On form submission').item.json['Company website URL'] }}\",\n    \"Your role at the company\": \"{{ $('On form submission').item.json['Your role at the company'] }}\",\n    \"Company location\": \"{{ $('On form submission').item.json['Company location'] }}\",\n    \"What does your company do?\": \"{{ $('On form submission').item.json['What does your company do?'] }}\",\n    \"What kind of products or services do you sell? \": \"{{ $('On form submission').item.json['What kind of products or services do you sell? '] }}\",\n    \"Where do you want leads from?\": \"{{ $('On form submission').item.json['Where do you want leads from?'] }}\",\n    \"What type of companies do you want to target?\": \"{{ $('On form submission').item.json['What type of companies do you want to target?'] }}\",\n    \"Who inside those companies should we target?\": \"{{ $('On form submission').item.json['Who inside those companies should we target?'] }}\",\n    \"How many leads do you want approximately?\": \"{{ $('On form submission').item.json['How many leads do you want approximately?'] }}\",\n    \"Anything we must avoid?\": \"{{ $('On form submission').item.json['Anything we must avoid?'] }}\",\n    \"Any other notes or instructions for us?\": \"{{ $('On form submission').item.json['Any other notes or instructions for us?'] }}\"\n  }\n]\nUsing ONLY this information and any relevant public information about the company, generate configuration objects for:\n\n\nApify Google Maps Email Extractor (gmaps_email_extractor).\n\nApify Leads Finder Actor (leads_finder).\n\nReturn your answer strictly as a single JSON object with the keys apollo, gmaps_email_extractor, and leads_finder, following the schema defined in the system message. Do not include any explanations or extra fields.",
+        "options": {
+          "systemMessage": "\nYou are an expert B2B leadâ€‘generation strategist and research assistant.\n\nYou receive one JSON object representing a client's leadâ€‘generation intake form submission (company details, website, target customers, regions, lead quantity, exclusions).\n\nYour goals:\n\nUnderstand the client's business, positioning, and services.\n\nIdentify their ICP: industries, company sizes, geographies, buyer roles.\n\nDesign a costâ€‘efficient lead sourcing plan across: Apify Google Maps Email Extractor and Apify B2B Leads Finder (slug: code_crafter/leads-finder).\n\nYou do all research and reasoning internally.\nYour only output must be configuration objects for these tools in the strict JSON format defined at the end.\n\nLead volume and cost rules\nLet desired_final = number of leads the client asks for (â€œHow many leads do you want approximately?â€).\n\nChoose overGenFactor in [1.2, 1.4], default 1.3 (justify changes by niche/email quality).\n\nCompute:\n\nraw_needed = round(desired_final * overGenFactor)\n\nThis is the total raw leads across both tools.\n\nTypical postâ€‘verification valid email rates:\n\nGoogle Maps Email Extractor: 60â€“70%\n\nB2B Leads Finder: 60â€“75%\n\nTarget: after external verification, the client ends with â‰ˆ 90â€“95% of desired_final as valid, usable emails.\n\nDynamic source split (strongly based on company type)\nInfer the client's target type from:\n\nâ€œWhat kind of products or services do you sell?â€\n\nâ€œWhat type of companies do you want to target?â€\n\nâ€œWhere do you want leads from?â€\n\nAny explicit mentions like â€œlocalâ€, â€œonlineâ€‘onlyâ€, â€œSaaSâ€, â€œbrickâ€‘andâ€‘mortarâ€, etc.\n\nClassify the ICP into one of these buckets and choose weights:\n\nLocal, mapâ€‘style businesses (heavily GMaps)\nExamples in form: roofers, plumbers, dentists, clinics, salons, gyms, contractors, local retail, restaurants, local service businesses, â€œbrickâ€‘andâ€‘mortarâ€.\n\nSet:\n\nwGmaps â‰ˆ 0.8\n\nwLeads â‰ˆ 0.2\n\nHybrid service companies (online + local)\nExamples: agencies serving local clients, professional services (law firms, accountants, consultants) with both local and remote clients, multiâ€‘location clinics, franchises.\n\nSet:\n\nwGmaps â‰ˆ 0.6\n\nwLeads â‰ˆ 0.4\n\nOnlineâ€‘first B2B / B2C (heavily Leads Finder)\nExamples: SaaS, B2B software, ecommerce brands, DTC online stores, online education, purely remote agencies, â€œonlineâ€‘firstâ€ or â€œglobalâ€ offers where physical location matters less.\n\nSet:\n\nwLeads â‰ˆ 0.8\n\nwGmaps â‰ˆ 0.2\n\nMixed ICP (explicitly mentions both SaaS/ecom and local service businesses)\n\nSet:\n\nwGmaps â‰ˆ 0.5\n\nwLeads â‰ˆ 0.5\n\nYou may adjust each weight by up to Â±0.1 when clearly justified by the exact wording (e.g. â€œalmost all clients are local roofersâ€ â†’ wGmaps up to 0.9).\n\nAlways enforce:\n\nwGmaps + wLeads = 1.0\n\nCompute:\n\ngmaps_raw = round(raw_needed * wGmaps)\n\nleads_raw = raw_needed âˆ’ gmaps_raw\n\nUse gmaps_raw and leads_raw to set numeric limits in each tool's config:\n\nGoogle Maps Email Extractor: use gmaps_raw to compute maxCrawledPlacesPerSearch.\n\nB2B Leads Finder: set fetch_count = leads_raw.\n\nGoogle Maps Email Extractor\nYou configure Apify actor lukaskrivka/google-maps-with-contact-details.\n\nBuild searchStringsArray as \"niche + location\" strings from THIS form, not generic examples.\n\nSteps:\n\nRead:\n\nâ€œWhat kind of products or services do you sell?â€\n\nâ€œWhat type of companies do you want to target?â€\n\nâ€œWhere do you want leads from?â€\n\nExtract 3â€“5 core niches that describe the target businesses (e.g. \"b2b saas company\", \"software company\", \"ecommerce brand\", \"law firm\", \"it services company\", \"roofing contractor\", \"home services business\"), using the client's wording where possible.\n\nExtract 3â€“5 locations from the form (countries, states, or cities mentioned, e.g. \"united states\", \"new york\", \"los angeles\", \"texas\", \"california\").\n\nCombine them into \"niche + location\" phrases, such as:\n\n\"b2b saas company united states\"\n\n\"software company new york\"\n\n\"ecommerce brand los angeles\"\n\n\"professional services firm dallas\"\n\n\"home services business chicago\"\n\nDo NOT reuse fixed, hardcoded examples across clients. Every searchStringsArray must be generated fresh from that specific form's ICP and locations.\n\nLet n = searchStringsArray.length. Let gmaps_raw be your target lead count for GMaps. Set:\n\nmaxCrawledPlacesPerSearch = ceil(gmaps_raw / n)\n\nEnsure n * maxCrawledPlacesPerSearch â‰ˆ gmaps_raw.\n\nB2B Leads Finder (Apify code_crafter/leads-finder)\nYou configure this actor using its documented enums and fields.\n\nLet leads_raw be the number of leads you want from Leads Finder from your split logic, and set:\n\nfetch_count = leads_raw.\n\nField derivation\ncontact_job_title\n\nRead â€œWho inside those companies should we target?â€.\n\nFor mentions like founders, owners, CEOs, CMOs, heads of marketing/growth, marketing managers, revenue leaders, include titles such as:\n\"founder\",\"co-founder\",\"owner\",\"chief executive officer\",\"ceo\",\n\"chief marketing officer\",\"cmo\",\"vp marketing\",\"vp growth\",\n\"head of marketing\",\"head of growth\",\"marketing manager\",\n\"demand generation manager\",\"growth marketing manager\",\"revenue operations\".\n\nOnly include titles that clearly match roles described in the form.\n\ncontact_not_job_title\n\nRead â€œAnything we must avoid?â€ and exclude roles such as agencies, freelancers, consultants, recruiters, HR, job seekers, vendors.\n\nInclude strings like:\n\"agency\",\"freelancer\",\"consultant\",\"recruiter\",\"talent acquisition\",\n\"hr\",\"human resources\",\"student\",\"intern\",\"assistant\",\"job seeker\".\n\nseniority_level\n\nUse only the allowed enum values (all lowercase with underscores):\n[\"founder\",\"owner\",\"c_suite\",\"director\",\"partner\",\"vp\",\"head\",\"manager\",\"senior\",\"entry\",\"trainee\"].\n\nMap the ICP to these:\n\nfounders/owners/CEOs â†’ \"founder\",\"owner\",\"c_suite\".\n\nCMOs, heads, VPs, directors, managers â†’ \"c_suite\",\"vp\",\"director\",\"head\",\"manager\".\n\nFor a typical founder + marketing leadership ICP, default to:\n[\"founder\",\"owner\",\"c_suite\",\"vp\",\"director\",\"head\",\"manager\"].\n\nfunctional_level\n\nUse only the allowed enum values (all lowercase):\n[\"c_suite\",\"finance\",\"product_management\",\"engineering\",\"design\",\"education\",\"human_resources\",\"information_technology\",\"legal\",\"marketing\",\"operations\",\"sales\",\"support\"].\n\nMap from the ICP text:\n\nCMOs, heads of marketing/growth, marketing managers â†’ \"marketing\".\n\nrevenue leaders / sales leadership â†’ \"sales\".\n\ngeneral leadership / operations â†’ \"c_suite\" or \"operations\" where appropriate.\n\nFor go-to-market campaigns like this, default to:\n[\"marketing\",\"sales\",\"operations\",\"c_suite\"] unless the ICP clearly indicates a different function.\n\ncontact_location\n\nRead â€œWhere do you want leads from?â€ and â€œCompany locationâ€.\n\nConvert those to lowercase locations in the style accepted by the actor, for example:\n\"united states\",\"canada\",\"england, united kingdom\",\"california, us\",\"new york, us\",\"haryana, india\".\n\nFor answers like â€œPrimarily English-speaking markets such as the United Statesâ€, you must include at least \"united states\" in contact_location and can add key regions (e.g. \"new york, us\") if mentioned or strongly implied.\n\ncompany_industry\n\nRead â€œWhat type of companies do you want to target?â€ and infer industries.\n\nUse full, allowed industry labels similar to LinkedIn industries, for example:\n\"information technology & services\",\"computer software\",\"internet\",\n\"ecommerce\",\"professional services\",\"legal services\",\"financial services\",\n\"health, wellness & fitness\",\"real estate\",\"construction\".\n\nDo not output shortened forms like \"information technology\" or \"software\" alone; prefer the full names.\n\ncompany_keywords\n\nBuild keywords from:\n\nThe client's services (e.g. \"website design\",\"web development\",\"seo\",\"google ads\",\"paid media\",\"social media marketing\",\"email marketing\",\"sales funnels\",\"marketing automation\",\"growth marketing\").\n\nTarget company types (e.g. \"saas\",\"b2b saas\",\"ecommerce\",\"shopify\",\"professional services\",\"law firm\",\"it services company\",\"local service business\").\n\nQualifiers (e.g. \"lead generation\",\"demand generation\",\"data-driven marketing\",\"fast growing brand\",\"disruptive brand\").\n\nEach element should be a short, lowercase word or phrase.\n\nsize\n\nUse company size ranges as strings, but only allowed buckets such as:\n\"1-10\",\"11-20\",\"21-50\",\"51-100\",\"101-200\",\"201-500\",\n\"501-1000\",\"1001-2000\",\"2001-5000\",\"5001-10000\",\"10001-20000\",\"20001-50000\",\"50000+\".\n\nMap the ICP's â€œtype of companiesâ€ (e.g. fast-growing, not hobby projects) to a reasonable range such as:\n[\"11-20\",\"21-50\",\"51-100\",\"101-200\",\"201-500\"].\n\nDo not invent ranges like \"11-50\" that are not in the allowed list.\n\nonlyWithEmail\n\nAlways set onlyWithEmail to true.\n\nUse domain/exclusion filters only if the form explicitly asks for them.\n\nSelfâ€‘check before output\nFor leads_finder.seniority_level:\n\nEnsure every value is one of [\"founder\",\"owner\",\"c_suite\",\"director\",\"partner\",\"vp\",\"head\",\"manager\",\"senior\",\"entry\",\"trainee\"].\n\nIf any value is outside this set, replace it with \"c_suite\" or remove it.\n\nFor leads_finder.functional_level:\n\nEnsure every value is one of [\"c_suite\",\"finance\",\"product_management\",\"engineering\",\"design\",\"education\",\"human_resources\",\"information_technology\",\"legal\",\"marketing\",\"operations\",\"sales\",\"support\"].\n\nIf any value is outside this set (for example \"growth\"), remove it or replace it with the closest valid option (usually \"marketing\" or \"sales\").\n\nFor leads_finder.contact_location:\n\nEnsure all values are lowercase and follow a sensible \"country\" or \"region, country\" format (e.g. \"united states\",\"california, us\",\"haryana, india\").\n\nRemove obviously malformed or inconsistent values.\n\nOnly after this self-check should you return the JSON.\n\nCampaign ID generation\nYou must output a campaign_id field alongside the tool configs.\n\nGiven company_name (from the form):\n\nConvert to uppercase.\n\nReplace nonâ€‘letters/digits with spaces.\n\nSplit into nonâ€‘empty words.\n\nIf multiple words: take the first letter of each word and join them (e.g. \"Growth Driven Digital\" â†’ \"GDD\").\n\nIf there is only one word: use the first up to 6 letters of that word (e.g. \"Stripe\" â†’ \"STRIPE\").\n\nTruncate the result to at most 6 characters (this is SLUG).\n\nBuild a date part as YYYYMMDD based on today's date (e.g. 20260313).\n\nBuild a short random part as 3â€“5 uppercase letters or digits (e.g. \"A7F3\").\n\nConcatenate them as: SLUG-YYYYMMDD-RAND, for example: \"GDD-20260313-A7F3\".\n\nThe final JSON you return must include \"campaign_id\": \"<generated_id>\" at the top level (in addition to gmaps_email_extractor and leads_finder).\n\nOutput format (strict)\nYour entire response must be exactly one JSON object with this shape:\n\njson\n{\n  \"campaign_id\": \"\",\n  \"gmaps_email_extractor\": {\n    \"language\": \"en\",\n    \"maxCrawledPlacesPerSearch\": 1,\n    \"maxConcurrency\": 1,\n    \"searchStringsArray\": [],\n    \"includeEmails\": true,\n    \"includePhones\": true,\n    \"includeSocials\": true,\n    \"includeWebsites\": true\n  },\n  \"leads_finder\": {\n    \"fetch_count\": 10,\n    \"contact_job_title\": [],\n    \"contact_not_job_title\": [],\n    \"seniority_level\": [],\n    \"functional_level\": [],\n    \"contact_location\": [],\n    \"company_industry\": [],\n    \"company_keywords\": [],\n    \"size\": [],\n    \"onlyWithEmail\": true\n  }\n}\nAdditional rules:\n\nFill all arrays with meaningful values from the form + your research.\n\nmaxCrawledPlacesPerSearch and fetch_count must be positive integers you compute using gmaps_raw and leads_raw.\n\nNever leave numeric fields as 0 or fixed defaults; they must be computed.\n\nDo not include any other topâ€‘level keys or any comments, explanations, or text outside this JSON object."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -192,
+        1104
+      ],
+      "id": "f075e02c-3386-4acb-afe0-cb99ecfe7530",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        1328
+      ],
+      "id": "3a32c629-3456-4c9b-ab6f-baededacb09c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/code_crafter~leads-finder/runs?token=YOUR_APIFY_TOKEN",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.cleanConfig.leads_finder,null,2) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        576,
+        1280
+      ],
+      "id": "bfeb75f1-aaa5-4587-951a-19c05699f0f3",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        1280
+      ],
+      "id": "6166c821-14ac-4ae4-8341-3a7163956dd1",
+      "name": "Wait1",
+      "webhookId": "lf-poll-wait-001"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.apify.com/v2/actor-runs/{{ $('HTTP Request6').item.json.data.id }}?token=YOUR_APIFY_TOKEN",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1024,
+        1216
+      ],
+      "id": "b3ab8ce6-4953-4d22-b549-8077260ce242",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "lf-status-check",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "SUCCEEDED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1248,
+        1216
+      ],
+      "id": "50154d28-45ab-4a2b-ba1f-37065c8ca389",
+      "name": "LF Done?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "lf-fail-check",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "FAILED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1472,
+        1472
+      ],
+      "id": "3e2bb11f-9ee0-4083-b56f-3108540757e8",
+      "name": "LF Failed?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        1472
+      ],
+      "id": "4017b312-362e-451d-a56c-b65628b7d0d0",
+      "name": "LF Run Failed â€” Stop"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.apify.com/v2/datasets/{{ $('HTTP Request7').item.json.data.defaultDatasetId }}/items?token=YOUR_APIFY_TOKEN&clean=true&format=json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1472,
+        1168
+      ],
+      "id": "4f0b985d-3d18-482c-8fe4-7538faaef7f3",
+      "name": "HTTP Request8"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "lBh58toelsSnWPzr",
+          "mode": "list",
+          "cachedResultName": "Leads_table",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/lBh58toelsSnWPzr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "source": "={{ $json.source }}",
+            "first_name": "={{ $json.first_name }}",
+            "last_name": "={{ $json.last_name }}",
+            "title": "={{ $json.title }}",
+            "company_name": "={{ $json.company_name }}",
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.phone }}",
+            "website": "={{ $json.website }}",
+            "city": "={{ $json.city }}",
+            "country": "={{ $json.country }}",
+            "linkedin_url": "={{ $json.linkedin_url }}",
+            "email_status": "={{ $json.email_status }}",
+            "campaign_id": "={{ $('Data Cleaning').item.json.cleanConfig.campaign_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email_status",
+              "displayName": "email_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        1264
+      ],
+      "id": "c250fc9c-5e29-4879-bff5-2d75d42dcd51",
+      "name": "Insert row2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output;\nlet text = typeof raw === \"string\" ? raw : JSON.stringify(raw);\n\ntext = text.trim();\nif (text.startsWith('```')) {\n  text = text.replace(/^```[a-zA-Z]*\\n?/, '');\n  text = text.replace(/```$/, '');\n  text = text.trim();\n}\n\nconst config = JSON.parse(text);\n\nconst ALLOWED_SENIORITY = [\n  \"founder\",\"owner\",\"c_suite\",\"director\",\"vp\",\"head\",\"manager\",\"senior\",\"entry\",\"trainee\"\n];\n\nconst ALLOWED_FUNCTIONAL = [\n  \"c_suite\",\"finance\",\"product_management\",\"engineering\",\"design\",\n  \"education\",\"human_resources\",\"information_technology\",\"legal\",\n  \"marketing\",\"operations\",\"sales\",\"support\"\n];\n\nconst ALLOWED_SIZE = [\n  \"1-10\",\"11-20\",\"21-50\",\"51-100\",\"101-200\",\"201-500\",\n  \"501-1000\",\"1001-2000\",\"2001-5000\",\"5001-10000\",\n  \"10001-20000\",\"20001-50000\",\"50000+\"\n];\n\nconst ALLOWED_INDUSTRY = [\n  \"information technology & services\",\"computer software\",\"internet\",\"marketing & advertising\",\n  \"retail\",\"financial services\",\"consumer services\",\"hospital & health care\",\"automotive\",\n  \"restaurants\",\"education management\",\"food & beverages\",\"design\",\"hospitality\",\"accounting\",\n  \"events services\",\"nonprofit organization management\",\"entertainment\",\n  \"electrical/electronic manufacturing\",\"leisure, travel & tourism\",\n  \"professional training & coaching\",\"transportation/trucking/railroad\",\"law practice\",\n  \"apparel & fashion\",\"architecture & planning\",\"mechanical or industrial engineering\",\n  \"insurance\",\"telecommunications\",\"human resources\",\"staffing & recruiting\",\"sports\",\n  \"legal services\",\"oil & energy\",\"media production\",\"machinery\",\"wholesale\",\"consumer goods\",\n  \"music\",\"photography\",\"medical practice\",\"cosmetics\",\"environmental services\",\"graphic design\",\n  \"business supplies & equipment\",\"renewables & environment\",\"facilities services\",\"publishing\",\n  \"food production\",\"arts & crafts\",\"building materials\",\"civil engineering\",\n  \"religious institutions\",\"public relations & communications\",\"higher education\",\"printing\",\n  \"furniture\",\"mining & metals\",\"logistics & supply chain\",\"research\",\"pharmaceuticals\",\n  \"individual & family services\",\"medical devices\",\"civic & social organization\",\"e-learning\",\n  \"security & investigations\",\"chemicals\",\"government administration\",\"online media\",\n  \"investment management\",\"farming\",\"writing & editing\",\"textiles\",\"mental health care\",\n  \"primary/secondary education\",\"broadcast media\",\"biotechnology\",\"information services\",\n  \"international trade & development\",\"motion pictures & film\",\"consumer electronics\",\"banking\",\n  \"import & export\",\"industrial automation\",\"recreational facilities & services\",\"performing arts\",\n  \"utilities\",\"sporting goods\",\"fine art\",\"airlines/aviation\",\"computer & network security\",\n  \"maritime\",\"luxury goods & jewelry\",\"veterinary\",\"venture capital & private equity\",\n  \"wine & spirits\",\"plastics\",\"aviation & aerospace\",\"commercial real estate\",\"computer games\",\n  \"packaging & containers\",\"executive office\",\"computer hardware\",\"computer networking\",\n  \"market research\",\"outsourcing/offshoring\",\"program development\",\"translation & localization\",\n  \"philanthropy\",\"public safety\",\"alternative medicine\",\"museums & institutions\",\"warehousing\",\n  \"defense & space\",\"newspapers\",\"paper & forest products\",\"law enforcement\",\"investment banking\",\n  \"government relations\",\"fund-raising\",\"think tanks\",\"glass, ceramics & concrete\",\n  \"capital markets\",\"semiconductors\",\"animation\",\"political organization\",\n  \"package/freight delivery\",\"wireless\",\"international affairs\",\"public policy\",\"libraries\",\n  \"gambling & casinos\",\"railroad manufacture\",\"ranching\",\"military\",\"fishery\",\"supermarkets\",\n  \"dairy\",\"tobacco\",\"shipbuilding\",\"judiciary\",\"alternative dispute resolution\",\"nanotechnology\",\n  \"agriculture\",\"legislative office\"\n];\n\nconst uniq = (arr) => Array.from(new Set(arr));\n\nfunction sanitizeSeniorityLevel(values) {\n  if (!Array.isArray(values)) return [];\n  const mapped = values\n    .map((v) => String(v).toLowerCase().trim())\n    .map((v) => {\n      if ([\"c-level\",\"c level\",\"c-suite\",\"csuite\"].includes(v)) return \"c_suite\";\n      return v;\n    })\n    .filter((v) => ALLOWED_SENIORITY.includes(v));\n  if (mapped.length === 0) {\n    return [\"owner\",\"founder\",\"c_suite\",\"vp\",\"director\",\"head\",\"manager\"];\n  }\n  return uniq(mapped);\n}\n\nfunction sanitizeFunctionalLevel(values) {\n  if (!Array.isArray(values)) return [];\n  const mapped = values\n    .map((v) => String(v).toLowerCase().trim())\n    .map((v) => {\n      if (v === \"growth\") return \"marketing\";\n      if (v === \"gtm\") return \"marketing\";\n      if (v === \"product\") return \"product_management\";\n      if (v === \"product management\") return \"product_management\";\n      if (v === \"engineering & product\") return \"engineering\";\n      if (v === \"hr\") return \"human_resources\";\n      if (v === \"it\") return \"information_technology\";\n      return v;\n    })\n    .filter((v) => ALLOWED_FUNCTIONAL.includes(v));\n  if (mapped.length === 0) {\n    return [\"marketing\",\"sales\",\"operations\"];\n  }\n  return uniq(mapped);\n}\n\nfunction expandSizeRange(v) {\n  if (ALLOWED_SIZE.includes(v)) return [v];\n  if (v === \"0-1\") return [\"1-10\"];\n  if (v === \"1-10\") return [\"1-10\"];\n  if (v === \"2-10\") return [\"1-10\"];\n  if (v === \"11-50\") return [\"11-20\",\"21-50\"];\n  if (v === \"51-200\") return [\"51-100\",\"101-200\"];\n  if (v === \"11-100\") return [\"11-20\",\"21-50\",\"51-100\"];\n  if (v === \"10000+\") return [\"5001-10000\",\"10001-20000\"];\n  return [];\n}\n\nfunction sanitizeSize(values) {\n  if (!Array.isArray(values)) return [];\n  const expanded = values\n    .map((v) => String(v).toLowerCase().trim())\n    .flatMap(expandSizeRange)\n    .filter((v) => ALLOWED_SIZE.includes(v));\n  if (expanded.length === 0) {\n    return [\"11-20\",\"21-50\",\"51-100\",\"101-200\",\"201-500\"];\n  }\n  return uniq(expanded);\n}\n\nfunction mapIndustry(v) {\n  const x = v.toLowerCase().trim();\n  if (ALLOWED_INDUSTRY.includes(x)) return x;\n  if (x === \"information technology\" || x === \"it services\") return \"information technology & services\";\n  if (x === \"software\" || x === \"saas\") return \"computer software\";\n  if (x === \"ecommerce\" || x === \"e-commerce\") return \"retail\";\n  if (x === \"healthcare\") return \"hospital & health care\";\n  if (x === \"marketing\") return \"marketing & advertising\";\n  if (x === \"education\") return \"education management\";\n  if (x === \"auto\" || x === \"car dealership\" || x === \"autobody\") return \"automotive\";\n  return null;\n}\n\nfunction sanitizeCompanyIndustry(values) {\n  if (!Array.isArray(values)) return [];\n  const mapped = values\n    .map((v) => mapIndustry(String(v)))\n    .filter((v) => !!v)\n    .filter((v) => ALLOWED_INDUSTRY.includes(v));\n  return uniq(mapped);\n}\n\nfunction sanitizeContactLocation(values) {\n  if (!Array.isArray(values)) return [];\n  const mapped = values\n    .map((v) => String(v).toLowerCase().trim())\n    .map((v) => {\n      if ([\"usa\",\"us\",\"u.s.\",\"united states of america\"].includes(v)) return \"united states\";\n      if ([\"uk\",\"u.k.\"].includes(v)) return \"united kingdom\";\n      return v;\n    });\n  return uniq(mapped);\n}\n\nfunction sanitizeApolloPersonSeniorities(values) {\n  if (!Array.isArray(values)) return [];\n  const mapped = values\n    .map((v) => String(v).toLowerCase().trim())\n    .map((v) => {\n      if ([\"c-suite\",\"c level\",\"c-level\",\"csuite\"].includes(v)) return \"c_suite\";\n      return v;\n    })\n    .filter((v) => ALLOWED_SENIORITY.includes(v));\n  if (mapped.length === 0) {\n    return [\"founder\",\"owner\",\"c_suite\",\"vp\",\"director\",\"head\",\"manager\"];\n  }\n  return uniq(mapped);\n}\n\nconst cleanConfig = JSON.parse(JSON.stringify(config));\n\nif (cleanConfig.leads_finder) {\n  cleanConfig.leads_finder.seniority_level =\n    sanitizeSeniorityLevel(cleanConfig.leads_finder.seniority_level);\n  cleanConfig.leads_finder.functional_level =\n    sanitizeFunctionalLevel(cleanConfig.leads_finder.functional_level);\n  cleanConfig.leads_finder.size =\n    sanitizeSize(cleanConfig.leads_finder.size);\n  cleanConfig.leads_finder.company_industry =\n    sanitizeCompanyIndustry(cleanConfig.leads_finder.company_industry);\n  cleanConfig.leads_finder.contact_location =\n    sanitizeContactLocation(cleanConfig.leads_finder.contact_location);\n}\n\nif (cleanConfig.apollo) {\n  cleanConfig.apollo.person_seniorities =\n    sanitizeApolloPersonSeniorities(cleanConfig.apollo.person_seniorities);\n  if (typeof cleanConfig.apollo.q_keywords === 'string') {\n    cleanConfig.apollo.q_keywords = cleanConfig.apollo.q_keywords\n      .split(',')\n      .map(p => p.trim())\n      .filter(p => p.length > 0)\n      .slice(0, 15)\n      .join(', ');\n  }\n}\n\nreturn [{ json: { cleanConfig } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        976
+      ],
+      "id": "7dcf862e-1a3e-45c4-ae0a-aa4419056039",
+      "name": "Data Cleaning"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet campaignId = $('Data Cleaning').first().json.cleanConfig.campaign_id;\nfor (const it of items) {\n  if (it.json.campaign_id) { campaignId = it.json.campaign_id; break; }\n  if (it.json.cleanConfig && it.json.cleanConfig.campaign_id) { campaignId = it.json.cleanConfig.campaign_id; break; }\n}\n\nconst leads = [];\n\nfor (const item of items) {\n  const p = item.json || {};\n\n  const emails = Array.isArray(p.emails) ? p.emails : [];\n  const email = (emails[0] || '').trim();\n  if (!email) continue;\n\n  const rawPhone = String(p.phone || '').replace(/\\D/g, '');\n  if (!rawPhone) continue;\n\n  const company_name = (p.title || p.name || '').trim();\n\n  let website = (p.website || '').trim();\n  if (website && !website.startsWith('http')) website = 'https://' + website;\n\n  const city = (p.city || '').trim();\n  const country = (p.country || '').trim();\n\n  let linkedin_url = '';\n  if (Array.isArray(p.linkedIns) && p.linkedIns.length > 0) {\n    linkedin_url = (p.linkedIns[0] || '').trim();\n  }\n\n  leads.push({\n    json: {\n      source: 'gmaps',\n      campaign_id: campaignId,\n      first_name: '',\n      last_name: '',\n      title: '',\n      company_name,\n      email,\n      phone: rawPhone,\n      website,\n      city,\n      country,\n      linkedin_url,\n      email_status: 'unchecked',\n    },\n  });\n}\n\nreturn leads;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        416
+      ],
+      "id": "406b3a13-afd7-4277-ab04-7e1bd6bef069",
+      "name": "gmaps email"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet campaignId = $('Data Cleaning').first().json.cleanConfig.campaign_id;\nfor (const it of items) {\n  if (it.json.campaign_id) { campaignId = it.json.campaign_id; break; }\n  if (it.json.cleanConfig && it.json.cleanConfig.campaign_id) { campaignId = it.json.cleanConfig.campaign_id; break; }\n}\n\nconst leads = [];\n\nfor (const item of items) {\n  const p = item.json || {};\n\n  const emails = Array.isArray(p.emails) ? p.emails : [];\n  const email = (emails[0] || '').trim();\n  if (email) continue;\n\n  const rawPhone = String(p.phone || '').replace(/\\D/g, '');\n  if (!rawPhone) continue;\n\n  const company_name = (p.title || p.name || '').trim();\n\n  let website = (p.website || '').trim();\n  if (website && !website.startsWith('http')) website = 'https://' + website;\n\n  const city = (p.city || '').trim();\n  const country = (p.country || '').trim();\n\n  let linkedin_url = '';\n  if (Array.isArray(p.linkedIns) && p.linkedIns.length > 0) {\n    linkedin_url = (p.linkedIns[0] || '').trim();\n  }\n\n  leads.push({\n    json: {\n      source: 'gmaps',\n      campaign_id: campaignId,\n      first_name: '',\n      last_name: '',\n      title: '',\n      company_name,\n      email: '',\n      phone: rawPhone,\n      website,\n      city,\n      country,\n      linkedin_url,\n      email_status: 'no_email',\n    },\n  });\n}\n\nreturn leads;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        608
+      ],
+      "id": "a71e86b8-9189-43b1-a813-c27396283822",
+      "name": "gmaps no email"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet campaignId = $('Data Cleaning').first().json.cleanConfig.campaign_id;\nfor (const it of items) {\n  if (it.json.campaign_id) { campaignId = it.json.campaign_id; break; }\n  if (it.json.cleanConfig && it.json.cleanConfig.campaign_id) { campaignId = it.json.cleanConfig.campaign_id; break; }\n}\n\nconst leads = [];\n\nfor (const item of items) {\n  const p = item.json || {};\n\n  const email = (p.email || '').trim();\n  if (!email) continue;\n\n  const rawPhone = String(p.company_phone || p.mobile_number || '').replace(/\\D/g, '');\n\n  if (!rawPhone) continue;\n\n  const company_name = (p.company_name || '').trim();\n\n  let website = (p.company_website || p.company_domain || '').trim();\n  if (website && !website.startsWith('http')) website = 'https://' + website;\n\n  const city = (p.city || p.company_city || '').trim();\n  const country = (p.country || p.company_country || '').trim();\n\n  let linkedin_url = (p.linkedin || '').trim();\n  if (!linkedin_url && p.company_linkedin) linkedin_url = String(p.company_linkedin).trim();\n\n  leads.push({\n    json: {\n      source: 'leads_finder',\n      campaign_id: campaignId,\n      first_name: '',\n      last_name: '',\n      title: '',\n      company_name,\n      email,\n      phone: rawPhone,\n      website,\n      city,\n      country,\n      linkedin_url,\n      email_status: 'unchecked',\n    },\n  });\n}\n\nreturn leads;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        1040
+      ],
+      "id": "02a2f6e8-f862-4974-ab67-95a481e09e5f",
+      "name": "lead finder mail"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet campaignId = $('Data Cleaning').first().json.cleanConfig.campaign_id;\nfor (const it of items) {\n  if (it.json.campaign_id) { campaignId = it.json.campaign_id; break; }\n  if (it.json.cleanConfig && it.json.cleanConfig.campaign_id) { campaignId = it.json.cleanConfig.campaign_id; break; }\n}\n\nconst leads = [];\n\nfor (const item of items) {\n  const p = item.json || {};\n\n  const email = (p.email || '').trim();\n  if (email) continue;\n\n  const rawPhone = String(p.company_phone || p.mobile_number || '').replace(/\\D/g, '');\n  if (!rawPhone) continue;\n\n  const company_name = (p.company_name || '').trim();\n\n  let website = (p.company_website || p.company_domain || '').trim();\n  if (website && !website.startsWith('http')) website = 'https://' + website;\n\n  const city = (p.city || p.company_city || '').trim();\n  const country = (p.country || p.company_country || '').trim();\n\n  let linkedin_url = (p.linkedin || '').trim();\n  if (!linkedin_url && p.company_linkedin) linkedin_url = String(p.company_linkedin).trim();\n\n  leads.push({\n    json: {\n      source: 'leads_finder',\n      campaign_id: campaignId,\n      first_name: '',\n      last_name: '',\n      title: '',\n      company_name,\n      email: '',\n      phone: rawPhone,\n      website,\n      city,\n      country,\n      linkedin_url,\n      email_status: 'no_email',\n    },\n  });\n}\n\nreturn leads;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        1264
+      ],
+      "id": "782ef85a-8224-449e-8c93-a17293ca292c",
+      "name": "lead finder no email"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1rtR1Gu5kRbEK2kmJlCPLbDEY71nJAwcYsj8l14UAIhE",
+          "mode": "list",
+          "cachedResultName": "Leads List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rtR1Gu5kRbEK2kmJlCPLbDEY71nJAwcYsj8l14UAIhE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rtR1Gu5kRbEK2kmJlCPLbDEY71nJAwcYsj8l14UAIhE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "First Name": "={{ $json.first_name }}",
+            "Last Name": "={{ $json.last_name }}",
+            "Business Name": "={{ $json.company_name }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Source": "={{ $json.source }}",
+            "Notes": "={{ $json.website }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Additional Emails",
+              "displayName": "Additional Emails",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Additional Phones",
+              "displayName": "Additional Phones",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tags",
+              "displayName": "Tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3648,
+        880
+      ],
+      "id": "1a054964-2a96-4e65-bd13-b11f693a1aea",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PdlQ3ivHv2Wq4EK9",
+          "name": "Google Sheets account Mohit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "58ff33b4-2fbd-4ef5-bef9-718ada7b2865",
+              "leftValue": "={{ $json.email_status }}",
+              "rightValue": "valid",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3424,
+        880
+      ],
+      "id": "58b1c922-6b7a-478c-a26f-b94be0d26517",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "lBh58toelsSnWPzr",
+          "mode": "list",
+          "cachedResultName": "Leads_table",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/lBh58toelsSnWPzr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "source": "={{ $json.source }}",
+            "first_name": "={{ $json.first_name }}",
+            "last_name": "={{ $json.last_name }}",
+            "title": "={{ $json.title }}",
+            "company_name": "={{ $json.company_name }}",
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.phone }}",
+            "website": "={{ $json.website }}",
+            "city": "={{ $json.city }}",
+            "country": "={{ $json.country }}",
+            "linkedin_url": "={{ $json.linkedin_url }}",
+            "email_status": "={{ $json.email_status }}",
+            "campaign_id": "={{ $json.campaign_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email_status",
+              "displayName": "email_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2752,
+        880
+      ],
+      "id": "6b31ac2e-051a-42fd-a6b7-8d6ffa950f87",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "rTVHqM0mfE8qCQE1",
+          "mode": "list",
+          "cachedResultName": "Leads_Form_Data",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/rTVHqM0mfE8qCQE1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Your_name": "={{ $json['Your name'] }}",
+            "Work_email": "={{ $json['Work email'] }}",
+            "Company_name": "={{ $json['Company name'] }}",
+            "Company_website_URL": "={{ $json['Company website URL'] }}",
+            "Your_role_at_the_company": "={{ $json['Your role at the company'] }}",
+            "Company_location": "={{ $json['Company location'] }}",
+            "What_does_your_company_do": "={{ $json['What does your company do?'] }}",
+            "What_kind_of_products_or_services_do_you_sell": "={{ $json['What kind of products or services do you sell? '] }}",
+            "Where_do_you_want_leads_from": "={{ $json['Where do you want leads from?'] }}",
+            "What_type_of_companies_do_you_want_to_target": "={{ $json['What type of companies do you want to target?'] }}",
+            "Who_inside_those_companies_should_we_target": "={{ $json['Who inside those companies should we target?'] }}",
+            "How_many_leads_do_you_want_approximately": "={{ $json['How many leads do you want approximately?'] }}",
+            "Anything_we_must_avoid": "={{ $json['Anything we must avoid?'] }}",
+            "Any_other_notes_or_instructions_for_us": "={{ $json['Any other notes or instructions for us?'] }}",
+            "submittedAt": "={{ $json.submittedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Your_name",
+              "displayName": "Your_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Work_email",
+              "displayName": "Work_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company_name",
+              "displayName": "Company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company_website_URL",
+              "displayName": "Company_website_URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Your_role_at_the_company",
+              "displayName": "Your_role_at_the_company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company_location",
+              "displayName": "Company_location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "What_does_your_company_do",
+              "displayName": "What_does_your_company_do",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "What_kind_of_products_or_services_do_you_sell",
+              "displayName": "What_kind_of_products_or_services_do_you_sell",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Where_do_you_want_leads_from",
+              "displayName": "Where_do_you_want_leads_from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "What_type_of_companies_do_you_want_to_target",
+              "displayName": "What_type_of_companies_do_you_want_to_target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Who_inside_those_companies_should_we_target",
+              "displayName": "Who_inside_those_companies_should_we_target",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "How_many_leads_do_you_want_approximately",
+              "displayName": "How_many_leads_do_you_want_approximately",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Anything_we_must_avoid",
+              "displayName": "Anything_we_must_avoid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Any_other_notes_or_instructions_for_us",
+              "displayName": "Any_other_notes_or_instructions_for_us",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -640,
+        1104
+      ],
+      "id": "75791995-89c4-46e6-9b87-993f6732f459",
+      "name": "Insert row3"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1rgKpHHxVLnViTg2jc13Z5v-Tr96JOvE71uauuy1NS_E",
+          "mode": "list",
+          "cachedResultName": "Leads_Form_Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rgKpHHxVLnViTg2jc13Z5v-Tr96JOvE71uauuy1NS_E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rgKpHHxVLnViTg2jc13Z5v-Tr96JOvE71uauuy1NS_E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Your name": "={{ $json.Your_name }}",
+            "Work email": "={{ $json.Work_email }}",
+            "Company website URL": "={{ $json.Company_website_URL }}",
+            "Company name": "={{ $json.Company_name }}",
+            "Your role at the company": "={{ $json.Your_role_at_the_company }}",
+            "Company location": "={{ $json.Company_location }}",
+            "What does your company do?": "={{ $json.What_does_your_company_do }}",
+            "What kind of products or services do you sell?": "={{ $json.What_kind_of_products_or_services_do_you_sell }}",
+            "Where do you want leads from?": "={{ $json.Where_do_you_want_leads_from }}",
+            "What type of companies do you want to target?": "={{ $json.What_type_of_companies_do_you_want_to_target }}",
+            "Who inside those companies should we target?": "={{ $json.Who_inside_those_companies_should_we_target }}",
+            "How many leads do you want approximately?": "={{ $json.How_many_leads_do_you_want_approximately }}",
+            "Anything we must avoid?": "={{ $json.Anything_we_must_avoid }}",
+            "Any other notes or instructions for us?": "={{ $json.Any_other_notes_or_instructions_for_us }}",
+            "submittedAt": "={{ $json.submittedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Your name",
+              "displayName": "Your name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Work email",
+              "displayName": "Work email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company name",
+              "displayName": "Company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company website URL",
+              "displayName": "Company website URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Your role at the company",
+              "displayName": "Your role at the company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company location",
+              "displayName": "Company location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What does your company do?",
+              "displayName": "What does your company do?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What kind of products or services do you sell?",
+              "displayName": "What kind of products or services do you sell?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Where do you want leads from?",
+              "displayName": "Where do you want leads from?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What type of companies do you want to target?",
+              "displayName": "What type of companies do you want to target?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Who inside those companies should we target?",
+              "displayName": "Who inside those companies should we target?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "How many leads do you want approximately?",
+              "displayName": "How many leads do you want approximately?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Anything we must avoid?",
+              "displayName": "Anything we must avoid?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Any other notes or instructions for us?",
+              "displayName": "Any other notes or instructions for us?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -416,
+        1104
+      ],
+      "id": "428cfeac-e1f2-4887-93b6-0d27ca9a0f93",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PdlQ3ivHv2Wq4EK9",
+          "name": "Google Sheets account Mohit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Scrape the following businesses from Google Maps and B2B directories:\n\nBusiness types: autobody shop, car dealership\n\nCities: New York, Los Angeles, Miami, Tampa, Washington, Boise, Dallas, Austin, Portland, Seattle, Albuquerque, San Jose, San Francisco, Las Vegas, Boston, Chicago, New Jersey, Newport Beach, Saint Louis Missouri, Brooklyn\n\nTarget leads: 10\n\nCompany name: Manual Campaign",
+        "options": {
+          "systemMessage": "You are an expert B2B lead-generation strategist.\n\nYou receive a plain English scraping request describing business types, cities, and a target lead count.\n\nYour job is to generate a complete lead scraping configuration split across two Apify actors:\n1. Google Maps Email Extractor (gmaps_email_extractor) â€” for local/map-findable businesses\n2. B2B Leads Finder (leads_finder) â€” for businesses with LinkedIn/web presence\n\nSTEP 1 â€” Classify the ICP and choose split weights:\n\nLocal/map-style businesses (autobody, plumbers, dentists, salons, contractors, restaurants, car dealerships, retail):\n  wGmaps = 0.8, wLeads = 0.2\n\nHybrid (agencies, law firms, accountants, consultants, multi-location):\n  wGmaps = 0.6, wLeads = 0.4\n\nOnline-first B2B (SaaS, software, ecommerce, remote agencies):\n  wGmaps = 0.2, wLeads = 0.8\n\nMixed (both local and online):\n  wGmaps = 0.5, wLeads = 0.5\n\nAlways enforce: wGmaps + wLeads = 1.0\n\nSTEP 2 â€” Compute lead counts:\noverGenFactor = 1.3\nraw_needed = round(desired_leads * overGenFactor)\ngmaps_raw = round(raw_needed * wGmaps)\nleads_raw = raw_needed - gmaps_raw\n\nSTEP 3 â€” Build gmaps_email_extractor config:\n- Extract all business niches from the request\n- Extract all cities from the request\n- Build searchStringsArray as \"niche city\" for every niche + city combination\n- maxCrawledPlacesPerSearch = ceil(gmaps_raw / searchStringsArray.length)\n- Always set: language=\"en\", maxConcurrency=1, includeEmails=true, includePhones=true, includeSocials=true, includeWebsites=true\n\nSTEP 4 â€” Build leads_finder config:\n- fetch_count = leads_raw\n- contact_job_title: infer relevant titles from the business type (e.g. for auto: owner, service manager, general manager, dealer principal, shop owner)\n- contact_not_job_title: [\"agency\",\"freelancer\",\"consultant\",\"recruiter\",\"hr\",\"student\",\"intern\"]\n- seniority_level: ONLY from [\"founder\",\"owner\",\"c_suite\",\"director\",\"partner\",\"vp\",\"head\",\"manager\",\"senior\",\"entry\",\"trainee\"]\n- functional_level: ONLY from [\"c_suite\",\"finance\",\"product_management\",\"engineering\",\"design\",\"education\",\"human_resources\",\"information_technology\",\"legal\",\"marketing\",\"operations\",\"sales\",\"support\"]\n- contact_location: lowercase country/region format e.g. \"united states\"\n- company_industry: full LinkedIn-style labels e.g. \"automotive\", \"consumer services\"\n- company_keywords: short lowercase keywords from the niche e.g. \"autobody\",\"collision repair\",\"car dealership\",\"auto sales\"\n- size: ONLY from [\"1-10\",\"11-20\",\"21-50\",\"51-100\",\"101-200\",\"201-500\",\"501-1000\",\"1001-2000\",\"2001-5000\",\"10000+\"]\n- onlyWithEmail: true\n\nSTEP 5 â€” Generate campaign_id:\n- Take company name from request (or use niche slug if no company name given)\n- Convert to uppercase, take initials if multi-word, first 6 chars if single word\n- Format: SLUG-YYYYMMDD-RAND (e.g. \"AUTO-20260415-X4K2\")\n- Use today's date\n\nOUTPUT: Return ONLY a single raw JSON object. No markdown, no backticks, no explanation, nothing else.\n\nOutput schema (strict):\n{\n  \"campaign_id\": \"\",\n  \"gmaps_email_extractor\": {\n    \"language\": \"en\",\n    \"maxCrawledPlacesPerSearch\": 1,\n    \"maxConcurrency\": 1,\n    \"searchStringsArray\": [],\n    \"includeEmails\": true,\n    \"includePhones\": true,\n    \"includeSocials\": true,\n    \"includeWebsites\": true\n  },\n  \"leads_finder\": {\n    \"fetch_count\": 10,\n    \"contact_job_title\": [],\n    \"contact_not_job_title\": [],\n    \"seniority_level\": [],\n    \"functional_level\": [],\n    \"contact_location\": [],\n    \"company_industry\": [],\n    \"company_keywords\": [],\n    \"size\": [],\n    \"onlyWithEmail\": true\n  }\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -544,
+        592
+      ],
+      "id": "b80738e7-d196-4589-8529-fa0c8831be42",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -688,
+        800
+      ],
+      "id": "dd4192a5-b38d-47b1-9526-4d3e7d39ff10",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "lBh58toelsSnWPzr",
+          "mode": "list",
+          "cachedResultName": "Leads_table",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/lBh58toelsSnWPzr"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "keyValue": "={{ $json.input.email }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_status": "={{ $json.email_status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email_status",
+              "displayName": "email_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3200,
+        880
+      ],
+      "id": "6d3d8232-b718-4ecb-96da-27ab2448f61d",
+      "name": "Update row(s)"
+    }
+  ],
+  "pinData": {
+    "AI Agent1": [
+      {
+        "json": {
+          "output": "{\n  \"campaign_id\": \"MC-20260415-7GQ9\",\n  \"gmaps_email_extractor\": {\n    \"language\": \"en\",\n    \"maxCrawledPlacesPerSearch\": 1,\n    \"maxConcurrency\": 1,\n    \"searchStringsArray\": [\n      \"autobody shop New York\",\n      \"car dealership New York\",\n      \"autobody shop Los Angeles\",\n      \"car dealership Los Angeles\",\n      \"autobody shop Miami\",\n      \"car dealership Miami\",\n      \"autobody shop Tampa\",\n      \"car dealership Tampa\",\n      \"autobody shop Washington\",\n      \"car dealership Washington\",\n      \"autobody shop Boise\",\n      \"car dealership Boise\",\n      \"autobody shop Dallas\",\n      \"car dealership Dallas\",\n      \"autobody shop Austin\",\n      \"car dealership Austin\",\n      \"autobody shop Portland\",\n      \"car dealership Portland\",\n      \"autobody shop Seattle\",\n      \"car dealership Seattle\",\n      \"autobody shop Albuquerque\",\n      \"car dealership Albuquerque\",\n      \"autobody shop San Jose\",\n      \"car dealership San Jose\",\n      \"autobody shop San Francisco\",\n      \"car dealership San Francisco\",\n      \"autobody shop Las Vegas\",\n      \"car dealership Las Vegas\",\n      \"autobody shop Boston\",\n      \"car dealership Boston\",\n      \"autobody shop Chicago\",\n      \"car dealership Chicago\",\n      \"autobody shop New Jersey\",\n      \"car dealership New Jersey\",\n      \"autobody shop Newport Beach\",\n      \"car dealership Newport Beach\",\n      \"autobody shop Saint Louis Missouri\",\n      \"car dealership Saint Louis Missouri\",\n      \"autobody shop Brooklyn\",\n      \"car dealership Brooklyn\"\n    ],\n    \"includeEmails\": true,\n    \"includePhones\": true,\n    \"includeSocials\": true,\n    \"includeWebsites\": true\n  },\n  \"leads_finder\": {\n    \"fetch_count\": 3,\n    \"contact_job_title\": [\n      \"owner\",\n      \"general manager\",\n      \"service manager\",\n      \"shop owner\",\n      \"dealer principal\",\n      \"sales manager\",\n      \"parts manager\",\n      \"body shop manager\",\n      \"operations manager\"\n    ],\n    \"contact_not_job_title\": [\n      \"agency\",\n      \"freelancer\",\n      \"consultant\",\n      \"recruiter\",\n      \"hr\",\n      \"student\",\n      \"intern\"\n    ],\n    \"seniority_level\": [\n      \"owner\",\n      \"founder\",\n      \"c_suite\",\n      \"partner\",\n      \"manager\"\n    ],\n    \"functional_level\": [\n      \"operations\",\n      \"sales\",\n      \"support\"\n    ],\n    \"contact_location\": [\n      \"united states\"\n    ],\n    \"company_industry\": [\n      \"automotive\",\n      \"consumer services\"\n    ],\n    \"company_keywords\": [\n      \"autobody\",\n      \"collision repair\",\n      \"body shop\",\n      \"car dealership\",\n      \"auto sales\",\n      \"auto repair\",\n      \"collision center\"\n    ],\n    \"size\": [\n      \"1-10\",\n      \"11-20\",\n      \"21-50\",\n      \"51-100\",\n      \"101-200\",\n      \"201-500\",\n      \"501-1000\"\n    ],\n    \"onlyWithEmail\": true\n  }\n}"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "GMaps Done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GMaps Done?": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GMaps Failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GMaps Failed?": {
+      "main": [
+        [
+          {
+            "node": "GMaps Run Failed â€” Stop",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "gmaps email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "gmaps no email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "LF Done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LF Done?": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LF Failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LF Failed?": {
+      "main": [
+        [
+          {
+            "node": "LF Run Failed â€” Stop",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8": {
+      "main": [
+        [
+          {
+            "node": "lead finder mail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "lead finder no email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Insert row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Data Cleaning": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gmaps email": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gmaps no email": {
+      "main": [
+        [
+          {
+            "node": "Insert row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "lead finder mail": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "lead finder no email": {
+      "main": [
+        [
+          {
+            "node": "Insert row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Data Cleaning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fe02974c-418f-4edf-aad7-9c0c0ec21df3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a44d10a4b2711883b6434f7648eb0a4b5fb97a064aba14bd9cd3992ef0bf21bb"
+  },
+  "id": "V4GrNQhIMTAXIYyC",
+  "tags": []
+}

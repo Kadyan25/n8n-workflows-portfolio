@@ -53,13 +53,21 @@ This repository showcases real n8n workflows I've built for AI, automation, and 
 
 12. **Website Checker**  
    - Folder: `website-checker/`  
-   - AI-powered website analysis pipeline that evaluates site content and writes structured output to GitHub.`r`n`r`n## Tech & Tools Used
+   - AI-powered website analysis pipeline that evaluates site content and writes structured output to GitHub.
+
+13. **Smart Leads Agent Scraper**  
+   - Folder: `smart-leads-agent-scraper/`  
+   - Form-driven smart lead generation workflow using AI-configured dual scraping (Apify), verification, and qualified-lead export to Sheets.`r`n`r`n## Tech & Tools Used
 
 - **Automation:** n8n (webhooks, schedule triggers, forms, filters, IF/Rules, Code nodes)  
 - **AI:** Google Gemini (LangChain nodes), OpenAI (chat + audio), AI agents, structured output parsing  
 - **Data & Storage:** Google Sheets, custom APIs, serverless functions  
 - **CRMs & Platforms:** GoHighLevel/LeadConnector, social posting APIs, webhooks  
 - **Patterns:** Event-driven flows, API orchestration, error-safe designs, and reusable templates.
+
+
+
+
 
 
 
