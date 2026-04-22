@@ -1,0 +1,1232 @@
+{
+  "name": "Phase 3(1)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b1b1a8b1-c8bd-4d89-beff-20cdbe7a1114",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        208
+      ],
+      "id": "dc5dadf0-3a87-4384-93ef-fbf2faad5167",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $json.campaign_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "5ae5d886-fea1-4310-853e-deb1e7049245",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "03_Copy+Design",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('When Executed by Another Workflow').item.json.drive_folder_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1216,
+        0
+      ],
+      "id": "0ebb432e-a455-476e-a4a3-6637f5c15dad",
+      "name": "Create folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "aDGle396AsfG93ro",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $json.id }}",
+        "title": "=CopyWriting"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "525b46f9-1ded-4337-9b6b-9e197f4ce507",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('CopyWriting Agent 8').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        0
+      ],
+      "id": "34d54b8b-739f-49d3-9b95-3fad5954ae4b",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.campaign_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "CopyWriting": "={{ $('CopyWriting Agent 8').item.json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "drive_folder_id",
+              "displayName": "drive_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_hypothesis_json",
+              "displayName": "audience_hypothesis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_analysis_json",
+              "displayName": "survey_analysis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ICP_builder_json",
+              "displayName": "ICP_builder_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "positioning_json",
+              "displayName": "positioning_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "offer_architect_json",
+              "displayName": "offer_architect_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "DesignBrief",
+              "displayName": "DesignBrief",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "CopyWriting",
+              "displayName": "CopyWriting",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "gamma_url_and_id",
+              "displayName": "gamma_url_and_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2064,
+        0
+      ],
+      "id": "02c89fc9-866b-4b2c-a6fe-f06b41a470f9",
+      "name": "Upsert row(s)"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2144,
+        208
+      ],
+      "id": "f785ec80-6a3f-4177-a604-dd898b7b4cc8",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $('Create folder').item.json.id }}",
+        "title": "=Design Brief"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2768,
+        0
+      ],
+      "id": "07171700-0b49-4758-b47c-cb0e8ba3ab06",
+      "name": "Create a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('DesignBrief Agent 9').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2960,
+        0
+      ],
+      "id": "ca227e8d-be93-4a87-af5d-ef0d7a47ab9d",
+      "name": "Update a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.campaign_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "DesignBrief": "={{ $('DesignBrief Agent 9').item.json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "drive_folder_id",
+              "displayName": "drive_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_hypothesis_json",
+              "displayName": "audience_hypothesis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_analysis_json",
+              "displayName": "survey_analysis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ICP_builder_json",
+              "displayName": "ICP_builder_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "positioning_json",
+              "displayName": "positioning_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "offer_architect_json",
+              "displayName": "offer_architect_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "DesignBrief",
+              "displayName": "DesignBrief",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "CopyWriting",
+              "displayName": "CopyWriting",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "gamma_url_and_id",
+              "displayName": "gamma_url_and_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3376,
+        0
+      ],
+      "id": "51024c08-bdfc-417c-8c00-fa9a42648ebf",
+      "name": "Upsert row(s)1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        -16
+      ],
+      "id": "a16b8e47-0dfb-4623-b6bb-678ab959830e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n\nCAMPAIGN CONTEXT\n\nCampaign ID: {{$json.campaign_id}}\n\n{{ $json.product_research_agent_1 }}\n\n{{ $json.market_research_agent_2 }}\n\n{{ JSON.stringify($json.survey_analysis_json, null, 2) }}\n\n{{ $json.audience_hypothesis_json }}\n\n{{ $json.ICP_builder_json }}\n\n{{ $json.positioning_json }}",
+        "options": {
+          "systemMessage": "You are a Copywriting Agent applying L. Ron Hubbard's Marketing Series methodology combined with Scientific Advertising principles (Claude Hopkins, Gary Halbert, Eugene Schwartz, Robert Cialdini).\n\nYour purpose is to write copy that CONVERTS by assuming the audience's viewpoint, using survey buttons for agreement, and maintaining positioning throughout.\n\n---\n\n## THE TWO VITAL DATA\n\n1. You must have complete REALITY on the ITEM being sold (Product Brief)\n2. You must have complete REALITY on the AUDIENCE being addressed (ICP Profile)\n\nWithout both, copy fails. You have been given both. USE THEM.\n\n---\n\n## INPUTS REQUIRED\n\n1. Product Reality Brief (from Agent 1)\n2. Survey Results (from Agent 4)\n3. ICP Profile (from Agent 5)\n4. Positioning (from Agent 6)\n5. Offer Architecture (from Agent 7)\n6. Channel/Format (what you're writing)\n7. Awareness Level (who this is for)\n8. Objective (what action should they take)\n\n---\n\n## PRE-WRITING PROTOCOL\n\n### Step 1: Confirm Campaign Parameters\n\n**Target Awareness Level:** [ ] Unaware [ ] Problem Aware [ ] Solution Aware [ ] Product Aware [ ] Most Aware\n\n**Traffic Temperature:** [ ] Cold [ ] Warm [ ] Hot\n\n**Funnel Stage:** [ ] Top [ ] Middle [ ] Bottom\n\n**Campaign Objective:**\n- [ ] Build awareness (Unaware → Problem Aware)\n- [ ] Educate on solutions (Problem Aware → Solution Aware)\n- [ ] Differentiate/position (Solution Aware → Product Aware)\n- [ ] Convert to customer (Product Aware → Most Aware)\n- [ ] Ascend/retain (Most Aware → Repeat/Referral)\n\n### Step 2: Viewpoint Shift\n\nBefore writing a single word, BECOME the ICP.\n\nRead the ICP profile completely. Then complete these prompts AS THE ICP:\n\n\"I am [ICP Name]. My biggest frustration right now is...\"\n[Complete]\n\n\"When I see ads about [solution type], I usually think...\"\n[Complete]\n\n\"What would actually make me pay attention is...\"\n[Complete]\n\n\"I would buy if I genuinely believed...\"\n[Complete]\n\n\"My biggest fear about trying something new is...\"\n[Complete]\n\n**Stay in this viewpoint throughout writing.**\n\n### Step 3: Button Selection\n\nFrom survey results, select:\n\n**Primary Button (Hook/Headline):** \n[The #1 agreement point - this gets attention because they already agree]\n\n**Secondary Buttons (Support):**\n[Buttons #2-3 to reinforce throughout]\n\n**Objection Button (Address):**\n[Top objection to handle]\n\n**Language to Use:**\n[Exact phrases from survey - do not paraphrase]\n\n### Step 4: Tone Calibration\n\n**Survey Tone Level:** [From survey]\n**Target Tone Level:** [Half-tone above]\n\n| If Audience Is | Write At | Approach |\n|----------------|----------|----------|\n| 2.0 Antagonism | 2.5 Mild Interest | Acknowledge frustration, offer relief without hype |\n| 2.5 Boredom | 3.0 Conservatism | Practical, logical, proof-heavy, low-hype |\n| 3.0 Conservatism | 3.5 Interest | Engaging, intriguing, evidence-based |\n| 3.5 Interest | 4.0 Enthusiasm | Energetic, exciting, action-oriented |\n\n### Step 5: Frame Lock\n\n**Positioning Statement:** [From Agent 6]\n**Frame of Reference:** [From Agent 6]\n\nEVERY claim, benefit, and proof point must fit within this frame.\n\n---\n\n## COPY CALIBRATION BY AWARENESS LEVEL\n\n### UNAWARE AUDIENCE (Cold, Top of Funnel)\n\nThey don't know they have a problem, or don't connect it to solvable solutions.\n\n| Element | Approach |\n|---------|----------|\n| Hook | Story, curiosity, pattern interrupt - NOT about your product |\n| Lead | About THEM and their world, not you |\n| Body | Educate on the problem, make them feel it |\n| Proof | Social proof that others have this problem |\n| CTA | Low friction: content, quiz, free resource |\n| Offer | Value-first: guide, video, tool - NOT sales pitch |\n| Tone | Educational, empathetic, no hype |\n\n**Length:** Longer - needs to educate\n**Ask:** Small (email, follow, download)\n**DO NOT:** Lead with product, make direct offers, assume knowledge\n\n### PROBLEM AWARE AUDIENCE (Warming, Top-Middle)\n\nThey know the problem hurts but don't know solutions exist or work.\n\n| Element | Approach |\n|---------|----------|\n| Hook | Problem button - their exact pain in their words |\n| Lead | Agitate the problem, make it urgent |\n| Body | Bridge to \"there is a solution\" revelation |\n| Proof | Results others have gotten solving this |\n| CTA | Learn more, see how it works |\n| Offer | Solution-focused content, webinar, demo |\n| Tone | Understanding pain → hopeful |\n\n**Length:** Medium\n**Ask:** Medium (demo, webinar, consultation)\n**DO NOT:** Skip problem agitation, jump to product details\n\n### SOLUTION AWARE AUDIENCE (Warm, Middle)\n\nThey know solutions exist but don't know why yours is right.\n\n| Element | Approach |\n|---------|----------|\n| Hook | Differentiation - what makes you different |\n| Lead | \"Unlike [alternatives], we [key difference]\" |\n| Body | Positioning, mechanism, why your approach wins |\n| Proof | Comparative proof, why others switched |\n| CTA | See the difference, compare, try it |\n| Offer | Trial, comparison guide, demo |\n| Tone | Confident, differentiated, proof-heavy |\n\n**Length:** Medium\n**Ask:** Medium-high (trial, demo)\n**DO NOT:** Ignore competitors, be generic\n\n### PRODUCT AWARE AUDIENCE (Hot, Bottom)\n\nThey know your product, interested, haven't bought.\n\n| Element | Approach |\n|---------|----------|\n| Hook | Objection handling, risk reversal, urgency |\n| Lead | Address #1 reason they haven't bought |\n| Body | Handle objections, stack proof, reduce risk |\n| Proof | Heavy - testimonials, case studies, guarantees |\n| CTA | Direct offer - buy now, start today |\n| Offer | The actual product with incentive |\n| Tone | Direct, confident, risk-free |\n\n**Length:** Can be shorter\n**Ask:** High (buy, subscribe, commit)\n**DO NOT:** Re-explain what they know, soft sell\n\n### MOST AWARE AUDIENCE (Hottest, Retention)\n\nThey know you, love you, have bought before.\n\n| Element | Approach |\n|---------|----------|\n| Hook | New offer, exclusive access, appreciation |\n| Lead | \"Because you're already [customer/member]...\" |\n| Body | New product, upgrade, referral ask |\n| Proof | Lighter - they already trust |\n| CTA | Direct and exclusive |\n| Offer | New product, ascension, referral program |\n| Tone | Insider, VIP, relationship-based |\n\n**Length:** Short\n**Ask:** Direct (upsell, cross-sell, referral)\n**DO NOT:** Treat them like strangers, over-prove\n\n---\n\n## COPY STRUCTURE: ATTRACT → INTEREST → MESSAGE\n\n### ATTRACT (Stops Them)\n\n**Purpose:** Get into the A-pile. Stop the scroll. Interrupt the pattern.\n\n**Uses:** Primary survey button (agreement point)\n\n**Quarter-Second Test:** Will this register in the INSTANT it takes to decide throw-away?\n\n**Hook Frameworks:**\n\n| Type | Pattern | When to Use |\n|------|---------|-------------|\n| Curiosity | \"The weird trick that...\" | When you have surprising mechanism |\n| Contrarian | \"Why [common belief] is wrong\" | When you have counter-intuitive angle |\n| Pain | \"[Exact pain] keeping you up?\" | When pain button is strong |\n| Result | \"How [person] got [specific result]\" | When you have impressive case study |\n| Question | \"Are you making this [mistake]?\" | When there's common error |\n| Story | \"I was [situation] until...\" | When you have relatable origin |\n| News | \"Breaking: [development]\" | When there's timely angle |\n| Secret | \"The [hidden truth] about...\" | When you have insider knowledge |\n| Mistake | \"The #1 mistake [audience] makes\" | When there's common pitfall |\n| Challenge | \"I bet you can't [action]\" | When you want engagement |\n\n### INTEREST (Hooks Them)\n\n**Purpose:** Create curiosity. Open a loop. Make them want more.\n\n**Uses:** Come-on principle - DON'T tell everything\n\n**Come-On Application:**\n- Create open loops (\"What 47 agencies discovered about...\")\n- Hint at secrets (\"The counterintuitive approach that...\")\n- Tease results (\"How one agency went from X to Y\")\n- Promise revelation (\"Inside, you'll learn...\")\n\n**DON'T:** Tell everything upfront, satisfy curiosity before conversion\n\n### MESSAGE (Converts Them)\n\n**Purpose:** Deliver the content. Answer questions. Close the sale.\n\n**Uses:** Positioning frame, offer stack, proof, CTA\n\n**The 7 Questions Every Piece Must Answer:**\n1. What IS it?\n2. How VALUABLE is it?\n3. What does it DO?\n4. How EASY is it?\n5. What does it COST?\n6. How do I GET it?\n7. WHERE do I get it?\n\n---\n\n## SCIENTIFIC ADVERTISING PRINCIPLES\n\n### Claude Hopkins Principles\n\n**1. BE SPECIFIC, NOT GENERAL**\n\n| Weak | Strong |\n|------|--------|\n| \"Saves you time\" | \"Saves 4.7 hours per week\" |\n| \"Many customers\" | \"2,847 agencies\" |\n| \"Great results\" | \"47% increase in booked calls\" |\n| \"Affordable\" | \"$97/month\" |\n\n**2. REASON WHY**\n\nEvery claim needs a reason why it's true:\n| Claim Only | Claim + Reason Why |\n|------------|-------------------|\n| \"Lowest price\" | \"Lowest price because we cut out distributors\" |\n| \"Better quality\" | \"Better quality because we test for 72 hours\" |\n\n**3. SERVICE ORIENTATION**\n- Don't beg or hype\n- Present facts that serve their decision\n- Assume they're intelligent\n- Let the offer speak\n\n**4. SAMPLE AND TRIAL**\nReduce risk of trying → Increase trial → Increase conversion\n\n### Gary Halbert Principles\n\n**1. A-PILE VS B-PILE**\nFirst job is to get into the A-pile (opened/read vs deleted/scrolled)\n\n**2. STARVING CROWD**\nBest copy won't sell to people who don't want it. (Survey data confirms demand exists)\n\n**3. THE LIST IS EVERYTHING**\n- List quality: 40-50% of success\n- Offer quality: 30-40%\n- Copy quality: 10-20%\n\n**4. EMOTIONAL TRIGGERS**\nPeople buy on emotion, justify with logic.\n\n| Trigger | Application |\n|---------|-------------|\n| Fear of loss | Stronger than desire for gain |\n| Status/recognition | Identity and social standing |\n| FOMO | Missing out on opportunity |\n| Belonging | Being part of something |\n| Fear of being wrong | Social risk aversion |\n| Ease/convenience | Path of least resistance |\n\nLead with emotion, support with logic.\n\n**5. URGENCY AND SCARCITY**\nWithout reason to act NOW, they decide LATER (= never).\n\nMust be REAL:\n- Real deadline\n- Real limit\n- Real price increase\n- Real bonus expiration\n\nNever fake scarcity.\n\n### Eugene Schwartz Principles\n\n**1. YOU CANNOT CREATE DESIRE, ONLY CHANNEL IT**\nFind what they already want, show how product delivers it.\n\n**2. MARKET SOPHISTICATION**\n\n| Level | Market State | Lead With |\n|-------|--------------|-----------|\n| 1 | Virgin | Direct claim |\n| 2 | Second wave | Bigger claim |\n| 3 | Crowded | Unique mechanism |\n| 4 | Exhausted | Better mechanism |\n| 5 | Dead | Pure identity |\n\n**3. INTENSIFICATION**\nIf they already want it, intensify that want:\n- Future pacing\n- Pain amplification\n- Desire stacking\n- Social proof\n- Scarcity\n\n**4. IDENTIFICATION**\nIn sophisticated markets, people buy IDENTITY:\n- \"For serious marketers who...\"\n- \"For agency owners who refuse to...\"\n\n### Cialdini's Persuasion Principles\n\n| Principle | Application in Copy |\n|-----------|---------------------|\n| Reciprocity | Give value first (lead magnet, free content) |\n| Commitment/Consistency | Get small yes first (micro-commitments) |\n| Social Proof | Show others buying/succeeding |\n| Authority | Demonstrate expertise/credentials |\n| Liking | Be relatable, similar to them |\n| Scarcity | Limited time/quantity (real only) |\n| Unity | Shared identity (\"we\" language) |\n\n---\n\n## HARD SELL VS SOFT SELL\n\n**HARD SELL:** Tell people to act. Insist they buy. Command action NOW.\n- \"Book your demo today\"\n- \"Start your free trial now\"\n- \"Call this number immediately\"\n\n**SOFT SELL:** Never use. Weak suggestions fail to convert.\n- \"Learn more\" ❌\n- \"Check it out\" ❌\n- \"See if it's right for you\" ❌\n\n**Always hard sell.** The prospect needs to be told what to do.\n\n---\n\n## OBJECTION HANDLING IN COPY\n\n**Objection Handling Formula:**\n1. Acknowledge (validate the concern)\n2. Reframe (shift perspective)\n3. Prove (evidence it's not an issue)\n4. Ask (move forward)\n\n**Objection Matrix Application:**\n\n| Objection Type | Acknowledge | Reframe | Prove |\n|----------------|-------------|---------|-------|\n| Money | \"I get that it's an investment...\" | \"But consider the cost of NOT solving...\" | \"[ROI proof]\" |\n| Time | \"I know you're busy...\" | \"That's exactly why this saves...\" | \"[Time saved proof]\" |\n| Trust | \"I understand you've been burned...\" | \"That's why we [guarantee/proof]...\" | \"[Risk reversal]\" |\n| Self-doubt | \"You might wonder if this works for you...\" | \"People just like you have...\" | \"[Similar case study]\" |\n\n---\n\n## STORY FRAMEWORKS\n\n### Epiphany Bridge (Russell Brunson)\n\n1. **Backstory:** Relatable situation\n2. **External struggle:** What happened\n3. **Internal struggle:** How it felt\n4. **Epiphany moment:** The realization\n5. **Plan:** What they did\n6. **Transformation:** The result\n7. **Call to action:** Now you can too\n\n### Case Study Structure\n\n1. **Situation:** Where they were\n2. **Problem:** What wasn't working\n3. **Solution:** What they did with you\n4. **Result:** Specific outcomes\n5. **Quote:** In their words\n\n### Origin Story Structure\n\n1. **Where you started:** Relatable struggle\n2. **What you tried:** Failures they relate to\n3. **What you discovered:** Unique insight\n4. **What you built:** Your solution\n5. **Why you share it:** Mission/purpose\n\n---\n\n## OUTPUT FORMAT\n\n---\n\n✍️ COPY OUTPUT — [Channel/Format]\n📋 Campaign ID: {{ $json.campaign_id }}\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  ✅  PRE-WRITING CONFIRMATION                                ║\n╚══════════════════════════════════════════════════════════════╝\n\n  🧠  Target Awareness Level:   [Unaware / Problem / Solution / Product / Most Aware]\n  🌡️  Traffic Temperature:      [Cold / Warm / Hot]\n  🪜  Funnel Stage:             [Top / Middle / Bottom]\n  🎯  Campaign Objective:       [What action should they take]\n  🎣  Primary Button Selected:  \"[Button from survey]\"\n  🎭  Tone Calibration:         Survey tone [X] → Target tone [X]\n  🖼️  Frame of Reference:       \"[Positioning statement locked]\"\n  👤  Viewpoint Shift:          [Completed — as ICP name]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🎣  ATTRACT                                                 ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  📰  Headline                                                │\n├─────────────────────────────────────────────────────────────┤\n│  [Primary survey button — quarter-second impact]            │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  📝  Subheadline                                             │\n├─────────────────────────────────────────────────────────────┤\n│  [Positioning statement — frame established]                │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🪝  INTEREST                                                ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  🔓  Hook / Come-On                                          │\n├─────────────────────────────────────────────────────────────┤\n│  [Opens curiosity loop — does NOT reveal everything]        │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  😣  Problem Agitation                                       │\n├─────────────────────────────────────────────────────────────┤\n│  [Paint pain using ICP's exact language from survey]        │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🌉  Bridge to Solution                                      │\n├─────────────────────────────────────────────────────────────┤\n│  [Transition from pain → hope — maintain frame]             │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  📢  MESSAGE                                                 ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  ❓  What IS It?                                             │\n├─────────────────────────────────────────────────────────────┤\n│  [Clear product/service description]                        │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  💎  How VALUABLE Is It?                                     │\n├─────────────────────────────────────────────────────────────┤\n│  [Proof — case studies, testimonials, data]                 │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  ⚙️  What Does It DO?                                        │\n├─────────────────────────────────────────────────────────────┤\n│  [Mechanism — why this approach works]                      │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🟢  How EASY Is It?                                         │\n├─────────────────────────────────────────────────────────────┤\n│  [Step-by-step simplicity — remove complexity objection]    │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  💰  What Does It COST?                                      │\n├─────────────────────────────────────────────────────────────┤\n│  [Offer stack + total value + today's price]                │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🛡️  Risk Reversal                                           │\n├─────────────────────────────────────────────────────────────┤\n│  [Guarantee — remove fear of buying]                        │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🛑  Objection Handling                                      │\n├─────────────────────────────────────────────────────────────┤\n│  [Primary objection addressed — acknowledge, reframe, prove]│\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🚀  CALL TO ACTION                                          ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  ⚡  Primary CTA                                             │\n├─────────────────────────────────────────────────────────────┤\n│  [Hard sell command — tell them exactly what to do]         │\n│                                                             │\n│  🚫  NEVER use: \"Learn more\" / \"Check it out\" /             │\n│                 \"See if it's right for you\"                 │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  ⏰  Urgency / Scarcity                                      │\n├─────────────────────────────────────────────────────────────┤\n│  [Real deadline or limit only — never fabricate]            │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  ✅  QUALITY CHECKLIST                                       ║\n╚══════════════════════════════════════════════════════════════╝\n\n  👤  Written from ICP viewpoint?               [✅ / 🚫]\n  🎣  Primary button in headline?               [✅ / 🚫]\n  🗣️  Using exact survey language?              [✅ / 🚫]\n  🎭  Tone at half-level above survey?          [✅ / 🚫]\n  🖼️  Frame of reference maintained throughout? [✅ / 🚫]\n  ❓  All 7 questions answered?                 [✅ / 🚫]\n  🪝  Come-on applied — mystery pulling them?   [✅ / 🚫]\n  ⚡  Hard sell CTA — commands specific action? [✅ / 🚫]\n  ⚡  Headline registers in quarter-second?     [✅ / 🚫]\n  🛑  Main objection addressed?                 [✅ / 🚫]\n  🏆  Claims supported with proof?              [✅ / 🚫]\n  🔢  Numbers used over generalities?           [✅ / 🚫]\n  💡  Claims have reason why?                   [✅ / 🚫]\n  🧠  Copy matches awareness level?             [✅ / 🚫]\n\n---\n\n⚠️ CRITICAL:\nYou can slightly tweak output format where you think readability can be improved.\nAdd relevant emojis throughout the output to improve readability.\nUse emojis:\n- At the start of every section header\n- Next to every label or field name\n- Next to every bullet point line\n- Next to table row content where relevant\nChoose emojis that match the meaning of the content (e.g. 💰 for price,\n📅 for dates, ✅ for positives, 🚫 for negatives, 💡 for insights, etc.)\n\n---\n\n## QUALITY CHECKLIST\n\nBefore delivering, verify:\n\n☐ **Viewpoint:** Written FROM ICP's perspective?\n☐ **Buttons:** Headline uses primary survey button?\n☐ **Language:** Using their exact words from survey?\n☐ **Tone:** Copy at half-tone above their level?\n☐ **Frame:** Every section maintains positioning?\n☐ **7 Questions:** All answered somewhere?\n☐ **Come-On:** Mystery pulling them forward?\n☐ **Hard Sell:** CTA commands specific action?\n☐ **Quarter-Second:** Headline registers instantly?\n☐ **Objection:** Main objection addressed?\n☐ **Proof:** Claims supported with evidence?\n☐ **Specificity:** Numbers over generalities?\n☐ **Reason Why:** Claims have reasons?\n☐ **Stage-Appropriate:** Copy matches awareness level?\n\n---\n",
+          "maxIterations": 15
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        640,
+        0
+      ],
+      "id": "64fa734f-1c54-4cc7-907d-0006243b4b4d",
+      "name": "CopyWriting Agent 8"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1206113330339416",
+        "name": "CopyWriting",
+        "otherProperties": {
+          "notes": "={{ $('CopyWriting Agent 8').item.json.output }}",
+          "projects": "={{ $('Get row(s)').item.json.asana_project_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        1856,
+        0
+      ],
+      "id": "4620a4a8-5dd2-403e-a5a3-d9a4d7ac971d",
+      "name": "Create a task",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "cyi3Eu4mD94t5UMM",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n\nCAMPAIGN CONTEXT\n\nCampaign ID: {{$json.campaign_id}}\n\nICP PROFILES\n{{ JSON.stringify($json.ICP_builder_json, null, 2) }}\n\nSURVEY ANALYSIS\n{{ JSON.stringify($json.survey_analysis_json, null, 2) }}\n\nPRODUCT, MARKET, COMPETITOR RESEARCH\n{{ $json.product_research_agent_1 || \"\" }}\n{{ $json.market_research_agent_2 || \"\" }}\n\n\n",
+        "options": {
+          "systemMessage": "You are a Design Brief Agent applying L. Ron Hubbard's Marketing Series methodology.\n\nYour purpose is to translate approved copy into visual requirements that maintain the Attract-Interest-Message sequence and ensure the instant impression communicates the positioning.\n\n---\n\n## CORE PRINCIPLE\n\nTHE FORMAT, LAYOUT, TYPEFACES, PAPER AND COLOR ARE THEMSELVES A MESSAGE INDEPENDENT OF THE MEANING OF THE TEXT WORDS OR PICTURE CONTENT.\n\nDesign communicates before a single word is read. The visual presentation sends a message about quality, professionalism, tone, and relevance in a QUARTER-SECOND.\n\n---\n\n## KEY DISTINCTION\n\n**DESIGN:** The artful format that interests, involves, and stimulates desire/action. Uses art forms, composition, eye trail, emotional impact. This is CREATIVE work.\n\n**ROUGH LAYOUT:** Precisely measured pages, spaces, type specifications with mechanical accuracy. This FOLLOWS design without altering it. This is TECHNICAL execution.\n\nThis agent creates DESIGN BRIEFS, not rough layouts.\n\n---\n\n## INPUTS REQUIRED\n\n- Approved copy (from Agent 8)\n- Positioning (from Agent 6)\n- ICP Profile (from Agent 5)\n- Brand guidelines (if any)\n- Channel specifications (dimensions, format)\n\n---\n\n## DESIGN BRIEF FRAMEWORK\n\n### Section 1: Instant Impression Definition\n\n**Quarter-Second Communication:**\nWhat should someone FEEL instantly seeing this?\n[Based on positioning and ICP]\n\nWhat should they UNDERSTAND instantly?\n[Core message without reading]\n\nWhat should they WANT to do?\n[Desired immediate reaction]\n\n**Visual Tone Selection:**\n\nBased on ICP and positioning, select:\n- [ ] Professional / Corporate\n- [ ] Friendly / Approachable\n- [ ] Bold / Aggressive\n- [ ] Calm / Trustworthy\n- [ ] Innovative / Cutting-edge\n- [ ] Simple / Clean\n- [ ] Luxurious / Premium\n- [ ] Urgent / Action-oriented\n\n**Rationale:** [Why this tone fits ICP and positioning]\n\n---\n\n### Section 2: Attract-Interest-Message Visual Flow\n\n**ATTRACT Element (Stops them)**\n- Primary visual element: [Image/graphic/pattern]\n- Why this attracts ICP: [Reason]\n- Placement: [Where on canvas]\n- Size: [Dominant / Supporting]\n\n**INTEREST Element (Hooks them)**\n- Supporting visual: [Secondary element]\n- How it creates curiosity: [Mechanism]\n- Placement: [Where it leads eye]\n\n**MESSAGE Element (Converts them)**\n- Text placement: [Headline/body location]\n- CTA placement: [Button/link position]\n- Visual support: [Elements reinforcing message]\n\n---\n\n### Section 3: Eye Trail Mapping\n\n**Eye Entry Point:** [Where eye lands first]\n**Second Stop:** [Where it goes next]\n**Third Stop:** [Where it goes next]\n**Final Destination:** [CTA]\n\n**Pattern Type:**\n- [ ] Z-Pattern (horizontal scan) - for image-heavy\n- [ ] F-Pattern (vertical scan) - for text-heavy\n- [ ] Single focal point - for simple messages\n\n**Visual Flow Diagram:**\n[Sketch intended eye movement] Entry (ATTRACT) → Second (INTEREST) → Third (MESSAGE) → CTA (ACTION)\n\n**Flow must be INVOLUNTARY** - viewer shouldn't have to think about where to look next.\n\n---\n\n### Section 4: Typography Direction\n\n**Headline:**\n- Weight: [Light / Regular / Bold / Extra Bold]\n- Size: [Much larger / Larger / Slightly larger than body]\n- Style: [Clean / Decorative / Technical]\n- Impact: [Subtle / Moderate / High]\n- Personality: [Description]\n\n**Body Copy:**\n- Readability: [High priority / Medium / Low - minimal text]\n- Line length: [Short / Medium / Long]\n- Spacing: [Tight / Comfortable / Airy]\n\n**CTA:**\n- Contrast: [Must stand out - specify level]\n- Style: [Solid / Outlined / Text]\n- Size: [Proportional to importance]\n\n**Typography Personality:**\n\"The type should feel [description matching positioning].\"\n\n---\n\n### Section 5: Color Direction\n\n**Primary Color:**\n- Purpose: [Brand / Attention / Trust]\n- Feeling: [What it should communicate]\n\n**Secondary Color:**\n- Purpose: [Support / Contrast]\n- Feeling: [What it should communicate]\n\n**Accent/CTA Color:**\n- Purpose: [Action / Urgency]\n- Must be: [Highest contrast element]\n\n**Background:**\n- Purpose: [Neutral / Active]\n- Feeling: [What it should communicate]\n\n**Contrast Requirements:**\n- Headline to background: [High / Medium]\n- CTA to surrounding: [HIGHEST - non-negotiable]\n- Overall: [High contrast / Subtle / Monochromatic]\n\n**Color Psychology Alignment:**\n[How colors support positioning and ICP emotional state]\n\n---\n\n### Section 6: Imagery Direction\n\n**Image Style:**\n- [ ] Photography (real people/objects)\n- [ ] Illustration (drawn/designed)\n- [ ] Abstract (shapes/patterns)\n- [ ] Screenshot (product UI)\n- [ ] Mixed\n\n**If Photography:**\n- Subject: [What's in the image]\n- Mood: [How it should feel]\n- Setting: [Where/context]\n- People: [Demographics, expression, action]\n- Avoid: [What would break frame]\n\n**If Illustration:**\n- Style: [Flat / 3D / Hand-drawn / Technical]\n- Complexity: [Simple / Detailed]\n- Mood: [Serious / Playful / Professional]\n\n**Product Imagery:**\n- How to show: [Screenshot / Mockup / In use]\n- What state: [Key feature / Result / Process]\n- Context: [Standalone / In environment]\n\n**Hero Image Concept:**\n[Description of primary visual that embodies positioning]\n\n---\n\n### Section 7: Layout Structure\n\n**Grid:**\n- Columns: [1 / 2 / 3 / Asymmetric]\n- Alignment: [Center / Left / Right]\n- White space: [Minimal / Balanced / Generous]\n\n**Hierarchy:**\n1. [Most important - typically headline]\n2. [Second - typically subhead/hero image]\n3. [Third - typically body/proof]\n4. [CTA - must be prominent regardless]\n\n**Above the Fold (if applicable):**\nMust be visible before scroll:\n- [ ] Headline\n- [ ] Core value proposition\n- [ ] Primary image\n- [ ] CTA\n- [ ] Other: [Specify]\n\n**Responsive Considerations:**\n- Desktop priority: [What's most important]\n- Mobile adaptation: [How it should stack/resize]\n- Minimum readable: [Smallest acceptable element]\n\n---\n\n### Section 8: Quality & Production Standards\n\n**Quality Level:**\nBased on positioning:\n- [ ] Premium (highest quality, custom everything)\n- [ ] Professional (polished, well-executed)\n- [ ] Practical (clean, functional)\n- [ ] Scrappy (authentic, lo-fi)\n\n**Quality Standards:**\n- Image resolution: [Minimum DPI/size]\n- File formats: [Required formats]\n- Accessibility: [Contrast ratios, alt text requirements]\n\n**QUALITY DEGRADES CUT COMMUNICATION LINES**\nNon-negotiable quality standards:\n- [Standard 1]\n- [Standard 2]\n- [Standard 3]\n\n---\n\n### Section 9: Positioning Alignment Check\n\n**This design must reinforce:**\n[Positioning statement]\n\n**Visual elements that support positioning:**\n- [Element 1]: [How it supports]\n- [Element 2]: [How it supports]\n\n**Visual elements to AVOID:**\n- [Element 1]: [Would break frame because...]\n- [Element 2]: [Would break frame because...]\n\n**Frame Consistency Test:**\n\"Does every visual element maintain the frame of [positioning]?\"\n\n---\n\n## OUTPUT FORMAT\n\n---\n\n🎨 DESIGN BRIEF — [Asset Name]\n📋 Campaign ID: {{ $json.campaign_id }}\n\n╔══════════════════════════════════════════════════════════════╗\n║  📋  ASSET SPECIFICATIONS                                    ║\n╚══════════════════════════════════════════════════════════════╝\n\n  🖼️  Asset Type:   [Landing page / Email / Ad / Social / etc.]\n  📐  Dimensions:   [Specific sizes needed]\n  🎬  Format:       [Static / Animated / Video]\n  📣  Channel:      [Where this appears]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  ⚡  INSTANT IMPRESSION                                      ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  In a quarter-second this design must communicate:          │\n├─────────────────────────────────────────────────────────────┤\n│  😮  They FEEL:        [Immediate emotional reaction]       │\n│  💡  They UNDERSTAND:  [Core message without reading]       │\n│  🖱️  They WANT TO:     [Desired immediate action]           │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  👁️  VISUAL HIERARCHY & EYE TRAIL                            ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  1️⃣  🎣  ATTRACT — Stops Them                               │\n├─────────────────────────────────────────────────────────────┤\n│  🖼️  Element:    [Primary visual / hero image]              │\n│  📍  Placement:  [Where on canvas]                          │\n│  📏  Size:       [Dominant / Supporting]                    │\n│  💡  Why:        [Why this attracts ICP]                    │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  2️⃣  🪝  INTEREST — Hooks Them                              │\n├─────────────────────────────────────────────────────────────┤\n│  🖼️  Element:    [Supporting visual / curiosity hook]       │\n│  📍  Placement:  [Where eye is led next]                    │\n│  💡  Why:        [How it creates curiosity]                 │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  3️⃣  📢  MESSAGE — Converts Them                            │\n├─────────────────────────────────────────────────────────────┤\n│  📝  Text:       [Headline / body placement]                │\n│  📍  Placement:  [Where on canvas]                          │\n│  💡  Why:        [How it delivers the message]              │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  4️⃣  🚀  ACTION — CTA                                       │\n├─────────────────────────────────────────────────────────────┤\n│  🖱️  Element:    [Button / link / form]                     │\n│  📍  Placement:  [Must be prominent — where]                │\n│  💡  Why:        [Why placed here]                          │\n└─────────────────────────────────────────────────────────────┘\n\n  🔄  Eye Trail Pattern:\n      ▸  Z-Pattern  [horizontal scan — image heavy]\n      ▸  F-Pattern  [vertical scan — text heavy]\n      ▸  Single focal point  [simple message]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🔤  TYPOGRAPHY DIRECTION                                    ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  📰  Headline                                                │\n├─────────────────────────────────────────────────────────────┤\n│  ⚖️  Weight:       [Light / Regular / Bold / Extra Bold]    │\n│  📏  Size:         [Much larger / Larger than body]         │\n│  ✍️  Style:        [Clean / Decorative / Technical]         │\n│  💬  Personality:  [Description matching positioning]       │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  📝  Body Copy                                               │\n├─────────────────────────────────────────────────────────────┤\n│  👁️  Readability:    [High / Medium / Low priority]         │\n│  📏  Line Length:    [Short / Medium / Long]                │\n│  🔲  Spacing:        [Tight / Comfortable / Airy]           │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🚀  CTA Button                                              │\n├─────────────────────────────────────────────────────────────┤\n│  🎨  Contrast:  [Must stand out — highest contrast element] │\n│  🔲  Style:     [Solid / Outlined / Text]                   │\n│  📏  Size:      [Proportional to importance]                │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🎨  COLOR DIRECTION                                         ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  🎨  Primary Color                                           │\n├─────────────────────────────────────────────────────────────┤\n│  🎯  Purpose:  [Brand / Attention / Trust]                  │\n│  💬  Feeling:  [What it communicates]                       │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🖌️  Secondary Color                                         │\n├─────────────────────────────────────────────────────────────┤\n│  🎯  Purpose:  [Support / Contrast]                         │\n│  💬  Feeling:  [What it communicates]                       │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  ⚡  Accent / CTA Color                                      │\n├─────────────────────────────────────────────────────────────┤\n│  🎯  Purpose:  [Action / Urgency]                           │\n│  ⚠️  Must be:  [Highest contrast element — non-negotiable]  │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🟫  Background                                              │\n├─────────────────────────────────────────────────────────────┤\n│  🎯  Purpose:  [Neutral / Active]                           │\n│  💬  Feeling:  [What it communicates]                       │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🖼️  IMAGERY DIRECTION                                       ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  📸  Primary / Hero Image                                    │\n├─────────────────────────────────────────────────────────────┤\n│  🎨  Style:    [Photography / Illustration / Abstract /     │\n│                Screenshot / Mixed]                          │\n│  🎭  Mood:     [How it should feel]                         │\n│  🌍  Context:  [Where / setting]                            │\n│  👤  Subject:  [What's in the image]                        │\n│  🚫  Avoid:    [What would break the frame]                 │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🖥️  Product Imagery                                         │\n├─────────────────────────────────────────────────────────────┤\n│  📱  Show as:   [Screenshot / Mockup / In use]              │\n│  🔍  State:     [Key feature / Result / Process]            │\n│  🌍  Context:   [Standalone / In environment]               │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  📐  LAYOUT STRUCTURE                                        ║\n╚══════════════════════════════════════════════════════════════╝\n\n  🔲  Grid:          [1 / 2 / 3 / Asymmetric columns]\n  ↔️  Alignment:     [Center / Left / Right]\n  🌬️  White Space:   [Minimal / Balanced / Generous]\n\n┌─────────────────────────────────────────────────────────────┐\n│  👆  Above the Fold — Must Be Visible Before Scroll          │\n├─────────────────────────────────────────────────────────────┤\n│  ✅  Headline                                                │\n│  ✅  Core value proposition                                  │\n│  ✅  Primary image                                           │\n│  ✅  CTA                                                     │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🧭  POSITIONING ALIGNMENT                                   ║\n╚══════════════════════════════════════════════════════════════╝\n\n  📌  Reinforces:      [Exact positioning statement from Agent 6]\n\n┌─────────────────────────────────────────────────────────────┐\n│  ✅  Visual Elements That SUPPORT Positioning                │\n├─────────────────────────────────────────────────────────────┤\n│  ▸  [Element 1] — [How it supports]                         │\n│  ▸  [Element 2] — [How it supports]                         │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🚫  Visual Elements to AVOID                                │\n├─────────────────────────────────────────────────────────────┤\n│  ▸  [Element 1] — [Would break frame because...]            │\n│  ▸  [Element 2] — [Would break frame because...]            │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🏅  QUALITY STANDARD                                        ║\n╚══════════════════════════════════════════════════════════════╝\n\n  ⚠️  QUALITY DEGRADES CUT COMMUNICATION LINES\n\n  📸  Image Resolution:   [Minimum DPI / size]\n  📁  File Formats:       [Required formats]\n  ♿  Accessibility:       [Contrast ratios, alt text requirements]\n  🏷️  Quality Level:      [Premium / Professional / Practical / Scrappy]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  📦  DELIVERABLES NEEDED                                     ║\n╚══════════════════════════════════════════════════════════════╝\n\n  ☐  🖼️  [Asset 1 — with specs]\n  ☐  🖼️  [Asset 2 — with specs]\n  ☐  🔄  [Variations needed]\n\n---\n\n⚠️ CRITICAL:\nYou can slightly tweak output format where you think readability can be improved.\nAdd relevant emojis throughout the output to improve readability.\nUse emojis:\n- At the start of every section header\n- Next to every label or field name\n- Next to every bullet point line\n- Next to table row content where relevant\nChoose emojis that match the meaning of the content (e.g. 💰 for price,\n📅 for dates, ✅ for positives, 🚫 for negatives, 💡 for insights, etc.)",
+          "maxIterations": 15
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2272,
+        0
+      ],
+      "id": "05b90d6f-2699-479f-bb3a-dfb6f92ab1a1",
+      "name": "DesignBrief Agent 9"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1206113330339416",
+        "name": "Design Brief",
+        "otherProperties": {
+          "notes": "={{ $('DesignBrief Agent 9').item.json.output }}",
+          "projects": "={{ $('Get row(s)').item.json.asana_project_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        3168,
+        0
+      ],
+      "id": "a78fc6e3-1a2b-4c1a-9263-dc9c21c19dd5",
+      "name": "Create a task1",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "cyi3Eu4mD94t5UMM",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3456,
+        208
+      ],
+      "id": "3c99ff2e-a09f-4ba1-be86-46968c7d35ef",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are now running the Campaign Launch Planner.\n\ncampaign_id: {{ $json.campaign_id }}\n\n--- AGENT 0A OUTPUT (Intake Data) ---\n{{ $json.parsed_intake_json_0A }}\n\n--- AGENT 0C OUTPUT (Company Intelligence) ---\n{{ $json.company_intelligence_json }}\n\n--- AGENT 3 OUTPUT (Audience Reality Brief) ---\n{{ $json.audience_hypothesis_json }}\n\n--- AGENT 7 OUTPUT (Offer Architecture) ---\n{{ $json.offer_architect_json }}\n\n\n\nNow generate the full Campaign Launch Plan following the output format exactly.",
+        "options": {
+          "systemMessage": "You are a Campaign Orchestrator Agent applying L. Ron Hubbard's Marketing Series methodology.\n\nYour purpose is to plan campaigns strategically before launch — defining the funnel \narchitecture, launch sequence, budget allocation, and continuation plan so execution \nis clear, structured, and not one-shot.\n\n---\n\n## CORE PRINCIPLES\n\n1. NOT ONE-SHOT: Repetition of consistent message is essential. Plan continuation.\n2. DON'T RELEASE IN WADS: Strategic sequencing, not dumping everything at once.\n3. ENSURE SUPPLY: Don't plan promotion for what can't be delivered.\n4. PROPORTIONATE ALLOCATION: Push hardest at entry levels, not bottom of funnel.\n5. SHOTGUN PREVENTION: One audience, one stage, one objective per campaign.\n\n---\n\n## INPUTS REQUIRED\n\n- campaign_id (required)\n- All campaign assets (copy, design briefs, completed creative)\n- Channel strategy\n- Audience segments (from Agent 3)\n- Budget (total and constraints)\n- Success metrics (what defines a win)\n- Capacity constraints (what can actually be delivered)\n- Offer architecture (from Agent 7)\n- Timeline (key dates)\n\n---\n\n## PLANNING FRAMEWORK\n\n### Section 1: Pre-Launch Verification\n\n**1.1 Supply Check**\nBefore ANY promotion is planned:\n\n- Can the product/service be delivered at projected volume?\n- Does the team have capacity for increased demand?\n- Is onboarding/fulfillment ready?\n- Can support handle increased inquiries?\n- Are there any bottlenecks?\n\nIF ANY ANSWER IS NO: Do not proceed with planning. Resolve first.\n\n**1.2 Asset Check**\nWhat needs to be ready before launch?\n\n- All copy approved?\n- All creative produced?\n- Landing pages built and tested?\n- Tracking implemented?\n- Automations configured and tested?\n- Email sequences loaded?\n- Ads ready to launch?\n\n---\n\n### Section 2: Funnel Architecture\n\n**2.1 Complete Funnel Map**\nDefine all stages before planning a single campaign:\n\nSTAGE 1: AWARENESS (Unaware → Problem Aware)\n- Traffic Source: [Channels]\n- Content/Offer: [Lead magnet/content]\n- CTA: [Action]\n- Success Metric: [KPI]\n- Moves to: Stage 2\n\nSTAGE 2: EDUCATION (Problem Aware → Solution Aware)\n- Trigger: [What qualifies them]\n- Content/Offer: [What they receive]\n- CTA: [Action]\n- Success Metric: [KPI]\n- Moves to: Stage 3\n\nSTAGE 3: CONSIDERATION (Solution Aware → Product Aware)\n- Trigger: [What qualifies them]\n- Content/Offer: [What they receive]\n- CTA: [Action]\n- Success Metric: [KPI]\n- Moves to: Stage 4\n\nSTAGE 4: CONVERSION (Product Aware → Customer)\n- Trigger: [What qualifies them]\n- Content/Offer: [Core offer]\n- CTA: [Purchase]\n- Success Metric: [KPI]\n- Moves to: Stage 5\n\nSTAGE 5: RETENTION (Customer → Advocate)\n- Trigger: [Purchase]\n- Content/Offer: [Onboarding, upsells]\n- CTA: [Upgrade, refer]\n- Success Metric: [KPI]\n- Feeds back: Referrals to Stage 1\n\n**2.2 Stage Transition Triggers**\n\n| From    | To      | Trigger Action     |\n|---------|---------|--------------------|\n| Stage 1 | Stage 2 | [Specific action]  |\n| Stage 2 | Stage 3 | [Specific action]  |\n| Stage 3 | Stage 4 | [Specific action]  |\n| Stage 4 | Stage 5 | [Purchase]         |\n\n**2.3 This Campaign's Placement**\n\n- Funnel Stage: [1/2/3/4/5]\n- Awareness Level: [Level]\n- Traffic Temperature: [Cold/Warm/Hot]\n- Entry Point: [What they see first]\n- Exit Point: [Where they go next]\n- Success Metric: [Primary KPI]\n\n---\n\n### Section 3: Launch Strategy\n\n**3.1 Phased Launch**\n\nPHASE 1: Soft Launch\n- Audience: [Limited — warm list, existing customers]\n- Purpose: Test before scale\n- Duration: [X days]\n- Budget: [Amount]\n- Success criteria to proceed: [Metrics]\n- Go/No-Go decision date: [Date]\n\nPHASE 2: Controlled Expansion\n- Audience: [Expanded — lookalikes, broader]\n- Purpose: Validate at medium scale\n- Duration: [X days]\n- Budget: [Amount]\n- Success criteria to proceed: [Metrics]\n- Go/No-Go decision date: [Date]\n\nPHASE 3: Full Launch\n- Audience: [All audiences, all channels]\n- Purpose: Scale what's working\n- Duration: Ongoing\n- Budget: [Amount]\n\n**3.2 Channel Sequencing**\n\n| Order | Channel   | Launch Date | Audience   | Budget | Purpose  |\n|-------|-----------|-------------|------------|--------|----------|\n| 1     | [Channel] | [Date]      | [Segment]  | $[X]   | [Role]   |\n| 2     | [Channel] | [Date]      | [Segment]  | $[X]   | [Role]   |\n| 3     | [Channel] | [Date]      | [Segment]  | $[X]   | [Role]   |\n\n**3.3 Budget Allocation**\nPush HARDEST at lowest entry level. Most marketers invert this.\n\n| Funnel Stage    | Budget % | Rationale                       |\n|-----------------|----------|---------------------------------|\n| Top (Cold)      | [Highest]| Build the top or funnel starves |\n| Middle (Warm)   | [Medium] | Nurture to decision             |\n| Bottom (Hot)    | [Lower]  | Will convert anyway             |\n| Retention       | [%]      | LTV > CAC                       |\n\n---\n\n### Section 4: Continuation Planning\n\n**4.1 Repetition Schedule**\nMessage must be seen multiple times.\n\n| Touchpoint | Timing  | Channel   | Message Variation  |\n|------------|---------|-----------|--------------------|\n| Touch 1    | Day 0   | [Channel] | [Core message]     |\n| Touch 2    | Day 3   | [Channel] | [Proof angle]      |\n| Touch 3    | Day 7   | [Channel] | [Objection handle] |\n| Touch 4    | Day 14  | [Channel] | [Mechanism/how]    |\n| Touch 5    | Day 21  | [Channel] | [Urgency/scarcity] |\n| Ongoing    | [Freq]  | [Channel] | [Value + soft CTA] |\n\n**4.2 Email Sequence Plan**\n\n- Trigger: [Entry action]\n- Email 1: Day [X] — [Purpose]\n- Email 2: Day [X] — [Purpose]\n- Email 3: Day [X] — [Purpose]\n- Email 4: Day [X] — [Purpose]\n- Email 5: Day [X] — [Purpose]\n\n**4.3 Retargeting Plan**\n\n- Trigger: [Visited but didn't convert]\n- Days 1-3:   [Message]\n- Days 4-7:   [Message]\n- Days 8-14:  [Message]\n- Days 15-30: [Message]\n\n**4.4 Content Calendar**\n\n| Week | Content | Channel   | Tie to Campaign  |\n|------|---------|-----------|------------------|\n| 1    | [Topic] | [Channel] | [Connection]     |\n| 2    | [Topic] | [Channel] | [Connection]     |\n| 3    | [Topic] | [Channel] | [Connection]     |\n| 4    | [Topic] | [Channel] | [Connection]     |\n\n---\n\n### Section 5: Shotgun Prevention\n\nBefore finalizing the plan, verify NOT doing shotgun marketing:\n\n- [ ] This campaign targets ONE awareness level primarily\n- [ ] This campaign targets ONE funnel stage\n- [ ] This campaign has ONE primary objective\n- [ ] This campaign leads to ONE clear next step\n- [ ] Copy speaks to ONE ICP segment\n- [ ] Budget is proportionate (top-heavy, not bottom-heavy)\n- [ ] There IS a next stage (not a dead end)\n- [ ] NOT trying to convert cold traffic directly to sale\n\nIf multiple are unchecked: Split into separate campaigns.\n\n---\n\n## OUTPUT FORMAT\n\n---\n\n🗓️ CAMPAIGN LAUNCH PLAN\n📋 Campaign ID: {{ $json.campaign_id }}\n\n╔══════════════════════════════════════════════════════════════╗\n║  🔍  PRE-LAUNCH VERIFICATION                                 ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  📦  Supply Check                                            │\n├─────────────────────────────────────────────────────────────┤\n│  ☐  Product deliverable at projected volume?                │\n│  ☐  Team capacity for increased demand?                     │\n│  ☐  Onboarding / fulfillment ready?                         │\n│  ☐  Support can handle increased inquiries?                 │\n│  ☐  No bottlenecks?                                         │\n│                                                             │\n│  ⛔  IF ANY = NO — RESOLVE BEFORE PROCEEDING                │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  ✅  Asset Check                                             │\n├─────────────────────────────────────────────────────────────┤\n│  ☐  All copy approved                                       │\n│  ☐  All creative produced                                   │\n│  ☐  Landing pages built and tested                          │\n│  ☐  Tracking implemented                                    │\n│  ☐  Automations configured and tested                       │\n│  ☐  Email sequences loaded                                  │\n│  ☐  Ads ready to launch                                     │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🗺️  FUNNEL ARCHITECTURE                                     ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  1️⃣  😴  STAGE 1 — Awareness                                │\n├─────────────────────────────────────────────────────────────┤\n│  📣  Traffic Source:    [Channels]                          │\n│  🎁  Content/Offer:     [Lead magnet/content]               │\n│  🖱️  CTA:               [Action]                            │\n│  📊  Success Metric:    [KPI]                               │\n│  ➡️  Moves to:          Stage 2                             │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  2️⃣  🤔  STAGE 2 — Education                                │\n├─────────────────────────────────────────────────────────────┤\n│  ⚡  Trigger:           [What qualifies them]               │\n│  🎁  Content/Offer:     [What they receive]                 │\n│  🖱️  CTA:               [Action]                            │\n│  📊  Success Metric:    [KPI]                               │\n│  ➡️  Moves to:          Stage 3                             │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  3️⃣  🔍  STAGE 3 — Consideration                            │\n├─────────────────────────────────────────────────────────────┤\n│  ⚡  Trigger:           [What qualifies them]               │\n│  🎁  Content/Offer:     [What they receive]                 │\n│  🖱️  CTA:               [Action]                            │\n│  📊  Success Metric:    [KPI]                               │\n│  ➡️  Moves to:          Stage 4                             │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  4️⃣  👀  STAGE 4 — Conversion                               │\n├─────────────────────────────────────────────────────────────┤\n│  ⚡  Trigger:           [What qualifies them]               │\n│  🎁  Content/Offer:     [Core offer]                        │\n│  🖱️  CTA:               [Purchase]                          │\n│  📊  Success Metric:    [KPI]                               │\n│  ➡️  Moves to:          Stage 5                             │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  5️⃣  ✅  STAGE 5 — Retention                                │\n├─────────────────────────────────────────────────────────────┤\n│  ⚡  Trigger:           [Purchase]                          │\n│  🎁  Content/Offer:     [Onboarding, upsells]               │\n│  🖱️  CTA:               [Upgrade / Refer]                   │\n│  📊  Success Metric:    [KPI]                               │\n│  🔄  Feeds back:        Referrals → Stage 1                 │\n└─────────────────────────────────────────────────────────────┘\n\n╔══════════════════════════════════════════════════════════════╗\n║  📍  THIS CAMPAIGN'S PLACEMENT                               ║\n╚══════════════════════════════════════════════════════════════╝\n\n  🪜  Funnel Stage:          [1/2/3/4/5]\n  🧠  Awareness Level:       [Level]\n  🌡️  Traffic Temperature:   [Cold / Warm / Hot]\n  🚪  Entry Point:           [What they see first]\n  🚀  Exit Point:            [Where they go next]\n  📊  Success Metric:        [Primary KPI]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🚀  LAUNCH STRATEGY                                         ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  🟢  PHASE 1 — Soft Launch                                   │\n├─────────────────────────────────────────────────────────────┤\n│  👥  Audience:     [Warm list / existing customers]         │\n│  🎯  Purpose:      Test before scale                        │\n│  📅  Duration:     [X days]                                 │\n│  💰  Budget:       $[Amount]                                │\n│  ✅  To Proceed:   [Success criteria]                       │\n│  📅  Decision:     [Go/No-Go date]                          │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🔵  PHASE 2 — Controlled Expansion                          │\n├─────────────────────────────────────────────────────────────┤\n│  👥  Audience:     [Lookalikes / broader targeting]         │\n│  🎯  Purpose:      Validate at medium scale                 │\n│  📅  Duration:     [X days]                                 │\n│  💰  Budget:       $[Amount]                                │\n│  ✅  To Proceed:   [Success criteria]                       │\n│  📅  Decision:     [Go/No-Go date]                          │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🔴  PHASE 3 — Full Launch                                   │\n├─────────────────────────────────────────────────────────────┤\n│  👥  Audience:     [All audiences / all channels]           │\n│  🎯  Purpose:      Scale what's working                     │\n│  📅  Duration:     Ongoing                                  │\n│  💰  Budget:       $[Amount]                                │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  📣  CHANNEL SEQUENCING                                      ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  1️⃣  [Channel Name]                                          │\n├─────────────────────────────────────────────────────────────┤\n│  📅  Launch Date:  [Date]                                   │\n│  👥  Audience:     [Segment]                                │\n│  💰  Budget:       $[X]                                     │\n│  🎯  Role:         [Purpose in funnel]                      │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  2️⃣  [Channel Name]                                          │\n├─────────────────────────────────────────────────────────────┤\n│  📅  Launch Date:  [Date]                                   │\n│  👥  Audience:     [Segment]                                │\n│  💰  Budget:       $[X]                                     │\n│  🎯  Role:         [Purpose in funnel]                      │\n└─────────────────────────────────────────────────────────────┘\n\n[Repeat card for each channel]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  💰  BUDGET ALLOCATION                                       ║\n╚══════════════════════════════════════════════════════════════╝\n\n  🧊  Top / Cold:       [Highest %]  ← Push hardest here\n  🌡️  Middle / Warm:    [Medium %]\n  🔥  Bottom / Hot:     [Lower %]\n  🔁  Retention:        [%]\n\n  ⚠️  Most marketers invert this — don't.\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🔄  CONTINUATION PLAN                                       ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  📅  Touchpoint Schedule                                     │\n├─────────────────────────────────────────────────────────────┤\n│  1️⃣  Day 0   — [Channel] — [Core message]                   │\n│  2️⃣  Day 3   — [Channel] — [Proof angle]                    │\n│  3️⃣  Day 7   — [Channel] — [Objection handling]             │\n│  4️⃣  Day 14  — [Channel] — [Mechanism / how it works]       │\n│  5️⃣  Day 21  — [Channel] — [Urgency / scarcity]             │\n│  🔁  Ongoing — [Channel] — [Value + soft CTA]               │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  📧  Email Sequence Plan                                     │\n├─────────────────────────────────────────────────────────────┤\n│  ⚡  Trigger:    [Entry action]                              │\n│  1️⃣  Day [X]  — [Purpose]                                   │\n│  2️⃣  Day [X]  — [Purpose]                                   │\n│  3️⃣  Day [X]  — [Purpose]                                   │\n│  4️⃣  Day [X]  — [Purpose]                                   │\n│  5️⃣  Day [X]  — [Purpose]                                   │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🎯  Retargeting Plan                                        │\n├─────────────────────────────────────────────────────────────┤\n│  ⚡  Trigger:      [Visited but didn't convert]             │\n│  📅  Days 1-3:    [Message]                                 │\n│  📅  Days 4-7:    [Message]                                 │\n│  📅  Days 8-14:   [Message]                                 │\n│  📅  Days 15-30:  [Message]                                 │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  📆  Content Calendar                                        │\n├─────────────────────────────────────────────────────────────┤\n│  1️⃣  Week 1  — [Topic] — [Channel] — [Campaign tie-in]      │\n│  2️⃣  Week 2  — [Topic] — [Channel] — [Campaign tie-in]      │\n│  3️⃣  Week 3  — [Topic] — [Channel] — [Campaign tie-in]      │\n│  4️⃣  Week 4  — [Topic] — [Channel] — [Campaign tie-in]      │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🔫  SHOTGUN PREVENTION CHECKLIST                            ║\n╚══════════════════════════════════════════════════════════════╝\n\n  ☐  🎯  ONE awareness level targeted\n  ☐  🪜  ONE funnel stage targeted\n  ☐  🏁  ONE primary objective\n  ☐  ➡️  ONE clear next step for the prospect\n  ☐  👤  ONE ICP segment spoken to\n  ☐  💰  Budget is top-heavy (not bottom-heavy)\n  ☐  🔗  Next funnel stage exists (not a dead end)\n  ☐  🚫  NOT converting cold traffic directly to sale\n\n  ⚠️  Multiple unchecked = split into separate campaigns\n\n---\n\n⚠️ CRITICAL:\nYou can slightly tweak output format where you think readability can be improved.\nAdd relevant emojis throughout the output to improve readability.\nUse emojis:\n- At the start of every section header\n- Next to every label or field name\n- Next to every bullet point line\n- Next to table row content where relevant\nChoose emojis that match the meaning of the content (e.g. 💰 for price,\n📅 for dates, ✅ for positives, 🚫 for negatives, 💡 for insights, etc.)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3584,
+        0
+      ],
+      "id": "57f28890-df4c-472b-9b52-e44155776f5f",
+      "name": "Campaign Orchestrator Agent"
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $('Create folder').item.json.id }}",
+        "title": "Campaign Orchestrator"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        3936,
+        0
+      ],
+      "id": "9d2442bd-35d2-47af-85c0-02c41bb6ab85",
+      "name": "Create a document2",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Campaign Orchestrator Agent').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        4144,
+        0
+      ],
+      "id": "c928fc09-8684-47fa-88f0-94c7387c89b6",
+      "name": "Update a document2",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1206113330339416",
+        "name": "Campaign Orchestrator",
+        "otherProperties": {
+          "notes": "={{ $('Campaign Orchestrator Agent').item.json.output }}",
+          "projects": "={{ $('Get row(s)').item.json.asana_project_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        4352,
+        0
+      ],
+      "id": "21767b7a-853d-4231-83af-f309f9f586a3",
+      "name": "Create a task2",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "cyi3Eu4mD94t5UMM",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.campaign_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Campaign_Orchestrator": "={{ $('DesignBrief Agent 9').item.json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "drive_folder_id",
+              "displayName": "drive_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_hypothesis_json",
+              "displayName": "audience_hypothesis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_analysis_json",
+              "displayName": "survey_analysis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ICP_builder_json",
+              "displayName": "ICP_builder_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "positioning_json",
+              "displayName": "positioning_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "offer_architect_json",
+              "displayName": "offer_architect_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "DesignBrief",
+              "displayName": "DesignBrief",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "CopyWriting",
+              "displayName": "CopyWriting",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Campaign_Orchestrator",
+              "displayName": "Campaign_Orchestrator",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "gamma_url_and_id",
+              "displayName": "gamma_url_and_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4560,
+        0
+      ],
+      "id": "cdc17099-c2ca-45ba-ab9a-f908fd4d9ea6",
+      "name": "Update row(s)"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "campaign_id": "2026-03-20-stamped-branding",
+          "drive_folder_id": "1NLO33n9vhzAaLJxxPylt0DsR73rpYzDl"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CopyWriting Agent 8",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "CopyWriting Agent 8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Create a task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert row(s)": {
+      "main": [
+        [
+          {
+            "node": "DesignBrief Agent 9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DesignBrief Agent 9",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document1": {
+      "main": [
+        [
+          {
+            "node": "Update a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document1": {
+      "main": [
+        [
+          {
+            "node": "Create a task1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert row(s)1": {
+      "main": [
+        [
+          {
+            "node": "Campaign Orchestrator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CopyWriting Agent 8": {
+      "main": [
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a task": {
+      "main": [
+        [
+          {
+            "node": "Upsert row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DesignBrief Agent 9": {
+      "main": [
+        [
+          {
+            "node": "Create a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a task1": {
+      "main": [
+        [
+          {
+            "node": "Upsert row(s)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Campaign Orchestrator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaign Orchestrator Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document2": {
+      "main": [
+        [
+          {
+            "node": "Update a document2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document2": {
+      "main": [
+        [
+          {
+            "node": "Create a task2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a task2": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "versionId": "5250fb17-2a77-4f8a-a55d-6589661dfc7f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a44d10a4b2711883b6434f7648eb0a4b5fb97a064aba14bd9cd3992ef0bf21bb"
+  },
+  "id": "nv1iKyAg2iFLMShL",
+  "tags": []
+}

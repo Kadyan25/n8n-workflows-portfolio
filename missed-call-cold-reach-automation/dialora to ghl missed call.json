@@ -1,0 +1,266 @@
+{
+  "name": "dialora to ghl missed call",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ghl-missed-call",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -208
+      ],
+      "id": "55f95fd4-5c6b-425b-a5a5-7e90b7803566",
+      "name": "Webhook",
+      "webhookId": "be528ef4-a652-4c7d-a6db-fbc124c3aef8"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/upsert",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"locationId\": \"Q9XTuZXzQn30LEv5m26c\",\n  \"firstName\": \"{{ $json.firstName }}\",\n  \"companyName\": \"{{ $json.company }}\",\n  \"email\": \"{{ $json.email }}\",\n  \"phone\": \"{{ $json.phone }}\",\n  \"tags\": [\"missed-call-campaign\", \"mc-lead\"]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        896,
+        -304
+      ],
+      "id": "d9fc6fcb-3007-4b50-8a56-a65b45687d16",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "fIi41Jqru3Sw8PcR",
+          "name": "Dialora GHL Bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const body = $input.item.json.body;\nconst ctx = body.context || {};\nconst name = ctx.name || '';\nconst firstName = name.split(' ')[0] || '';\nconst company = ctx.company || '';\nconst greeting = firstName\n  ? 'Hey ' + firstName\n  : 'Hi ' + (company ? company + ' team' : 'there');\n\nconst rawPhone = ctx.phone || body.toNumber || '';\nconst phone = rawPhone.replace('+', '');\n\nreturn {\n  json: {\n    name,\n    firstName,\n    email: ctx.email || '',\n    phone,\n    company,\n    greeting,\n    callDuration: body.duration || 0,\n    callSummary: body.summary || ''\n  }\n};"
+      },
+      "id": "dbfea12f-e3d5-4aa3-98b9-717d6937b3e1",
+      "name": "Build Contact Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cond-b1",
+              "leftValue": "={{ $json.body.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "cond-b2",
+              "leftValue": "={{ $json.body.status }}",
+              "rightValue": " no_answer",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "5781a7c6-b94c-4480-b9ae-924849dca923",
+      "name": "Call Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "49883069-aae1-4a76-bfe3-93a528b99e04",
+              "leftValue": "={{ $json.body.toNumber }}",
+              "rightValue": "web",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        -256
+      ],
+      "id": "4eca0dcc-7e2a-467d-9e0e-e9263f4f4ad5",
+      "name": "If"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "growthdriven.app.n8n.cloud",
+            "user-agent": "axios/1.13.6",
+            "content-length": "389",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, br",
+            "b3": "682b986c7df84a2eea87dcb0b5437243-96cb58a3757f32c7-1",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "3.232.160.7",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9ed50a42de87541a-IAD",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "traceparent": "00-682b986c7df84a2eea87dcb0b5437243-96cb58a3757f32c7-01",
+            "x-forwarded-for": "3.232.160.7, 104.23.209.214",
+            "x-forwarded-host": "growthdriven.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-91-6c5f66d98-cclbp",
+            "x-is-trusted": "yes",
+            "x-real-ip": "3.232.160.7"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "eventId": "exec_epf3c8bzoi1klmjpmmve6b1r",
+            "context": {
+              "name": "k",
+              "email": "stervogarage@gmail.com",
+              "phone": "+18189674790",
+              "company": "Stervo Garage | PPF & Car Wrap",
+              "message": "Interested in your services"
+            },
+            "extractions": null,
+            "transcript": null,
+            "analytics": null,
+            "duration": 0,
+            "summary": null,
+            "fromNumber": "+17712474234",
+            "toNumber": "+18189674790",
+            "direction": "outbound-api",
+            "status": "no_answer"
+          },
+          "webhookUrl": "https://growthdriven.app.n8n.cloud/webhook/ghl-missed-call",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Call Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Contact Data": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Call Status": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Build Contact Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2224f631-c560-4818-b0f8-37ac44908d3b",
+  "meta": {
+    "instanceId": "a44d10a4b2711883b6434f7648eb0a4b5fb97a064aba14bd9cd3992ef0bf21bb"
+  },
+  "id": "Xvvz4tryfuR978fn",
+  "tags": []
+}

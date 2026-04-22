@@ -1,0 +1,766 @@
+{
+  "name": "Phase 4 (1)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -688,
+        224
+      ],
+      "id": "234205a8-9efa-4e7a-ab2b-dd070fd6ba6d",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $json.campaign_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        224
+      ],
+      "id": "84317eb8-5c6e-477e-bbd0-0ffd220d0fb5",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Using the research data provided below, generate the brand guide JSON in the exact schema from the system prompt.\n\nCompany data:\n- parsed_intake: {{ $json.parsed_intake_json_0A }}\n- audience_hypothesis_json: {{$json[\"audience_hypothesis_json\"]}}\n- audience_confirmation_json: {{$json[\"audience_confirmation_json\"]}}\n- survey_raw_data_json: {{$json[\"survey_raw_data_json\"]}}\n- survey_analysis_json: {{$json[\"survey_analysis_json\"]}}\n- market_research: {{ $json.market_research_agent_2 }}\n- competitor_research: {{ $json.competitor_research_agent_3 }}\n- product_research_json: {{ $json.product_research_agent_1 }}\n- company_intelligence_json: {{$json[\"company_intelligence_json\"]}}\n-funnel_strategy_json:{{ $json.funnel_strategy_json }}\n-offer_architect_json:{{ $json.offer_architect_json }}\n-ICP_builder_json:{{ $json.ICP_builder_json }}\n-positioning_json:{{ $json.positioning_json }}\n\n\nCombine and enrich this information to produce ONE JSON object that follows the required schema exactly.\n",
+        "options": {
+          "systemMessage": "=You are a senior brand and go-to-market strategist.\n\nYour job:\nTurn the research I give you into a single, strictly structured JSON object that represents a complete Brand & Go-to-Market Guide for ANY business type or vertical.\n\nThe guide should feel like a polished strategy deck:\n- Narrative intros that match the brand’s natural tone (not forced warmth if the brand is clinical; not forced professionalism if the brand is irreverent).\n- Clear sections: Brand Foundation, Personality & Voice, Positioning, ICPs, Buttons, Language, Offers, Visual Identity, Channels, Competitive Context, Copy Assets.\n- Tone must match what the research data reveals about the brand and its audience.\n\nYou MUST output ONLY JSON in a fixed schema so another system can render it to HTML/PDF.\n\n--------------------------------\nSTRICT JSON SCHEMA (MANDATORY)\n--------------------------------\n\nYou MUST output exactly one JSON object with these keys and structure.\nDo NOT rename keys. Do NOT add new keys. Do NOT delete any keys.\n\nIf you lack information for a field:\n- Use \"\" for strings\n- Use [] for arrays\n- Use 0 for numbers\n\nSchema:\n\n{\n  \"meta\": {\n    \"brand_name\": \"\",\n    \"doc_title\": \"\",\n    \"tagline\": \"\",\n    \"industry\": \"\",\n    \"business_type\": \"\",\n    \"version\": \"\",\n    \"generated_at\": \"\"\n  },\n  \"table_of_contents\": [],\n  \"brand_foundation\": {\n    \"brand_story\": \"\",\n    \"mission\": \"\",\n    \"vision\": \"\",\n    \"values_table\": [\n      {\n        \"value\": \"\",\n        \"what_it_means\": \"\",\n        \"how_it_shows_up\": \"\"\n      }\n    ],\n    \"brand_promise\": \"\",\n    \"brand_archetype\": {\n      \"name\": \"\",\n      \"description\": \"\"\n    }\n  },\n  \"brand_personality_voice\": {\n    \"character_in_5_words\": [],\n    \"tone_table\": [\n      {\n        \"dimension\": \"\",\n        \"sounds_like\": \"\",\n        \"does_not_sound_like\": \"\"\n      }\n    ],\n    \"tone_scale\": {\n      \"market_tone_level_range\": [],\n      \"market_tone_description\": \"\",\n      \"brand_tone_level_range\": [],\n      \"brand_tone_name\": \"\",\n      \"golden_tone_rule\": []\n    },\n    \"writing_principles\": [\n      {\n        \"title\": \"\",\n        \"description\": \"\"\n      }\n    ]\n  },\n  \"positioning_messaging\": {\n    \"core_position_statement\": \"\",\n    \"positioning_type\": \"\",\n    \"master_differentiation\": \"\",\n    \"market_sophistication\": {\n      \"level\": \"\",\n      \"name\": \"\",\n      \"description\": \"\",\n      \"implication\": \"\"\n    },\n    \"positioning_by_awareness\": [\n      {\n        \"level\": \"\",\n        \"what_they_need\": \"\",\n        \"how_we_lead\": \"\"\n      }\n    ],\n    \"frame_consistency_check\": \"\"\n  },\n  \"icps\": [\n    {\n      \"id\": \"\",\n      \"name\": \"\",\n      \"label\": \"\",\n      \"attributes_table\": [\n        {\n          \"attribute\": \"\",\n          \"details\": \"\"\n        }\n      ],\n      \"before_state\": \"\",\n      \"exact_words\": [],\n      \"what_they_actually_want\": \"\",\n      \"primary_objection\": \"\",\n      \"what_would_make_them_buy\": [],\n      \"viewpoint_shift_prompt\": \"\",\n      \"decision_criteria\": [],\n      \"trigger_events\": []\n    }\n  ],\n  \"buttons_objections\": {\n    \"pain_buttons\": {\n      \"primary_segment\": \"\",\n      \"items\": [\n        {\n          \"rank\": 0,\n          \"segment\": \"\",\n          \"button\": \"\",\n          \"exact_phrases\": []\n        }\n      ]\n    },\n    \"desire_buttons\": {\n      \"primary_segment\": \"\",\n      \"items\": [\n        {\n          \"rank\": 0,\n          \"segment\": \"\",\n          \"button\": \"\",\n          \"exact_phrases\": []\n        }\n      ]\n    },\n    \"objections\": [\n      {\n        \"objection\": \"\",\n        \"exact_words\": [],\n        \"how_to_handle\": \"\"\n      }\n    ]\n  },\n  \"language_library\": {\n    \"use_pain\": [],\n    \"use_desire\": [],\n    \"terms_to_use\": [\n      {\n        \"term\": \"\",\n        \"how_to_use\": \"\"\n      }\n    ],\n    \"avoid\": [\n      {\n        \"term\": \"\",\n        \"reason\": \"\"\n      }\n    ],\n    \"vertical_language\": [\n      {\n        \"category\": \"\",\n        \"use\": \"\",\n        \"context\": \"\",\n        \"power_phrase\": \"\"\n      }\n    ]\n  },\n  \"offer_architecture\": {\n    \"core_offer_statement\": \"\",\n    \"value_equation\": [\n      {\n        \"factor\": \"\",\n        \"market_standard\": \"\",\n        \"optimized\": \"\"\n      }\n    ],\n    \"offer_stack\": [\n      {\n        \"tier\": \"\",\n        \"what_they_get\": \"\",\n        \"price_or_commitment\": \"\",\n        \"cta\": \"\"\n      }\n    ],\n    \"guarantee\": {\n      \"type\": \"\",\n      \"statement\": \"\",\n      \"duration_days\": 0,\n      \"conditions\": \"\",\n      \"process\": \"\"\n    },\n    \"pricing_tiers\": [\n      {\n        \"name\": \"\",\n        \"price\": \"\",\n        \"who_its_for\": \"\",\n        \"features\": []\n      }\n    ],\n    \"funnel\": {\n      \"steps\": [\n        {\n          \"stage\": \"\",\n          \"asset\": \"\",\n          \"goal\": \"\",\n          \"next_step\": \"\"\n        }\n      ]\n    },\n    \"scarcity_rules\": []\n  },\n  \"visual_identity\": {\n    \"colors\": [\n      {\n        \"name\": \"\",\n        \"hex\": \"\",\n        \"usage\": \"\"\n      }\n    ],\n    \"typography\": [\n      {\n        \"element\": \"\",\n        \"typeface\": \"\",\n        \"size_weight\": \"\",\n        \"usage\": \"\"\n      }\n    ],\n    \"logo_guidelines\": {\n      \"description\": \"\",\n      \"rules\": []\n    },\n    \"imagery\": {\n      \"style_description\": \"\",\n      \"guidelines\": [],\n      \"avoid\": []\n    }\n  },\n  \"channel_guidelines\": {\n    \"website\": {\n      \"hero\": {\n        \"headline\": \"\",\n        \"subhead\": \"\",\n        \"cta\": \"\",\n        \"visual\": \"\"\n      },\n      \"page_structure\": [\n        {\n          \"section\": \"\",\n          \"purpose\": \"\"\n        }\n      ]\n    },\n    \"google_ads\": {\n      \"trigger_campaigns\": [\n        {\n          \"name\": \"\",\n          \"keywords\": [],\n          \"ad_headline\": \"\",\n          \"landing_page\": \"\"\n        }\n      ]\n    },\n    \"email\": {\n      \"subject_line_rules\": [],\n      \"subject_line_formulas\": [],\n      \"sequences\": [\n        {\n          \"name\": \"\",\n          \"goal\": \"\",\n          \"emails\": [\n            {\n              \"day\": \"\",\n              \"subject\": \"\",\n              \"notes\": \"\"\n            }\n          ]\n        }\n      ]\n    },\n    \"social\": {\n      \"pillars\": [\n        {\n          \"pillar\": \"\",\n          \"description\": \"\"\n        }\n      ],\n      \"post_templates\": [\n        {\n          \"type\": \"\",\n          \"template\": \"\"\n        }\n      ],\n      \"platform_priorities\": []\n    },\n    \"video\": {\n      \"vsl_structure\": [\n        {\n          \"section\": \"\",\n          \"duration\": \"\",\n          \"content\": \"\"\n        }\n      ]\n    }\n  },\n  \"competitive_context\": {\n    \"quick_reference\": [\n      {\n        \"competitor\": \"\",\n        \"praise\": [],\n        \"complaints_to_use\": [],\n        \"their_position\": \"\",\n        \"our_flanking_gap\": \"\"\n      }\n    ],\n    \"comparison_script\": \"\",\n    \"response_framework\": [],\n    \"how_to_talk\": \"\"\n  },\n  \"copy_assets\": {\n    \"headline_bank\": {\n      \"pain_focused\": [],\n      \"desire_focused\": [],\n      \"solution_focused\": []\n    },\n    \"email_templates\": [\n      {\n        \"id\": \"\",\n        \"for_icp\": \"\",\n        \"subject\": \"\",\n        \"preview\": \"\",\n        \"body\": \"\"\n      }\n    ],\n    \"ad_snippets\": [\n      {\n        \"platform\": \"\",\n        \"type\": \"\",\n        \"headline\": \"\",\n        \"body\": \"\",\n        \"cta\": \"\"\n      }\n    ],\n    \"social_proof_prompts\": [],\n    \"master_viewpoint_checklist\": \"\"\n  }\n}\n\n-------------------------\nCONTENT GUIDELINES\n-------------------------\n\n- Match the brand’s natural voice. Infer tone from the research data — do NOT default to any single style.\n- For each section, add 1–2 sentences of narrative context, not just bullets.\n- Use concrete details (time, format, channels) specific to the client’s industry and audience.\n- For ICPs, write vivid “before state” paragraphs plus exact phrases in their own array.\n- For vertical_language, generate categories dynamically based on the client’s actual industry (e.g. “emergency_repair”, “preventive_maintenance” for a plumber; “onboarding”, “churn_prevention” for SaaS).\n- For visual_identity, infer from company_intelligence and research data; if specifics are missing, leave fields empty rather than fabricating.\n\n-------------------------\nRULES\n-------------------------\n\n- Output ONLY the JSON object, nothing before or after.\n- It MUST parse with JSON.parse with no errors.\n- No comments, no trailing commas, no Markdown.",
+          "maxIterations": 15
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -160,
+        -96
+      ],
+      "id": "726abfe7-d912-4284-a76f-79c7f8179762",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        112
+      ],
+      "id": "d5237006-f20c-4790-b150-9a71f198f9bb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// 1) Parse input JSON from previous agent\nconst raw = items[0].json.output || \"{}\";\nlet root;\ntry {\n  root = typeof raw === \"string\" ? JSON.parse(raw) : raw;\n} catch (e) {\n  root = { parse_error: String(e), raw };\n}\n\n// Escape helper for HTML safety\nfunction esc(str) {\n  return String(str ?? \"\").replace(/&/g, \"&amp;\")\n                          .replace(/</g, \"&lt;\")\n                          .replace(/>/g, \"&gt;\");\n}\n\nfunction asArray(v) {\n  return Array.isArray(v) ? v : [];\n}\n\n// ==========================\n// RENDER HELPERS FOR SECTIONS\n// ==========================\n\nfunction renderValuesTable(values) {\n  const rows = asArray(values);\n  if (!rows.length) return \"\";\n  return `\n  <table>\n    <thead>\n      <tr>\n        <th>Value</th>\n        <th>What it means</th>\n        <th>How it shows up</th>\n      </tr>\n    </thead>\n    <tbody>\n      ${rows.map(v => `\n        <tr>\n          <td><strong>${esc(v.value)}</strong></td>\n          <td>${esc(v.what_it_means)}</td>\n          <td>${esc(v.how_it_shows_up)}</td>\n        </tr>\n      `).join(\"\")}\n    </tbody>\n  </table>`;\n}\n\nfunction renderToneTable(rowsIn) {\n  const rows = asArray(rowsIn);\n  if (!rows.length) return \"\";\n  return `\n  <table>\n    <thead>\n      <tr>\n        <th>Tone Dimension</th>\n        <th>What it sounds like</th>\n        <th>What it doesn't sound like</th>\n      </tr>\n    </thead>\n    <tbody>\n      ${rows.map(r => `\n        <tr>\n          <td><strong>${esc(r.dimension)}</strong></td>\n          <td>${esc(r.sounds_like)}</td>\n          <td>${esc(r.does_not_sound_like)}</td>\n        </tr>\n      `).join(\"\")}\n    </tbody>\n  </table>`;\n}\n\n// Pull-quote block for “exact words”\nfunction renderPullQuote(linesIn) {\n  const lines = asArray(linesIn);\n  if (!lines.length) return \"\";\n  return `\n  <div class=\"pull-quote\">\n    ${lines.map(l => `<p>${esc(l)}</p>`).join(\"\")}\n  </div>`;\n}\n\nfunction renderICPs(icpsIn) {\n  const icps = asArray(icpsIn);\n  if (!icps.length) return \"\";\n  return `\n<section>\n  <h1>04 Ideal Customer Profiles (ICPs) & Audience</h1>\n  <p class=\"section-intro\">Detailed audience snapshots with their real language, objections, and what moves them to action.</p>\n  ${icps.map(icp => {\n    const attrs = asArray(icp.attributes_table).map(a => `\n      <tr>\n        <td><strong>${esc(a.attribute)}</strong></td>\n        <td>${esc(a.details)}</td>\n      </tr>\n    `).join(\"\");\n    const wwmtb = asArray(icp.what_would_make_them_buy).map(w => `<li>${esc(w)}</li>`).join(\"\");\n    const crit = asArray(icp.decision_criteria).map(w => `<li>${esc(w)}</li>`).join(\"\");\n    const trig = asArray(icp.trigger_events).map(w => `<li>${esc(w)}</li>`).join(\"\");\n    return `\n    <section class=\"icp-block\">\n      ${icp.id ? `<div class=\"eyebrow\">${esc(icp.id)}</div>` : \"\"}\n      <h2>${esc(icp.name || \"\")}${icp.label ? \" — \" + esc(icp.label) : \"\"}</h2>\n      ${attrs ? `\n      <table>\n        <thead><tr><th>Profile Attribute</th><th>Details</th></tr></thead>\n        <tbody>${attrs}</tbody>\n      </table>` : \"\"}\n      <h3>Before State — Exact Reality</h3>\n      <p>${esc(icp.before_state)}</p>\n      <h3>Their Exact Words</h3>\n      ${renderPullQuote(icp.exact_words)}\n      <h3>What They Actually Want</h3>\n      <p>${esc(icp.what_they_actually_want)}</p>\n      <h3>Primary Objection</h3>\n      <p>${esc(icp.primary_objection)}</p>\n      <h3>What Would Make Them Buy</h3>\n      <ul>${wwmtb}</ul>\n      <div class=\"callout info\">\n        <div class=\"callout-title\">Viewpoint Shift Card</div>\n        <p>${esc(icp.viewpoint_shift_prompt)}</p>\n      </div>\n      <h3>Decision Criteria</h3>\n      <ul>${crit}</ul>\n      <h3>Trigger Events</h3>\n      <ul>${trig}</ul>\n    </section>`;\n  }).join(\"\")}\n</section>`;\n}\n\nfunction renderButtons(b) {\n  if (!b) return \"\";\n  const painItems = asArray(b.pain_buttons?.items);\n  const desireItems = asArray(b.desire_buttons?.items);\n  const obsItems = asArray(b.objections);\n\n  const pain = painItems.map(x => `\n    <tr>\n      <td>#${esc((x.rank ?? 0) + 1)}</td>\n      <td>${esc(x.segment)}</td>\n      <td>${esc(x.button)}</td>\n      <td><ul>${asArray(x.exact_phrases).map(p => `<li>${esc(p)}</li>`).join(\"\")}</ul></td>\n    </tr>\n  `).join(\"\");\n\n  const desire = desireItems.map(x => `\n    <tr>\n      <td>#${esc((x.rank ?? 0) + 1)}</td>\n      <td>${esc(x.segment)}</td>\n      <td>${esc(x.button)}</td>\n      <td><ul>${asArray(x.exact_phrases).map(p => `<li>${esc(p)}</li>`).join(\"\")}</ul></td>\n    </tr>\n  `).join(\"\");\n\n  const obs = obsItems.map(o => `\n    <tr>\n      <td>${esc(o.objection)}</td>\n      <td><ul>${asArray(o.exact_words).map(w => `<li>${esc(w)}</li>`).join(\"\")}</ul></td>\n      <td>${esc(o.how_to_handle)}</td>\n    </tr>\n  `).join(\"\");\n\n  return `\n<section>\n  <h1>05 Buttons & Objections (Survey-Driven)</h1>\n  <p class=\"section-intro\">Real phrases and majority-agreement buttons to open every campaign with instant resonance.</p>\n  <h2>Pain Buttons</h2>\n  ${pain ? `\n  <table>\n    <thead><tr><th>Rank</th><th>Segment</th><th>Button</th><th>Exact phrases</th></tr></thead>\n    <tbody>${pain}</tbody>\n  </table>` : \"<p class='muted'>No pain buttons available.</p>\"}\n  <h2>Desire Buttons</h2>\n  ${desire ? `\n  <table>\n    <thead><tr><th>Rank</th><th>Segment</th><th>Button</th><th>Exact phrases</th></tr></thead>\n    <tbody>${desire}</tbody>\n  </table>` : \"<p class='muted'>No desire buttons available.</p>\"}\n  <h2>Objections</h2>\n  ${obs ? `\n  <table>\n    <thead><tr><th>Objection</th><th>Exact words</th><th>How to handle</th></tr></thead>\n    <tbody>${obs}</tbody>\n  </table>` : \"<p class='muted'>No objections captured.</p>\"}\n</section>`;\n}\n\nfunction renderLanguageLibrary(lang) {\n  if (!lang) return '';\n\n  const usePain = asArray(lang.use_pain);\n  const useDesire = asArray(lang.use_desire);\n  const termsToUse = asArray(lang.terms_to_use);\n  const avoid = asArray(lang.avoid);\n  const vertical = asArray(lang.vertical_language);\n\n  let html = 'section';\n  html += '<h1>06 Language Library & Terminology</h1>';\n  html += '<p class=\"section-intro\">Use this library to keep every asset on-message — same pain, same desire, same phrases.</p>';\n\n  // Language to USE – Pain / Problem\n  html += '<h2>Language to USE – Pain / Problem</h2>';\n  if (usePain.length) {\n    html += '<ul>' + usePain.map(x => `<li>${esc(x)}</li>`).join('') + '</ul>';\n  } else {\n    html += '<p class=\"muted\">No pain-focused language defined.</p>';\n  }\n\n  // Language to USE – Desire / Solution\n  html += '<h2>Language to USE – Desire / Solution</h2>';\n  if (useDesire.length) {\n    html += '<ul>' + useDesire.map(x => `<li>${esc(x)}</li>`).join('') + '</ul>';\n  } else {\n    html += '<p class=\"muted\">No desire-focused language defined.</p>';\n  }\n\n  // Terms to USE\n  html += '<h2>Terms to USE</h2>';\n  if (termsToUse.length) {\n    html += '<table><thead><tr><th>Term</th><th>How to use it</th></tr></thead><tbody>';\n    html += termsToUse.map(t =>\n      `<tr><td><strong>${esc(t.term || '')}</strong></td><td>${esc(t.how_to_use || '')}</td></tr>`\n    ).join('');\n    html += '</tbody></table>';\n  } else {\n    html += '<p class=\"muted\">No specific terms defined.</p>';\n  }\n\n  // Words/Phrases to AVOID\n  html += '<h2>Words/Phrases to AVOID</h2>';\n  if (avoid.length) {\n    html += '<table><thead><tr><th>Avoid this</th><th>Reason why</th></tr></thead><tbody>';\n    html += avoid.map(a =>\n      `<tr><td><strong>${esc(a.term || '')}</strong></td><td>${esc(a.reason || '')}</td></tr>`\n    ).join('');\n    html += '</tbody></table>';\n  } else {\n    html += '<p class=\"muted\">No explicit avoid list defined.</p>';\n  }\n\n  // Vertical Language (dynamic array)\n  if (vertical.length) {\n    html += '<div class=\"callout subtle\">';\n    html += '<div class=\"callout-title\">Vertical Language Guidance</div>';\n    vertical.forEach(v => {\n      html += `<h3>${esc(v.category || '')}</h3>`;\n      html += `<p><strong>Use:</strong> ${esc(v.use || '')}</p>`;\n      html += `<p><strong>Context:</strong> ${esc(v.context || '')}</p>`;\n      html += `<p><strong>Power phrase:</strong> ${esc(v.power_phrase || '')}</p>`;\n    });\n    html += '</div>';\n  }\n\n  html += 'section';\n  return html;\n}\n\nfunction renderOfferArchitecture(off) {\n  if (!off) return \"\";\n  \n  const offerStackRows = asArray(off.offer_stack).map(o => `\n    <tr>\n      <td><strong>${esc(o.tier)}</strong></td>\n      <td>${esc(o.what_they_get)}</td>\n      <td>${esc(o.price_or_commitment)}</td>\n      <td>${esc(o.cta)}</td>\n    </tr>\n  `).join(\"\");\n  \n  const valueFactors = asArray(off.value_equation).map(v => `\n    <tr>\n      <td><strong>${esc(v.factor)}</strong></td>\n      <td>${esc(v.market_standard)}</td>\n      <td>${esc(v.optimized)}</td>\n    </tr>\n  `).join(\"\");\n\n  const funnelSteps = asArray(off.funnel?.steps).map(s => `\n    <tr>\n      <td><strong>${esc(s.stage)}</strong></td>\n      <td>${esc(s.asset)}</td>\n      <td>${esc(s.goal)}</td>\n      <td>${esc(s.next_step)}</td>\n    </tr>\n  `).join(\"\");\n\n  const pricingRows = asArray(off.pricing_tiers).map(p => `\n    <tr>\n      <td><strong>${esc(p.name)}</strong></td>\n      <td>${esc(p.price)}</td>\n      <td>${esc(p.who_its_for)}</td>\n      <td><ul>${asArray(p.features).map(f => `<li>${esc(f)}</li>`).join(\"\")}</ul></td>\n    </tr>\n  `).join(\"\");\n\n  return `\n<section>\n  <h1>07 Offer Architecture & Funnel</h1>\n  <p class=\"section-intro\">How we package the value: from free uplift to deep practice and partner support.</p>\n  <div class=\"callout primary\">\n    <div class=\"callout-title\">Core Offer Statement</div>\n    <p>${esc(off.core_offer_statement)}</p>\n  </div>\n  \n  <h2>Offer Stack</h2>\n  ${offerStackRows ? `\n  <table>\n    <thead><tr><th>Tier</th><th>What They Get</th><th>Price/Commitment</th><th>CTA</th></tr></thead>\n    <tbody>${offerStackRows}</tbody>\n  </table>` : \"<p class='muted'>No offer stack defined.</p>\"}\n\n  <h2>Value Equation</h2>\n  ${valueFactors ? `\n  <table>\n    <thead><tr><th>Factor</th><th>Market Standard</th><th>Optimized</th></tr></thead>\n    <tbody>${valueFactors}</tbody>\n  </table>` : \"<p class='muted'>No value equation factors listed.</p>\"}\n\n  ${off.guarantee ? `\n  <div class=\"callout soft\">\n    <div class=\"callout-title\">Guarantee</div>\n    <p><strong>${esc(off.guarantee.type)}</strong></p>\n    <p>${esc(off.guarantee.statement)}</p>\n    <p><strong>Duration (days):</strong> ${esc(off.guarantee.duration_days)}</p>\n    <p><strong>Conditions:</strong> ${esc(off.guarantee.conditions)}</p>\n    <p><strong>Process:</strong> ${esc(off.guarantee.process)}</p>\n  </div>\n  ` : ''}\n\n  ${pricingRows ? `\n  <h2>Pricing Tiers</h2>\n  <table>\n    <thead><tr><th>Tier</th><th>Price</th><th>Who it's for</th><th>Features</th></tr></thead>\n    <tbody>${pricingRows}</tbody>\n  </table>` : \"\"}\n\n  ${funnelSteps ? `\n  <h2>Funnel Architecture</h2>\n  <table>\n    <thead><tr><th>Stage</th><th>Asset</th><th>Goal</th><th>Next Step</th></tr></thead>\n    <tbody>${funnelSteps}</tbody>\n  </table>` : \"\"}\n\n  ${asArray(off.scarcity_rules).length ? `\n  <h2>Scarcity & Urgency Rules</h2>\n  <ul>${asArray(off.scarcity_rules).map(r => `<li>${esc(r)}</li>`).join(\"\")}</ul>\n  ` : ''}\n</section>`;\n}\n\nfunction renderVisualIdentity(vis) {\n  if (!vis) return \"\";\n  \n  const colorRows = asArray(vis.colors).map(c => `\n    <tr>\n      <td><strong>${esc(c.name)}</strong></td>\n      <td>\n        <span class=\"color-chip\" style=\"background:${esc(c.hex)};\"></span>\n        ${esc(c.hex)}\n      </td>\n      <td>${esc(c.usage)}</td>\n    </tr>\n  `).join(\"\");\n\n  const typoRows = asArray(vis.typography).map(t => `\n    <tr>\n      <td><strong>${esc(t.element)}</strong></td>\n      <td>${esc(t.typeface)}</td>\n      <td>${esc(t.size_weight)}</td>\n      <td>${esc(t.usage)}</td>\n    </tr>\n  `).join(\"\");\n\n  return `\n<section>\n  <h1>08 Visual Identity & Brand Assets</h1>\n  <p class=\"section-intro\">A simple visual system to keep everything feeling professional and trustworthy.</p>\n  \n  ${colorRows ? `\n  <h2>Color Palette</h2>\n  <table>\n    <thead><tr><th>Color</th><th>Hex</th><th>Usage</th></tr></thead>\n    <tbody>${colorRows}</tbody>\n  </table>` : \"<p class='muted'>No color palette defined.</p>\"}\n\n  ${typoRows ? `\n  <h2>Typography</h2>\n  <table>\n    <thead><tr><th>Element</th><th>Typeface</th><th>Size/Weight</th><th>Usage</th></tr></thead>\n    <tbody>${typoRows}</tbody>\n  </table>` : \"\"}\n\n  ${vis.logo_guidelines ? `\n  <h2>Logo Guidelines</h2>\n  <p>${esc(vis.logo_guidelines.description)}</p>\n  <ul>\n    ${asArray(vis.logo_guidelines.rules).map(r => `<li>${esc(r)}</li>`).join(\"\")}\n  </ul>\n  ` : ''}\n\n  ${vis.imagery ? `\n  <h2>Imagery & Photography</h2>\n  <p>${esc(vis.imagery.style_description)}</p>\n  <ul>\n    ${asArray(vis.imagery.guidelines).map(g => `<li>${esc(g)}</li>`).join(\"\")}\n  </ul>\n  ${asArray(vis.imagery.avoid).length ? `\n  <h3>Avoid</h3>\n  <ul>\n    ${asArray(vis.imagery.avoid).map(a => `<li>${esc(a)}</li>`).join(\"\")}\n  </ul>` : \"\"}\n  ` : ''}\n</section>`;\n}\n\nfunction renderChannelGuidelines(ch) {\n  if (!ch) return \"\";\n  \n  let html = `<section><h1>09 Channel Guidelines</h1>\n  <p class=\"section-intro\">Channel-by-channel rules so the same story lands wherever people discover the brand.</p>`;\n\n  // Website\n  if (ch.website) {\n    html += `\n    <h2>Website</h2>\n    <div class=\"callout soft\">\n      <div class=\"callout-title\">Hero Section</div>\n      <p><strong>Headline:</strong> ${esc(ch.website.hero?.headline)}</p>\n      <p><strong>Subhead:</strong> ${esc(ch.website.hero?.subhead)}</p>\n      <p><strong>CTA:</strong> ${esc(ch.website.hero?.cta)}</p>\n      <p><strong>Visual:</strong> ${esc(ch.website.hero?.visual)}</p>\n    </div>\n    ${asArray(ch.website.page_structure).length ? `\n    <h3>Page Structure</h3>\n    <ul>${asArray(ch.website.page_structure).map(p => `<li><strong>${esc(p.section)}</strong>: ${esc(p.purpose)}</li>`).join(\"\")}</ul>\n    ` : ''}\n    `;\n  }\n\n  // Google Ads\n  if (ch.google_ads) {\n    html += `\n    <h2>Google Ads</h2>\n    ${asArray(ch.google_ads.trigger_campaigns).length ? `\n    <h3>Trigger Campaigns</h3>\n    <table>\n      <thead><tr><th>Campaign</th><th>Keywords</th><th>Ad Headline</th><th>Landing</th></tr></thead>\n      <tbody>\n        ${asArray(ch.google_ads.trigger_campaigns).map(t => `\n          <tr>\n            <td><strong>${esc(t.name)}</strong></td>\n            <td>${asArray(t.keywords).map(k => esc(k)).join(\", \")}</td>\n            <td>${esc(t.ad_headline)}</td>\n            <td>${esc(t.landing_page)}</td>\n          </tr>\n        `).join(\"\")}\n      </tbody>\n    </table>\n    ` : \"<p class='muted'>No Google Ads campaigns defined.</p>\"}\n    `;\n  }\n\n  // Email\n  if (ch.email) {\n    html += `\n    <h2>Email</h2>\n    <h3>Subject Line Rules</h3>\n    <ul>${asArray(ch.email.subject_line_rules).map(r => `<li>${esc(r)}</li>`).join(\"\")}</ul>\n    <h3>Subject Line Formulas</h3>\n    <ul>${asArray(ch.email.subject_line_formulas).map(r => `<li>${esc(r)}</li>`).join(\"\")}</ul>\n    ${asArray(ch.email.sequences).length ? `\n    <h3>Sequences</h3>\n    ${asArray(ch.email.sequences).map(seq => `\n      <div class=\"callout subtle\">\n        <div class=\"callout-title\">${esc(seq.name)}</div>\n        <p>${esc(seq.goal)}</p>\n        <ul>${asArray(seq.emails).map(e => `<li>Day ${esc(e.day)}: ${esc(e.subject)} <span class=\"muted\">${esc(e.notes || \"\")}</span></li>`).join(\"\")}</ul>\n      </div>\n    `).join(\"\")}\n    ` : ''}\n    `;\n  }\n\n  // Social\n  if (ch.social) {\n    html += `\n    <h2>Social Media</h2>\n    ${asArray(ch.social.pillars).length ? `\n    <h3>Content Pillars</h3>\n    <ul>${asArray(ch.social.pillars).map(p => `<li><strong>${esc(p.pillar)}</strong>: ${esc(p.description)}</li>`).join(\"\")}</ul>\n    ` : ''}\n    ${asArray(ch.social.post_templates).length ? `\n    <h3>Post Templates</h3>\n    ${asArray(ch.social.post_templates).map(t => `\n      <p><strong>${esc(t.type)}</strong></p>\n      <p>${esc(t.template)}</p>\n    `).join(\"\")}\n    ` : ''}\n    ${asArray(ch.social.platform_priorities).length ? `\n    <h3>Platform Priorities</h3>\n    <ul>${asArray(ch.social.platform_priorities).map(p => `<li>${esc(p)}</li>`).join(\"\")}</ul>\n    ` : ''}\n    `;\n  }\n\n  // Video / VSL\n  if (ch.video) {\n    html += `\n    <h2>Video & VSL</h2>\n    ${asArray(ch.video.vsl_structure).length ? `\n    <h3>VSL Structure</h3>\n    <table>\n      <thead><tr><th>Section</th><th>Duration</th><th>Content</th></tr></thead>\n      <tbody>\n        ${asArray(ch.video.vsl_structure).map(s => `\n          <tr>\n            <td><strong>${esc(s.section)}</strong></td>\n            <td>${esc(s.duration)}</td>\n            <td>${esc(s.content)}</td>\n          </tr>\n        `).join(\"\")}\n      </tbody>\n    </table>\n    ` : ''}\n    `;\n  }\n\n  html += `</section>`;\n  return html;\n}\n\nfunction renderCompetitiveContext(comp) {\n  if (!comp) return \"\";\n  \n  const quickRef = asArray(comp.quick_reference).map(c => `\n    <tr>\n      <td><strong>${esc(c.competitor)}</strong></td>\n      <td>${asArray(c.praise).map(p => esc(p)).join(\"<br>\")}</td>\n      <td>${asArray(c.complaints_to_use).map(p => esc(p)).join(\"<br>\")}</td>\n      <td>${esc(c.their_position)}</td>\n      <td>${esc(c.our_flanking_gap)}</td>\n    </tr>\n  `).join(\"\");\n\n  return `\n<section>\n  <h1>10 Competitive Context</h1>\n  <p class=\"section-intro\">How to talk about the landscape without overpromising or undermining trust.</p>\n  \n  ${quickRef ? `\n  <h2>Competitive Position Map</h2>\n  <table>\n    <thead><tr><th>Competitor</th><th>What to Praise</th><th>Complaints to Use</th><th>Their Position</th><th>Our Flanking Gap</th></tr></thead>\n    <tbody>${quickRef}</tbody>\n  </table>\n  ` : \"<p class='muted'>No competitors mapped yet.</p>\"}\n\n  ${comp.comparison_script ? `\n  <div class=\"callout soft\">\n    <div class=\"callout-title\">Comparison Script</div>\n    <p>${esc(comp.comparison_script)}</p>\n  </div>\n  ` : ''}\n\n  ${asArray(comp.response_framework).length ? `\n  <h2>Objection Response Framework</h2>\n  <ul>${asArray(comp.response_framework).map(r => `<li>${esc(r)}</li>`).join(\"\")}</ul>\n  ` : ''}\n\n  ${comp.how_to_talk ? `\n  <h2>How to Talk</h2>\n  <p>${esc(comp.how_to_talk)}</p>\n  ` : ''}\n</section>`;\n}\n\nfunction renderCopyAssets(copy) {\n  if (!copy) return \"\";\n  \n  let html = `<section><h1>11 Copy Assets & Templates</h1>\n  <p class=\"section-intro\">Ready-to-use headlines, emails and ad snippets that follow all the rules above.</p>`;\n\n  // Headline Bank\n  if (copy.headline_bank) {\n    html += `\n    <h2>Headline Bank</h2>\n    ${asArray(copy.headline_bank.pain_focused).length ? `\n    <h3>Pain-Focused Headlines</h3>\n    <ul>${asArray(copy.headline_bank.pain_focused).map(h => `<li>${esc(h)}</li>`).join(\"\")}</ul>\n    ` : ''}\n    ${asArray(copy.headline_bank.desire_focused).length ? `\n    <h3>Desire-Focused Headlines</h3>\n    <ul>${asArray(copy.headline_bank.desire_focused).map(h => `<li>${esc(h)}</li>`).join(\"\")}</ul>\n    ` : ''}\n    ${asArray(copy.headline_bank.solution_focused).length ? `\n    <h3>Solution-Focused Headlines</h3>\n    <ul>${asArray(copy.headline_bank.solution_focused).map(h => `<li>${esc(h)}</li>`).join(\"\")}</ul>\n    ` : ''}\n  `;\n  }\n\n  // Email Templates\n  if (asArray(copy.email_templates).length) {\n    html += `\n    <h2>Email Templates</h2>\n    ${asArray(copy.email_templates).map(t => `\n      <div class=\"callout subtle\">\n        <div class=\"callout-title\">${esc(t.id || t.name || \"\")}${t.for_icp ? \" — \" + esc(t.for_icp) : \"\"}</div>\n        <p><strong>Subject:</strong> ${esc(t.subject)}</p>\n        <p><strong>Preview:</strong> ${esc(t.preview)}</p>\n        <p>${esc(t.body)}</p>\n      </div>\n    `).join(\"\")}\n    `;\n  }\n\n  // Ad Snippets\n  if (asArray(copy.ad_snippets).length) {\n    html += `\n    <h2>Ad Copy Snippets</h2>\n    ${asArray(copy.ad_snippets).map(ad => `\n      <div class=\"callout subtle\">\n        <div class=\"callout-title\">${esc(ad.platform)} — ${esc(ad.type)}</div>\n        <p><strong>Headline:</strong> ${esc(ad.headline)}</p>\n        <p><strong>Body:</strong> ${esc(ad.body)}</p>\n        <p><strong>CTA:</strong> ${esc(ad.cta)}</p>\n      </div>\n    `).join(\"\")}\n    `;\n  }\n\n  // Social Proof Prompts\n  if (asArray(copy.social_proof_prompts).length) {\n    html += `\n    <h2>Social Proof & Testimonial Prompts</h2>\n    <ul>${asArray(copy.social_proof_prompts).map(p => `<li>${esc(p)}</li>`).join(\"\")}</ul>\n    `;\n  }\n\n  // Master Viewpoint Checklist\n  if (asArray(copy.master_viewpoint_checklist).length) {\n    html += `\n    <h2>Master Viewpoint Shift Checklist</h2>\n    <ul>${asArray(copy.master_viewpoint_checklist).map(c => `<li>${esc(c)}</li>`).join(\"\")}</ul>\n    `;\n  }\n\n  html += `</section>`;\n  return html;\n}\n\n// ==========================\n// BUILD COMPLETE HTML DOCUMENT\n// ==========================\n\nconst d = root;\nlet bodyHtml = \"\";\n\n// COVER PAGE\nbodyHtml += `\n<section class=\"cover\">\n  <div class=\"eyebrow\">Brand & Go-to-Market Guide</div>\n  <h1 class=\"cover-title\">${esc(d.meta?.brand_name || \"\")}</h1>\n  <p class=\"cover-tagline\">${esc(d.meta?.tagline || \"\")}</p>\n</section>`;\n\n// TABLE OF CONTENTS\nbodyHtml += `\n<section>\n  <h1>TABLE OF CONTENTS</h1>\n  <ul class=\"toc\">\n    ${asArray(d.table_of_contents).map(i => `<li>${esc(i)}</li>`).join(\"\")}\n  </ul>\n</section>`;\n\n// 01 BRAND FOUNDATION\nbodyHtml += `\n<section>\n  <h1>01 Brand Foundation</h1>\n  <p class=\"section-intro\">Why this brand exists, what it believes, and how it shows up in the world.</p>\n  <h2>The Brand Story</h2>\n  <p>${esc(d.brand_foundation?.brand_story || \"\")}</p>\n  <h2>Mission</h2>\n  <p>${esc(d.brand_foundation?.mission || \"\")}</p>\n  <h2>Vision</h2>\n  <p>${esc(d.brand_foundation?.vision || \"\")}</p>\n  <h2>Brand Values</h2>\n  ${renderValuesTable(d.brand_foundation?.values_table)}\n  <div class=\"callout primary\">\n    <div class=\"callout-title\">The Brand Promise</div>\n    <p>${esc(d.brand_foundation?.brand_promise || \"\")}</p>\n  </div>\n  <h2>Brand Archetype</h2>\n  <p><strong>${esc(d.brand_foundation?.brand_archetype?.name || \"\")}</strong> — ${esc(d.brand_foundation?.brand_archetype?.description || \"\")}</p>\n</section>`;\n\n// 02 PERSONALITY & VOICE\nconst bpv = d.brand_personality_voice || {};\nbodyHtml += `\n<section>\n  <h1>02 Personality & Voice</h1>\n  <p class=\"section-intro\">How the brand should sound in every piece of communication.</p>\n  <h2>Brand Character in 5 Words</h2>\n  <p class=\"pill-row\">${asArray(bpv.character_in_5_words).map(w => `<span class=\"pill\">${esc(w)}</span>`).join(\"\")}</p>\n  <h2>Tone of Voice</h2>\n  ${renderToneTable(bpv.tone_table)}\n  <h2>Tone Scale Calibration</h2>\n  <p>${esc(bpv.tone_scale?.market_tone_description || \"\")}</p>\n  <p><strong>Market tone range:</strong> ${esc(asArray(bpv.tone_scale?.market_tone_level_range).join(\"–\"))}</p>\n  <p><strong>Brand tone:</strong> ${esc(bpv.tone_scale?.brand_tone_name || \"\")} (${esc(asArray(bpv.tone_scale?.brand_tone_level_range).join(\"–\"))})</p>\n  ${asArray(bpv.tone_scale?.golden_tone_rule).length ? `\n  <div class=\"callout soft\">\n    <div class=\"callout-title\">Golden Tone Rules</div>\n    <ul>${asArray(bpv.tone_scale?.golden_tone_rule).map(x => `<li>${esc(x)}</li>`).join(\"\")}</ul>\n  </div>` : \"\"}\n  <h2>Writing Principles</h2>\n  <ol>${asArray(bpv.writing_principles).map(p => `<li><strong>${esc(p.title)}</strong> ${esc(p.description)}</li>`).join(\"\")}</ol>\n</section>`;\n\n// 03 POSITIONING & MESSAGING\nconst pos = d.positioning_messaging || {};\nbodyHtml += `\n<section>\n  <h1>03 Positioning & Messaging</h1>\n  <p class=\"section-intro\">The strategic story: where we sit, why we’re different, and how to frame every offer.</p>\n  <h2>Core Position Statement</h2>\n  <p><strong>${esc(pos.core_position_statement || \"\")}</strong></p>\n  <h2>Positioning Type</h2>\n  <p>${esc(pos.positioning_type || \"\")}</p>\n  <h2>Master Differentiation Statement</h2>\n  <p>${esc(pos.master_differentiation || \"\")}</p>\n  ${pos.market_sophistication ? `\n  <h2>Market Sophistication Assessment</h2>\n  <p><strong>${esc(pos.market_sophistication.level)} — ${esc(pos.market_sophistication.name)}</strong></p>\n  <p>${esc(pos.market_sophistication.description)}</p>\n  <p><em>${esc(pos.market_sophistication.implication)}</em></p>\n  ` : ''}\n\n  ${asArray(pos.positioning_by_awareness).length ? `\n  <h2>Positioning by Awareness Level</h2>\n  <table>\n    <thead><tr><th>Awareness Level</th><th>What They Need</th><th>How We Lead</th></tr></thead>\n    <tbody>\n      ${asArray(pos.positioning_by_awareness).map(a => `\n        <tr>\n          <td><strong>${esc(a.level)}</strong></td>\n          <td>${esc(a.what_they_need)}</td>\n          <td>${esc(a.how_we_lead)}</td>\n        </tr>\n      `).join(\"\")}\n    </tbody>\n  </table>\n  ` : ''}\n\n  ${pos.frame_consistency_check ? `\n  <div class=\"callout subtle\">\n    <div class=\"callout-title\">Frame Consistency Check</div>\n    <p>${esc(pos.frame_consistency_check)}</p>\n  </div>\n  ` : ''}\n</section>`;\n\n// 04 ICPs\nbodyHtml += renderICPs(d.icps);\n\n// 05 BUTTONS & OBJECTIONS\nbodyHtml += renderButtons(d.buttons_objections);\n\n// 06 LANGUAGE LIBRARY\nbodyHtml += renderLanguageLibrary(d.language_library);\n\n// 07 OFFER ARCHITECTURE\nbodyHtml += renderOfferArchitecture(d.offer_architecture);\n\n// 08 VISUAL IDENTITY\nbodyHtml += renderVisualIdentity(d.visual_identity);\n\n// 09 CHANNEL GUIDELINES\nbodyHtml += renderChannelGuidelines(d.channel_guidelines);\n\n// 10 COMPETITIVE CONTEXT\nbodyHtml += renderCompetitiveContext(d.competitive_context);\n\n// 11 COPY ASSETS\nbodyHtml += renderCopyAssets(d.copy_assets);\n\n// WRAP WITH STYLED SHELL\nconst html = `\n<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<title>${esc(d.meta?.brand_name || \"Brand\")} — Brand & GTM Guide</title>\n<style>\n  :root {\n    --bg: #f7f7fb;\n    --page-bg: #ffffff;\n    --text: #1f2933;\n    --muted: #6b7280;\n    --border: #e5e7eb;\n    --primary: #111827;\n    --accent: #2563eb;\n    --accent-soft: #dbeafe;\n    --accent-soft-2: #eef2ff;\n    --table-header-bg: #f3f4f6;\n    --pill-bg: #e5edff;\n    --pill-text: #1d4ed8;\n  }\n  * { box-sizing: border-box; }\n  body {\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Arial, sans-serif;\n    line-height: 1.6;\n    color: var(--text);\n    background: var(--bg);\n    margin: 0;\n    padding: 32px 0;\n  }\n  .page {\n    max-width: 960px;\n    margin: 0 auto;\n    background: var(--page-bg);\n    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.09);\n    border-radius: 12px;\n    padding: 40px 48px 56px;\n  }\n  h1, h2, h3 {\n    font-weight: 600;\n    color: var(--primary);\n    margin: 0;\n  }\n  h1 {\n    font-size: 26px;\n    margin-top: 48px;\n    border-bottom: 1px solid var(--border);\n    padding-bottom: 8px;\n  }\n  h1:first-of-type {\n    margin-top: 0;\n    border-bottom: none;\n    padding-bottom: 0;\n  }\n  h2 { font-size: 20px; margin-top: 28px; }\n  h3 { font-size: 16px; margin-top: 20px; }\n  p { margin: 10px 0 12px; color: var(--text); }\n  em { color: var(--muted); }\n  .section-intro {\n    color: var(--muted);\n    font-size: 14px;\n    margin-top: 8px;\n    margin-bottom: 12px;\n  }\n  .toc {\n    list-style: none;\n    padding-left: 0;\n    margin: 8px 0 0;\n  }\n  .toc li {\n    margin: 3px 0;\n    color: var(--muted);\n    font-size: 14px;\n  }\n  table {\n    width: 100%;\n    border-collapse: collapse;\n    margin-top: 10px;\n    margin-bottom: 18px;\n    font-size: 14px;\n  }\n  th, td {\n    border: 1px solid var(--border);\n    padding: 8px 10px;\n    vertical-align: top;\n  }\n  th {\n    background: var(--table-header-bg);\n    font-weight: 600;\n  }\n  ul, ol {\n    margin: 6px 0 12px 20px;\n    padding-left: 0;\n  }\n  ul li, ol li { margin: 3px 0; }\n  section { margin-top: 24px; }\n  .cover {\n    padding-bottom: 24px;\n    border-bottom: 1px solid var(--border);\n  }\n  .cover-title {\n    font-size: 32px;\n    letter-spacing: 0.02em;\n    margin-top: 4px;\n  }\n  .cover-tagline {\n    background: var(--accent-soft);\n    border-left: 3px solid var(--accent);\n    padding: 8px 10px;\n    border-radius: 4px;\n    display: inline-block;\n    margin-top: 12px;\n    color: var(--primary);\n  }\n  .meta-line {\n    font-size: 13px;\n    color: var(--muted);\n    margin-top: 10px;\n  }\n  .eyebrow {\n    text-transform: uppercase;\n    font-size: 11px;\n    letter-spacing: 0.16em;\n    color: var(--muted);\n    margin-bottom: 4px;\n  }\n  .callout {\n    border-radius: 8px;\n    padding: 12px 14px;\n    margin-top: 14px;\n    border: 1px solid var(--border);\n  }\n  .callout.primary {\n    border: 1px solid #facc15;\n    background: #fffbeb;\n  }\n  .callout.soft {\n    border: 1px solid var(--accent-soft);\n    background: var(--accent-soft);\n  }\n  .callout.subtle {\n    border: 1px dashed var(--border);\n    background: #f9fafb;\n  }\n  .callout.info {\n    border: 1px solid #a5b4fc;\n    background: var(--accent-soft-2);\n  }\n  .callout-title {\n    font-size: 13px;\n    font-weight: 600;\n    text-transform: uppercase;\n    letter-spacing: 0.14em;\n    color: var(--muted);\n    margin-bottom: 4px;\n  }\n  .pill-row {\n    margin-top: 8px;\n  }\n  .pill {\n    display: inline-block;\n    background: var(--pill-bg);\n    color: var(--pill-text);\n    font-size: 12px;\n    padding: 4px 8px;\n    border-radius: 999px;\n    margin-right: 6px;\n    margin-bottom: 4px;\n  }\n  .icp-block {\n    margin-top: 24px;\n    padding-top: 12px;\n    border-top: 1px solid var(--border);\n  }\n  .pull-quote {\n    border-left: 3px solid #f97316;\n    padding-left: 12px;\n    margin: 6px 0 10px;\n    font-style: italic;\n    color: var(--primary);\n  }\n  .pull-quote p {\n    margin: 4px 0;\n  }\n  .color-chip {\n    display: inline-block;\n    width: 40px;\n    height: 18px;\n    border-radius: 4px;\n    border: 1px solid rgba(0,0,0,0.08);\n    margin-right: 8px;\n    vertical-align: middle;\n  }\n  .muted {\n    color: var(--muted);\n    font-size: 12px;\n  }\n</style>\n</head>\n<body>\n<div class=\"page\">\n${bodyHtml}\n</div>\n</body>\n</html>\n`;\n\n// RETURN for HTML->PDF / HTTP Response\nreturn [\n  {\n    json: { html },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        -96
+      ],
+      "id": "7e34390e-4dac-46c1-8203-f169b720d0b6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "name": "=Report Doc {{ $('Get row(s)').item.json.campaign_id }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('When Executed by Another Workflow').item.json.drive_folder_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        624,
+        -96
+      ],
+      "id": "649aaa2e-41fc-42d7-b0b4-0571bf54e68a",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "aDGle396AsfG93ro",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "htmlToPdf",
+        "html": "={{ $json.html }}",
+        "outputFilenamePdf": "output"
+      },
+      "type": "@custom-js/n8n-nodes-pdf-toolkit-v2.pdfToolkit",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -96
+      ],
+      "id": "7f52ea06-1f20-4b4a-8703-3fb95807d75a",
+      "name": "Convert HTML to PDF",
+      "credentials": {
+        "customJsApi": {
+          "id": "IoVgpIbunjwHv1WG",
+          "name": "CustomJS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are generating a client-facing marketing strategy presentation. Here is ALL the research and strategy data:\n\nCAMPAIGN ID\n{{ $('When Executed by Another Workflow').item.json.campaign_id }}\n\n--- INTAKE DATA ---\n{{ $json.parsed_intake_json_0A }}\n\n--- COMPANY INTELLIGENCE Agent 0C ---\n{{ $json.company_intelligence_json }}\n\n--- PRODUCT RESEARCH Agent  ---\n{{ $json.product_research_agent_1 }}\n\n--- MARKET RESEARCH Agent  ---\n{{ $json.market_research_agent_2 }}\n\n\n\n--- AUDIENCE SEGMENTS Agent  ---\n{{ $json.audience_hypothesis_json }}\n\n\n\n--- SURVEY ANALYSIS Agent  ---\n{{ $json.survey_analysis_json }}\n\n\n\n--- ICP PROFILES Agent  ---\n{{ $json.ICP_builder_json }}\n\n--- POSITIONING STRATEGY Agent  ---\n{{ $json.positioning_json }}\n\n--- OFFER ARCHITECTURE Agent  ---\n{{ $json.offer_architect_json }}\n\n\n\nGenerate the strategy deck content now.",
+        "options": {
+          "systemMessage": "You are Strategy Deck Writer Agent 12 in a multi-agent marketing system. Your job Transform ALL prior agent outputs into a single, detailed, slide-by-slide presentation outline that will be fed to an AI presentation tool Gamma to render a polished client-facing strategy deck.\n\nIMPORTANT\nThis deck is what the CLIENT sees. It is the deliverable presented in a kickoff meeting and must be approved before execution begins. It must be polished, strategic, confident, and specific to their business.\n\nSlide Structure\n20 slides\n\n---------------------------------------------------------------------------------\nSlide  Title                    Primary Data              Secondary Data\n-------- ----------------------- ------------------------ -----------------------\n1       Title Slide             Intake data              ---\n2       Agenda                  Static                   ---\n3       Executive Summary       Agent 9 + 10             All synthesis\n4       Brand Snapshot          Intake + Agent 0C        brandvisualidentity\n5       Market Landscape        Agent 2                  ---\n6       Competitive Landscape   Agent 3                  ---\n7       Competitive Advantage   Agent 9                  Agent 3\n8       Audience Overview       Agent 7                  Agent 4\n9–11    ICP Deep Dives x3       Agent 8                  Agent 6 language\n12      Voice of Customer       Agent 6                  Agent 5\n13      Positioning Statement   Agent 9                  ---\n14      Brand Voice Personality Phase 4 Guide            ---\n15      Offer Architecture      Agent 10                 Agent 9\n16      Offer Details & Pricing Agent 10                 Intake pricing\n17      Funnel Strategy         Agent 11                 ---\n18      Channel Strategy        Agent 11                 ---\n19      Campaign Roadmap        Agent 11                 All synthesis\n20      Next Steps              Static                   Intake\n---------------------------------------------------------------------------------\n\nGENERAL RULES\n- Write actual content for each slide, not descriptions of what should be there.\n- Use the clients real business name throughout — never say “the client”.\n- Reference real data points from the research: numbers, quotes, competitor names.\n- Use exact language from Agent 6s survey data in ICP and Voice of Customer slides wherever possible.\n- If a needed data point is missing or unclear, write DATA GAP instead of making it up.\n- Keep tone professional, confident, and adaptable to any industry (do not assume health/wellness).\n- Assume Gamma will handle layout and design — your output is purely structured text.\n\nOUTPUT FORMAT\n- Output a single structured text document with clear headers for each slide.\n- Use this pattern exactly:\n\nSlide 1 – Title Slide\n[content]\n\nSlide 2 – Agenda\n[content]\n\nSlide 3 – Executive Summary\n[content]\n\n...\nSlide 20 – Next Steps\n[content]\n\n- For each slide, include:\n  - A strong slide title.\n  - 3–7 bullet points or short paragraphs of content, using concrete details.\n  - Where relevant, call out specific data sources in-line, e.g. “As we saw in the survey analysis…” or “Competitors like X and Y…”.\n\nSLIDE-BY-SLIDE GUIDANCE\n\nSlide 1 – Title Slide\n- Use the company’s real name, main offer, and campaign focus.\n- Include: client name, campaign name or theme, date, and “Marketing Strategy Deck”.\n- Optionally include a short tagline derived from positioning or intake.\n\nSlide 2 – Agenda\n- Simple, static agenda: e.g. Brand Snapshot, Market & Competitors, Audience & ICPs, Positioning, Offers, Funnel & Channels, Roadmap & Next Steps.\n- Use 4–7 bullets, phrased as sections the client will walk through.\n\nSlide 3 – Executive Summary\n- Summarize the overall strategy in 4–6 bullets:\n  - Primary goal of the campaign.\n  - Key audiences and their main pain/desire buttons.\n  - Core positioning and unique advantage.\n  - Core offer focus.\n  - High-level funnel/channel approach.\n- This slide should be understandable even if they read nothing else.\n\nSlide 4 – Brand Snapshot\n- Pull from intake (mission, vision, values, company image) and Agent 0C.\n- Summarize who they are, what they do, and what they stand for.\n- Include 2–3 bullets describing brandvisualidentity (colors, typography, imagery style, logo usage) in plain language so Gamma can reflect it.\n\nSlide 5 – Market Landscape\n- Use Agent 2 market research.\n- Describe market size, sophistication level, key trends, and benchmarks.\n- Include 1–2 bullets on implications: how this shapes our messaging and offers.\n\nSlide 6 – Competitive Landscape\n- Use Agent 3 competitor research.\n- List main direct competitors and their positions.\n- Highlight 2–3 key strengths competitors have and 2–3 exploitable gaps.\n- Avoid generic comments; anchor in real competitor names and claims if available.\n\nSlide 7 – Competitive Advantage\n- Use Agent 9 (positioning) plus Agent 3.\n- Clearly state the clients core competitive edge in 1–2 sentences.\n- Add bullets on:\n  - Unique mechanism or approach.\n  - Key proof points.\n  - How we will frame them versus competitors in messaging.\n\nSlide 8 – Audience Overview\n- Use Agent 7 (confirmed audiences) plus Agent 4 (hypotheses).\n- Summarize the top 2–4 priority segments with names and short descriptions.\n- Include high-level notes on awareness level, traffic temperature, and platform hints if available.\n\nSlides 9–11 – ICP Deep Dives (3 slides)\n- Use Agent 8 ICP profiles and Agent 6 language library.\n- For each slide, focus on one ICP:\n  - Who they are (role, company type, basic demographics/firmographics).\n  - Before state (day-in-the-life pains) in narrative form.\n  - Desired after state.\n  - Primary objections and what would make them buy.\n  - Sprinkle in exact phrases from the survey analysis for authenticity.\n\nSlide 12 – Voice of Customer\n- Use Agent 6 (survey analysis) and Agent 5 (survey raw data if needed).\n- Highlight the top pain, desire, and objection buttons with percentages if available.\n- Include a small “quote bank” section with 3–6 short, exact customer phrases grouped by theme.\n\nSlide 13 – Positioning Statement\n- Use Agent 9.\n- Present the core positioning statement clearly, plus:\n  - Positioning type (e.g. “Unlike X, we Y”, “X for Y”).\n  - Frame of reference.\n  - 2–3 supporting proof points that make this positioning believable.\n\nSlide 14 – Brand Voice & Personality\n- Use the Phase 4 Brand Guide’s personality/voice section.\n- Describe brand personality in 3–5 adjectives.\n- Outline tone do’s and don’ts (e.g. “sounds like / does not sound like”).\n- Note specific language rules (words to use/avoid) so copy stays consistent.\n\nSlide 15 – Offer Architecture\n- Use Agent 10 and Agent 9.\n- Summarize the overall offer stack:\n  - Core offer (what it is and the main promise).\n  - Supporting offers (lead magnet, tripwire, upsells if present).\n  - How the offer improves the value equation (dream outcome, likelihood, time delay, effort).\n\nSlide 16 – Offer Details & Pricing\n- Use Agent 10 plus intake pricing and any clarified numbers.\n- List pricing tiers and who each tier is for.\n- Call out guarantees, bonuses, and risk-reversal elements.\n- If any pricing info is missing, mark those as DATA GAP rather than inventing.\n\nSlide 17 – Funnel Strategy\n- Use Agent 11 funnel strategy.\n- Map the stages (Awareness, Education, Consideration, Conversion, Retention).\n- For each stage, specify:\n  - Main assets.\n  - Primary goal.\n  - Key CTA.\n  - Success metric where defined.\n\nSlide 18 – Channel Strategy\n- Use Agent 11 channel strategy.\n- List primary channels (e.g. Meta Ads, Google Search, Email, SEO, Social).\n- For each, state:\n  - Role in the funnel.\n  - Key audience segments targeted.\n  - Example angles or hooks that will be emphasized.\n\nSlide 19 – Campaign Roadmap\n- Use Agent 11 plus any timeline/budget info.\n- Outline phases over time (e.g. Month 1, Month 2–3, Month 4+).\n- For each phase, specify:\n  - Focus (launch, optimize, scale, new offers).\n  - Key activities.\n  - What success looks like at that stage.\n\nSlide 20 – Next Steps\n- Static + intake-based.\n- Clarify immediate next actions for the client and agency:\n  - Approvals needed.\n  - Assets or access still required.\n  - Proposed launch window.\n- Keep this slide concrete and action-oriented.\n\nRemember:\n- Do NOT output JSON or any code. Output structured plain text for slides.\n- Do NOT include internal agent names or technical implementation details.\n- Speak directly to the client as if presenting the strategy to them."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -112,
+        384
+      ],
+      "id": "dda45f40-603b-443f-9792-965266fac553",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        592
+      ],
+      "id": "22584212-34e0-41ce-be6c-9173c29630e2",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.output }}",
+        "additionalOptions": {
+          "numCards": 25,
+          "exportAs": "pptx"
+        },
+        "requestOptions": {}
+      },
+      "type": "@gammatech/n8n-nodes-gamma.gamma",
+      "typeVersion": 1,
+      "position": [
+        240,
+        384
+      ],
+      "id": "67ec4153-991e-400d-bbb3-718bc6531329",
+      "name": "Create a generation",
+      "credentials": {
+        "gammaApi": {
+          "id": "6QdL9P4c8aSUYuI1",
+          "name": "Gamma account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getStatus",
+        "generationId": "={{ $json.generationId }}",
+        "requestOptions": {}
+      },
+      "type": "@gammatech/n8n-nodes-gamma.gamma",
+      "typeVersion": 1,
+      "position": [
+        656,
+        384
+      ],
+      "id": "9831445e-f09a-4211-b673-bf169c6735a9",
+      "name": "Get generation status",
+      "credentials": {
+        "gammaApi": {
+          "id": "6QdL9P4c8aSUYuI1",
+          "name": "Gamma account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $('When Executed by Another Workflow').item.json.drive_folder_id }}",
+        "title": "deck_content"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        864,
+        384
+      ],
+      "id": "04cb1c92-13c2-48f2-b8a3-0c540089f73b",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "=gamma-url:{{ $('Get generation status').item.json.gammaUrl }}\n\n{{ $('AI Agent1').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        384
+      ],
+      "id": "a68350bf-9d8d-42ba-b64d-d4e7c64d9726",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.campaign_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "gamma_url_and_id": "=gamma-id:{{ $('Create a generation').item.json.generationId }}\ngamma-url:{{ $('Get generation status').item.json.gammaUrl }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "drive_folder_id",
+              "displayName": "drive_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "competitor_research_agent_3",
+              "displayName": "competitor_research_agent_3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_hypothesis_json",
+              "displayName": "audience_hypothesis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_raw_data_json",
+              "displayName": "survey_raw_data_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_analysis_json",
+              "displayName": "survey_analysis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_confirmation_json",
+              "displayName": "audience_confirmation_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ICP_builder_json",
+              "displayName": "ICP_builder_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "positioning_json",
+              "displayName": "positioning_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "offer_architect_json",
+              "displayName": "offer_architect_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "funnel_strategy_json",
+              "displayName": "funnel_strategy_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "gamma_url_and_id",
+              "displayName": "gamma_url_and_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        384
+      ],
+      "id": "86059b33-8b8a-4586-82bb-e6d6ee02768f",
+      "name": "Update row(s)"
+    },
+    {
+      "parameters": {
+        "amount": 180
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        384
+      ],
+      "id": "ca53d68c-42a9-45e5-bb54-a54970ae2fb2",
+      "name": "Wait",
+      "webhookId": "72c4a11a-dc65-4bbe-8b3d-44eafafedfd7"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1206113330339416",
+        "name": "=Gamma url",
+        "otherProperties": {
+          "notes": "=gamma-url: {{ $('Get generation status').item.json.gammaUrl }}",
+          "projects": "={{ $('Get row(s)').item.json.asana_project_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        32
+      ],
+      "id": "5c0f6e97-2a7f-4b7f-adc6-e06ed46f8435",
+      "name": "Create a task",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "cyi3Eu4mD94t5UMM",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "avi@growthdrivendigital.com,info@growthdrivendigital.com",
+        "subject": "= {{\n  (\n    $('When Executed by Another Workflow').item.json.campaign_id || ''\n  )\n    .replace(/^\\d{4}-\\d{2}-\\d{2}-/, '')\n    .replace(/[-_]+/g, ' ')\n    .trim()\n    .split(' ')\n    .filter(Boolean)\n    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())\n    .join(' ')\n}}— Research is complete",
+        "message": "=Hi,  The research for {{\n  (\n    $('When Executed by Another Workflow').item.json.campaign_id || ''\n  )\n    .replace(/^\\d{4}-\\d{2}-\\d{2}-/, '')\n    .replace(/[-_]+/g, ' ')\n    .trim()\n    .split(' ')\n    .filter(Boolean)\n    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())\n    .join(' ')\n}} is complete. You can review the findings at the link below: {{ $('Get generation status').item.json.gammaUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1664,
+        32
+      ],
+      "id": "2a609a7c-f7a4-4fc6-919f-eebb7646f4ef",
+      "name": "Send a message1",
+      "webhookId": "31655e13-6797-4311-b169-638b7403d1b5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "kpFzpP1knxr3fTf9",
+          "name": "Gmail account mkd"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        -16
+      ],
+      "id": "48d5db88-acfc-497b-847d-64e3cb31e08e",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "campaign_id": "2026-04-17-the-collective-genius",
+          "drive_folder_id": "1yxMFc0PLiy7MQO8lF5t0xMnWhZYmUYFi",
+          "asana_project_id": "1214129198111061"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Convert HTML to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        []
+      ]
+    },
+    "Convert HTML to PDF": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Create a generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a generation": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get generation status": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)": {
+      "main": [
+        [
+          {
+            "node": "Create a task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get generation status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a task": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "versionId": "a1bd0aa8-b88d-4ad1-9741-80c06eaa5f56",
+  "meta": {
+    "instanceId": "a44d10a4b2711883b6434f7648eb0a4b5fb97a064aba14bd9cd3992ef0bf21bb"
+  },
+  "id": "OB0zf3nUD55EfcoN",
+  "tags": []
+}

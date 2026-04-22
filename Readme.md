@@ -1,4 +1,4 @@
-# n8n Workflows Portfolio
+﻿# n8n Workflows Portfolio
 
 This repository showcases real n8n workflows I've built for AI, automation, and CRM use cases. Each folder contains a `workflow.json` export plus a README explaining the goal, steps, and what the workflow demonstrates.
 
@@ -6,7 +6,7 @@ This repository showcases real n8n workflows I've built for AI, automation, and 
 
 1. **AI Java Tips' X (Twitter) Auto-Posting**  
    - Folder: `social-media-java-tips-x/`  
-   - Automates a daily schedule → AI-generated Java tip → auto-post to X (Twitter) via the Twitter node.
+   - Automates a daily schedule â†’ AI-generated Java tip â†’ auto-post to X (Twitter) via the Twitter node.
 
 2. **News' AI Pain-Point Research**  
    - Folder: `news-pain-point-research/`  
@@ -27,7 +27,7 @@ This repository showcases real n8n workflows I've built for AI, automation, and 
 6. **CRM Automation Workflows (GoHighLevel)**  
    - Folder: `crm-automation-gohighlevel/`  
    - Multiple workflows for:
-     - Lead → contact + opportunity creation
+     - Lead â†’ contact + opportunity creation
      - Updating opportunities based on call/call-log statuses
      - Posting content and media to social accounts via the CRM API.
 
@@ -41,14 +41,26 @@ This repository showcases real n8n workflows I've built for AI, automation, and 
 
 9. **Leads Generation Agent**  
    - Folder: `leads-generation-agent/`  
-   - End-to-end AI-powered B2B lead generation pipeline. Client submits an intake form → GPT-4.1 agent interprets the ICP and generates scraper configs → dual Apify scrapers run in parallel (Google Maps + B2B Leads Finder) → results are filtered, merged, email-verified via AnyMailFinder, and exported to Google Sheets.
+   - End-to-end AI-powered B2B lead generation pipeline. Client submits an intake form â†’ GPT-4.1 agent interprets the ICP and generates scraper configs â†’ dual Apify scrapers run in parallel (Google Maps + B2B Leads Finder) â†’ results are filtered, merged, email-verified via AnyMailFinder, and exported to Google Sheets.
 
-## Tech & Tools Used
+10. **AI Marketing Campaign Pipeline**  
+   - Folder: `ai-marketing-campaign-pipeline/`  
+   - Five connected workflows (master + four phases) for intake, research, strategy, campaign build, and delivery automation.
+
+11. **Missed Call Cold Reach Automation**  
+   - Folder: `missed-call-cold-reach-automation/`  
+   - End-to-end missed-call recovery system connecting dialer events, callback execution, CRM status updates, and sheet tracking.
+
+12. **Website Checker**  
+   - Folder: `website-checker/`  
+   - AI-powered website analysis pipeline that evaluates site content and writes structured output to GitHub.`r`n`r`n## Tech & Tools Used
 
 - **Automation:** n8n (webhooks, schedule triggers, forms, filters, IF/Rules, Code nodes)  
 - **AI:** Google Gemini (LangChain nodes), OpenAI (chat + audio), AI agents, structured output parsing  
 - **Data & Storage:** Google Sheets, custom APIs, serverless functions  
 - **CRMs & Platforms:** GoHighLevel/LeadConnector, social posting APIs, webhooks  
 - **Patterns:** Event-driven flows, API orchestration, error-safe designs, and reusable templates.
+
+
 
 

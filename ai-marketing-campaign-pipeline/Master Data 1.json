@@ -1,0 +1,1262 @@
+{
+  "name": "Master Data 1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "master-sheet-data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -256,
+        -80
+      ],
+      "id": "bed2fa81-ada3-434a-aebd-45a62ed56a32",
+      "name": "Webhook",
+      "webhookId": "ca7ac6f4-594e-4c72-b500-29ba522a2b53"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This runs for all incoming items\nreturn items.map(item => {\n  const row = item.json.body?.rowData || {};\n\n  const mapped = {\n    timestamp: row.Timestamp,\n    firstName: row.First_Name,\n    lastName: row.Last_Name,\n    email: row.Email,\n    mobile: row.Mobile,\n    fullAddress: row.Full_Address,\n    companyName: row.Company_Name,\n    companyWebsite: row.Company_Website,\n    companyFacebook: row.Company_Facebook,\n    companyInstagram: row.Company_Instagram,\n    companyLinkedIn: row.Company_LinkedIn,\n    companyTwitter: row.Company_Twitter,\n\n    howLongInBusiness: row[\"How_long_has_your_company_been_in_business?\"],\n    citiesServed: row[\"What_cities_does_your_business_serve?_Please_list_all_of_them:\"],\n    missionStatement: row[\"What_is_your_company's_mission_statement?\"],\n    visionStatement: row[\"What_is_your_company's_vision_statement?\"],\n    companyValues: row[\"What_are_the_values_your_company_stands_for?\"],\n    companyBio: row[\"Please_write_a_short_100-200_word_bio_about_your_company_(who_you_are,_your_history,_where_you_came_from,_why_you're_different,_the_value_you_provide)._If_you_have_this_already_written_on_the_'About_Us'_page_of_your_website,_feel_free_to_copy_and_paste_that_here:\"],\n    testimonials: row[\"Please_provide_us_with_five_testimonials_from_your_past_customers_(please_include_their_name)\"],\n    caseStudies: row['If_applicable_to_your_business:_do_you_have_any_case_studies,_where_a_customer_was_taken_to_a_successful_and_MEASURABLE_outcome,_such_as:_\"They_put_in_solar_panels_and_we_now_save_$500_a_month_on_our_power_bill\".'],\n\n    hasTrustLogos: row[\"We_need_to_display_'trust_logos'_on_your_website._Do_you_or_do_you_have:\"],\n    trustLogosList: row[\"If_you_answered_'yes'_to_any_of_the_above_trust_logos_question,_please_fully_list_them_out_here\"],\n    productsAndServices: row[\"List_all_the_products_&_services_you_currently_offer\"],\n    market: row[\"Which_market_does_your_product/service_fall_under?\"],\n    mostExpensiveProductAndPrice: row[\"What_is_your_most_expensive_product_and_how_much_is_it_priced?\"],\n    lowPriceOrFreeOffer: row[\"Do_you_have_a_low_priced/free_but_high_value_offer_for_attracting_new_customers?\"],\n    hasSubscriptionService: row[\"Do_you_have_a_subscription_service?\"],\n    costToMake: row[\"What_is_the_cost_to_make_the_product/service?\"],\n    sellingPrice: row[\"What_is_the_selling_price_of_the_product/service?\"],\n    problemsSolved: row[\"What_problems_does_it_solve_for_your_clients?\"],\n    actualResults: row[\"What_are_the_actual_results_it_produces?\"],\n    features: row[\"List_at_least_five_features_of_your_products/services:\"],\n    benefits: row[\"List_at_least_five_benefits_of_your_products/services:\"],\n    uniqueness: row[\"What_is_unique/different/excellent_about_your_products/services?\"],\n\n    publicsServed: row[\"List_out_the_different_publics_who_your_company_serves_or_can_potentially_serve:\"],\n    idealCustomerDemographics: row[\"Please_describe_in_detail_the_demographics_of_your_ideal_customer:\"],\n    needFulfilled: row[\"What_need_or_want_does_your_product_or_service_fulfil_for_your_ideal_customer?\"],\n    difficultyOrUnmetNeed: row[\"What_difficulty_(or_unmet_need)_is_your_target_audience_experiencing_which_they_need_YOUR_product/service_to_solve?_(problem,_pain_point)\"],\n    fearsIfNotSolved: row[\"What_does_your_target_audience_fear_will_happen_if_they_don't_get_their_issue/problem_solved,_and_their_problem_continues?\"],\n    whatTheyAreAngryAbout: row[\"What_are_they_angry_about?\"],\n    topDailyFrustrations: row[\"What_are_their_top_daily_frustrations?\"],\n    secretDesires: row[\"What_do_they_secretly_desire_most?\"],\n    infoSources: row[\"What_are_the_sources_of_information_they_use_to_get_advice_or_knowledge_regarding_your_industry/product/service?\"],\n    beforeAfterState: row[\"What_state_or_condition_is_your_customer_in_BEFORE_they_use_your_product_or_service_and_what_state_or_condition_are_they_in_AFTER_they_use_your_product_or_service?\"],\n    surveyInterviews: row[\"Have_you_done_survey_interviews_of_your_target_publics?_If_so,_please_attach_them.\"],\n    hotButtons: row[\"List_the_hot_buttons_that_your_target_audience_has\"],\n    competitors: row[\"List_at_least_10_of_your_competitors_and_their_websites\"],\n    companyImage: row[\"What_is_the_image_of_your_company?\"],\n    positioning: row[\"What_is_the_positioning_your_company_is_currently_following?\"],\n    marketingGoal: row[\"What_is_your_marketing_goal?\"],\n    listSize: row[\"How_big_is_your_email/contact_list?\"],\n    emailSoftware: row[\"Are_you_currently_using_an_email_marketing_software?\"],\n    hasDomainAndHosting: row[\"Do_you_already_have_a_domain_and_hosting_for_your_website?\"],\n    contentAssets: row[\"Please_list_out_the_current_content_assets_you_have_existing:\"],\n    runningAds: row[\"Are_you_currently_running_ads?\"],\n    loginsInfo: row[\"Please_provide_us_with_the_username,_password,_and_login_page_for_your_website,_google_analytics,_google_my_business,_facebook_ads_manager,\"],\n    contactEmail: row[\"Email_address\"],\n  };\n\n  return { json: mapped };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        -80
+      ],
+      "id": "abf73990-5157-44ee-ad6c-e945827d7c67",
+      "name": "Data"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "project",
+        "operation": "create",
+        "name": "={{ $('Code in JavaScript').item.json.intake_data.client.name }}",
+        "workspace": "1206113330339416",
+        "team": "1206113330339418",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        992,
+        -80
+      ],
+      "id": "1a73feb5-d456-4703-b1f6-0e89d2eeae65",
+      "name": "Create a project",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "cyi3Eu4mD94t5UMM",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        144
+      ],
+      "id": "18535d89-7a9d-47ab-9202-cee0955d1b55",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get raw output from LLM\nconst raw = $input.first().json.text \n  || $input.first().json.output \n  || $input.first().json.message?.content\n  || $input.first().json.content\n  || '';\n\n// Strip markdown fences if present\nconst cleaned = raw\n  .replace(/^```json\\n?/i, '')\n  .replace(/^```\\n?/, '')\n  .replace(/\\n?```$/, '')\n  .trim();\n\n// Parse JSON\ntry {\n  const parsed = JSON.parse(cleaned);\n  return [{ json: { intake_data: parsed } }];\n} catch (e) {\n  return [{\n    json: {\n      error: 'JSON parse failed',\n      raw_output: cleaned,\n      parse_error: e.message\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        -80
+      ],
+      "id": "82d23398-1305-40cb-b285-daea523b2b1c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "campaign_id": "={{ $json.intake_data.campaign_id }}",
+            "parsed_intake_json_0A": "={{$json.intake_data ? JSON.stringify($json.intake_data) : ''}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "competitor_research_agent_3",
+              "displayName": "competitor_research_agent_3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        -80
+      ],
+      "id": "28125fd2-e1ab-4c1d-ae2c-75abb0dc5988",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Code in JavaScript').item.json.intake_data.client.name }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1AdRD4fkTkO4FA1aHR6CPzLObzYy5Skqf",
+          "mode": "list",
+          "cachedResultName": "Clients",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1AdRD4fkTkO4FA1aHR6CPzLObzYy5Skqf"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1216,
+        -80
+      ],
+      "id": "a9b08a6c-ce08-42df-af9b-3d7c0246ce06",
+      "name": "Clients Folder Creation",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "aDGle396AsfG93ro",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "00_Intake",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        -80
+      ],
+      "id": "ad55eada-0363-431b-93d1-3bd5f22aa77a",
+      "name": "Intake Folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "aDGle396AsfG93ro",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $json.id }}",
+        "title": "=parsed_intake"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        -80
+      ],
+      "id": "b6ed8cbd-65b8-4398-89cf-d97ec890a50a",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ JSON.stringify( $('Code in JavaScript').item.json.intake_data,null,2)}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1888,
+        -80
+      ],
+      "id": "addc6c37-4b97-4783-914d-d861fb6f3b59",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://mcp.apify.com",
+        "authentication": "mcpOAuth2Api",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        2256,
+        144
+      ],
+      "id": "74429e04-4506-4758-898c-714b2ee7db69",
+      "name": "MCP Client",
+      "credentials": {
+        "mcpOAuth2Api": {
+          "id": "xgKxRxede4U4Dklo",
+          "name": "MCP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2128,
+        144
+      ],
+      "id": "be4e22ad-c054-41d9-b02f-73640c838ca5",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get raw output from LLM\nconst raw = $input.first().json.text \n  || $input.first().json.output \n  || $input.first().json.message?.content\n  || $input.first().json.content\n  || '';\n\n// Strip markdown fences if present\nconst cleaned = raw\n  .replace(/^```json\\n?/i, '')\n  .replace(/^```\\n?/, '')\n  .replace(/\\n?```$/, '')\n  .trim();\n\n// Parse JSON\ntry {\n  const parsed = JSON.parse(cleaned);\n  return [{ json: { company_intelligence_data: parsed } }];\n} catch (e) {\n  return [{\n    json: {\n      error: 'JSON parse failed',\n      raw_output: cleaned,\n      parse_error: e.message\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        -80
+      ],
+      "id": "548c252f-acec-4e75-bd39-76ee5b1534f4",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "01_Research",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Clients Folder Creation').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2896,
+        -80
+      ],
+      "id": "6b3ce5a5-57dd-41ea-a999-7c91489d9b6c",
+      "name": "Research Folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "aDGle396AsfG93ro",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $json.id }}",
+        "title": "company_intelligence_json"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        3120,
+        -80
+      ],
+      "id": "44198a1e-d9c8-4889-886a-bbd02537fa8c",
+      "name": "Create a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{JSON.stringify($('Code in JavaScript1').item.json.company_intelligence_data,null,2)}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        3344,
+        -80
+      ],
+      "id": "7fbdfd53-6258-4c45-86c8-2c62f9d691f1",
+      "name": "Update a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $('Code in JavaScript').item.json.intake_data.campaign_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "drive_folder_id": "={{ $('Clients Folder Creation').item.json.id }}",
+            "company_intelligence_json": "={{ $('Code in JavaScript1').item.json.company_intelligence_data ? JSON.stringify($('Code in JavaScript1').item.json.company_intelligence_data) : ''}}",
+            "asana_project_id": "={{ $('Create a project').item.json.gid }}",
+            "Research_Folder_id": "={{ $('Research Folder').item.json.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "drive_folder_id",
+              "displayName": "drive_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_hypothesis_json",
+              "displayName": "audience_hypothesis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_analysis_json",
+              "displayName": "survey_analysis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ICP_builder_json",
+              "displayName": "ICP_builder_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "positioning_json",
+              "displayName": "positioning_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "offer_architect_json",
+              "displayName": "offer_architect_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "DesignBrief",
+              "displayName": "DesignBrief",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "CopyWriting",
+              "displayName": "CopyWriting",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Campaign_Orchestrator",
+              "displayName": "Campaign_Orchestrator",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "gamma_url_and_id",
+              "displayName": "gamma_url_and_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Research_Folder_id",
+              "displayName": "Research_Folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "asana_project_id",
+              "displayName": "asana_project_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3568,
+        -80
+      ],
+      "id": "7fa9cfd3-522f-4f6d-8602-0348a566a1a3",
+      "name": "Update row(s)"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    campaign_id: $input.first().json.campaign_id,\n    drive_folder_id: $input.first().json.drive_folder_id,\n    Research_folder_id:$('Research Folder').first().json.id\n    \n  }\n}];\n;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3792,
+        -80
+      ],
+      "id": "a20c9fb9-c1b0-45f2-b621-7731a2701461",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "i3q8BkwXoVC7Ta51",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/i3q8BkwXoVC7Ta51",
+          "cachedResultName": "Phase 2(1)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        4416,
+        -80
+      ],
+      "id": "45413748-28dc-4637-bb3d-71873d0ce214",
+      "name": "Call Phase 2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Parse the following raw intake form data into this exact JSON structure.\nReturn ONLY the JSON. No explanation. No markdown fences.\n\n---\n\nFORM DATA:\nTimestamp: {{ $json.timestamp }}\nFirst Name: {{ $json.firstName }}\nLast Name: {{ $json.lastName }}\nEmail: {{ $json.email }}\nMobile: {{ $json.mobile }}\nFull Address: {{ $json.fullAddress }}\nCompany Name: {{ $json.companyName }}\nCompany Website: {{ $json.companyWebsite }}\nCompany Facebook: {{ $json.companyFacebook }}\nCompany Instagram: {{ $json.companyInstagram }}\nCompany LinkedIn: {{ $json.companyLinkedIn }}\nCompany Twitter: {{ $json.companyTwitter }}\nYears in Business: {{ $json.howLongInBusiness }}\nCities Served: {{ $json.citiesServed }}\nMission Statement: {{ $json.missionStatement }}\nVision Statement: {{ $json.visionStatement }}\nCompany Values: {{ $json.companyValues }}\nCompany Bio: {{ $json.companyBio }}\nTestimonials: {{ $json.testimonials }}\nCase Studies: {{ $json.caseStudies }}\nTrust Logos Yes/No: {{ $json.hasTrustLogos }}\nTrust Logos List: {{ $json.trustLogosList }}\nProducts / Services: {{ $json.productsAndServices }}\nMarket: {{ $json.market }}\nMost Expensive Product: {{ $json.mostExpensiveProductAndPrice }}\nLow Cost Offer: {{ $json.lowPriceOrFreeOffer }}\nSubscription Service: {{ $json.hasSubscriptionService }}\nCost to Make: {{ $json.costToMake }}\nSelling Price: {{ $json.sellingPrice }}\nProblems Solved: {{ $json.problemsSolved }}\nActual Results: {{ $json.actualResults }}\nFeatures: {{ $json.features }}\nBenefits: {{ $json.benefits }}\nUnique Differentiator: {{ $json.uniqueness }}\nTarget Publics: {{ $json.uniqueness }}\nIdeal Customer Demographics: {{ $json.idealCustomerDemographics }}\nCustomer Need / Want: {{ $json.needFulfilled }}\nPain Points: \nCustomer Fears: {{ $json.fearsIfNotSolved }}\nCustomer Anger: {{ $json.whatTheyAreAngryAbout }}\nDaily Frustrations: {{ $json.topDailyFrustrations }}\nSecret Desires: {{ $json.secretDesires }}\nInfo Sources: {{ $json.infoSources }}\nBefore / After State: {{ $json.beforeAfterState }}\nSurvey Interviews: {{ $json.surveyInterviews }}\nHot Buttons: {{ $json.hotButtons }}\nCompetitors: {{ $json.competitors }}\nCompany Image: {{ $json.companyImage }}\nPositioning: {{ $json.positioning }}\nMarketing Goal: {{ $json.marketingGoal }}\nEmail List Size: {{ $json.listSize }}\nEmail Software: {{ $json.emailSoftware }}\nHas Domain & Hosting:{{ $json.hasDomainAndHosting }}\nContent Assets: {{ $json.contentAssets }}\nCurrently Running Ads: {{ $json.runningAds }}\nSpecial Instructions: {{ $json.specialInstructions }}\n\n---\n\nOUTPUT STRUCTURE TO FILL:\n\n{\n  \"campaign_id\": \"YYYY-MM-DD-company-name\",\n  \"client\": {\n    \"name\": \"\",\n    \"website\": \"\",\n    \"industry\": \"\",\n    \"business_type\": \"\",\n    \"years_in_business\": \"\",\n    \"cities_served\": \"\",\n    \"contact_name\": \"\",\n    \"contact_email\": \"\",\n    \"contact_phone\": \"\",\n    \"address\": \"\",\n    \"social\": {\n      \"facebook\": \"\",\n      \"instagram\": \"\",\n      \"linkedin\": \"\",\n      \"twitter\": \"\"\n    }\n  },\n  \"company_profile\": {\n    \"mission\": \"\",\n    \"vision\": \"\",\n    \"values\": \"\",\n    \"bio\": \"\",\n    \"image\": \"\",\n    \"positioning\": \"\"\n  },\n  \"products\": [\n    {\n      \"id\": \"product_1\",\n      \"name\": \"\",\n      \"description\": \"\",\n      \"price_range\": \"\",\n      \"cost_to_make\": \"\",\n      \"features\": [],\n      \"benefits\": [],\n      \"unique_differentiator\": \"\",\n      \"problems_solved\": \"\",\n      \"actual_results\": \"\"\n    }\n  ],\n  \"offer_structure\": {\n    \"most_expensive\": \"\",\n    \"low_cost_entry\": \"\",\n    \"has_subscription\": \"\",\n    \"subscription_details\": \"\"\n  },\n  \"market\": {\n    \"industry\": \"\",\n    \"market_category\": \"\",\n    \"cities_served\": \"\",\n    \"marketing_goal\": \"\"\n  },\n  \"stated_target_market\": \"\",\n  \"stated_competitors\": [],\n  \"audience\": {\n    \"target_publics\": \"\",\n    \"demographics\": \"\",\n    \"needs_wants\": \"\",\n    \"pain_points\": \"\",\n    \"fears\": \"\",\n    \"anger\": \"\",\n    \"frustrations\": \"\",\n    \"secret_desires\": \"\",\n    \"info_sources\": \"\",\n    \"before_after_state\": \"\",\n    \"hot_buttons\": \"\"\n  },\n  \"proof\": {\n    \"testimonials\": \"\",\n    \"case_studies\": \"\",\n    \"trust_logos\": \"\",\n    \"trust_logos_list\": \"\"\n  },\n  \"marketing_history\": {\n    \"currently_running_ads\": \"\",\n    \"email_list_size\": \"\",\n    \"email_software\": \"\",\n    \"content_assets\": \"\",\n    \"has_domain_hosting\": \"\"\n  },\n  \"budget\": {\n    \"monthly_ad_spend\": null,\n    \"currency\": \"USD\"\n  },\n  \"goals\": {\n    \"primary\": \"\",\n    \"secondary\": \"\"\n  },\n  \"timeline\": \"\",\n  \"special_instructions\": \"\",\n  \"survey_data_url\": \"\",\n  \"data_gaps\": [],\n  \"confidence_score\": 0.0\n}\n",
+        "options": {
+          "systemMessage": "You are Agent 0A — Intake Processor for an AI Marketing System.\n\nYour ONLY job is to take raw client intake form data and parse it \ninto a clean, structured JSON object. \n\nYou do NOT do any research. \nYou do NOT call any tools. \nYou just parse, validate, and structure.\n\n---\n\n## CAMPAIGN ID FORMAT\n\nGenerate as: YYYY-MM-DD-company-name-slugified\nExample: 2026-02-24-acme-corp\nUse the timestamp from the form. Slugify company name —\nlowercase, hyphens instead of spaces, no special characters.\n\n---\n\n## PARSING RULES\n\n### Products\n- If client lists multiple products/services, create separate \n  objects in the products array\n- Each gets its own id: product_1, product_2 etc.\n- Extract price from any field that mentions pricing\n\n### stated_competitors\n- Extract as a clean array of names only\n- Remove URLs, keep company names only\n\n### data_gaps\nAdd an entry for every field that is:\n- Empty or not answered\n- Too vague (e.g. \"depends\", \"varies\", \"not sure\", \"confidential\")\n- Contradictory with another field\n- Critical for campaign but missing\n\nCritical fields that must be flagged if missing:\n- Company website\n- Product description\n- Target audience / demographics\n- Pain points\n- Competitors\n- Marketing goal\n- Pricing / selling price\n\n### confidence_score\nScore 0.0 to 1.0 based on data completeness:\n- 0.9-1.0: All critical fields filled, very specific answers\n- 0.7-0.8: Most fields filled, minor gaps\n- 0.5-0.6: Several important fields missing or vague\n- 0.3-0.4: Major gaps — campaign will have significant unknowns\n- 0.0-0.2: Too incomplete to run confidently\n\n### budget\n- Extract monthly ad spend only if explicitly stated\n- If not mentioned set monthly_ad_spend to null\n- Note currency if specified, default to USD\n\n### goals\n- Extract from marketing goal field\n- Split into primary and secondary if multiple goals mentioned\n- If only one goal, leave secondary empty string\n\n### survey_data_url\n- If survey interviews field contains a URL extract it here\n- If it says No or is empty, leave as empty string\n\n---\n\n## RULES\n\n- Return ONLY the JSON — no explanation, no markdown, no extra text\n- Never invent data — if not in the form leave it empty or null\n- Never assume pricing — only use what is explicitly stated\n- Do not summarize testimonials — copy them verbatim as-is\n- Keep data_gaps specific and actionable\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        192,
+        -80
+      ],
+      "id": "42b0ef4e-4f7c-4dd5-80b6-8d20e70fb2f6",
+      "name": "Intake Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Run Company Intelligence analysis for this client.\n\nCall your tools in this exact order:\n1. Scrape website (max 3 pages)\n2. Search brand reviews\n3. Search third party listings\n\nThen analyse all data and return your JSON output.\n\n---\n\nCLIENT INTAKE DATA:\n\nCampaign ID: {{ $('Code in JavaScript').item.json.intake_data.campaign_id }}\nCompany Name:{{ $('Code in JavaScript').item.json.intake_data.client.name }}\nWebsite: {{ $('Code in JavaScript').item.json.intake_data.client.website }}\nIndustry: {{ $('Code in JavaScript').item.json.intake_data.client.industry }}\nBusiness Type: {{ $('Code in JavaScript').item.json.intake_data.client.business_type }}\nYears in Business: {{ $('Code in JavaScript').item.json.intake_data.client.years_in_business }}\nCities Served: {{ $('Code in JavaScript').item.json.intake_data.client.cities_served }}\nFacebook: {{ $('Code in JavaScript').item.json.intake_data.client.social.facebook }}\nInstagram: {{ $('Code in JavaScript').item.json.intake_data.client.social.instagram }}\nLinkedIn: {{ $('Code in JavaScript').item.json.intake_data.client.social.linkedin }}\nTwitter: {{ $('Code in JavaScript').item.json.intake_data.client.social.twitter }}\nMission: {{ $('Code in JavaScript').item.json.intake_data.company_profile.mission }}\nVision: {{ $('Code in JavaScript').item.json.intake_data.company_profile.vision }}\nValues: {{ $('Code in JavaScript').item.json.intake_data.company_profile.values }}\nBio: {{ $('Code in JavaScript').item.json.intake_data.company_profile.bio }}\nPositioning: {{ $('Code in JavaScript').item.json.intake_data.company_profile.positioning }}\nCompany Image: {{ $('Code in JavaScript').item.json.intake_data.company_profile.image }}\nTestimonials on File: {{ $('Code in JavaScript').item.json.intake_data.proof.testimonials }}\nCase Studies on File: {{ $('Code in JavaScript').item.json.intake_data.proof.case_studies }}\nTrust Logos Listed: {{ $('Code in JavaScript').item.json.intake_data.proof.trust_logos_list }}\nData Gaps from Intake: {{ $('Code in JavaScript').item.json.intake_data.data_gaps }}\n\n---\n\nReturn ONLY the JSON object. No explanation. No markdown fences.\n",
+        "options": {
+          "systemMessage": "=You are Agent 0C Company Intelligence Agent for an AI Marketing System. purpose is to build a verified intelligence profile of the clients by combining their self-reported intake data with real data from the web using your tools. NOT rely solely on what the client says about themselves. , enrich, and where necessary correct self-reported data what actually exists online.\n\n--- TOOLS STRICT USAGE LIMITS\nhave access to web research tools. are operating under strict credit constraints. these limits exactly do not exceed them.\n\n1 Scrape Client Website up to 3 calls\n- Tool scrapewebsite\n- URL client website URL\n- Max pages per call 3\n- Purpose Read homepage, about page, services page, and any additional key page if needed\n\n2 Search Brand Reputation 1 call only\n- Tool googlesearch\n- Query companyname reviews testimonials\n- Max results 5\n- Purpose What customers say online\n\n3 Search Third Party Listings 1 call only\n- Tool googlesearch\n- Query companyname sitetrustpilot.com OR siteg2.com OR siteyelp.com OR siteclutch.co\n- Max results 5\n- Purpose Third party review profiles\n\ntotal tool calls 5. 5 calls stop immediately and write your analysis. not make any additional tool calls even if you think data would help. Credit limits are strict.\n\n--- ANALYSIS FRAMEWORK\nall tool calls complete, analyse across\n\n1. Company Identity Verification\n- What does the company actually do based on website?\n- Does website messaging match intake form data?\n- What is their actual brand voice from website copy?\n- Any inconsistencies between form data and online presence?\n\n2. Online Presence Audit\n- Website messaging strength Strong Moderate Weak\n- Social media presence Strong Moderate Weak\n- SEO presence Strong Moderate Weak\n\n3. Reputation Intelligence\n- Overall sentiment from reviews found\n- Key themes customers mention repeatedly\n- Best proof points found online\n- Any reputation risks or negative patterns\n\n4. Brand Voice Extraction website copy only\n- Tone formal casual aggressive warm bold\n- Style technical simple emotional logical\n- Key phrases they repeat\n- How they describe their customers\n- How they describe results or transformation\n\n5. Trust Signal Inventory trust signal found anywhere\n- Years in business\n- Client logos or notable clients\n- Certifications and awards\n- Media mentions\n- Specific numbers clients served, revenue generated etc.\n\n6. Verified vs Claimed\nwhat client said in intake form vs was actually found online. any mismatches.\n\n7. Gaps\nis completely missing from online presence? could not be verified at all?\n\n--- BRAND VISUAL EXTRACTION MANDATORY\nWhen scraping the client’s website pages, you MUST also extract visual identity data:\n\n1. Colors\n- Look for CSS custom properties (--primary-color, --brand-color, etc.).\n- Look at inline styles and class-based colors on headers, buttons, CTAs, nav, and footer.\n- Look at background colors on hero sections and key content blocks.\n- Extract hex codes and identify primary, secondary, accent, and background colors.\n\n2. Typography\n- Detect font-family declarations in CSS or inline styles.\n- Detect Google Fonts or Adobe Fonts link tags.\n- Separate heading fonts from body fonts.\n- Note font weights used (bold, semibold, light, etc.).\n\n3. Imagery Style\n- Identify photo style: studio, lifestyle, stock, illustrated, AI-generated, or mixed.\n- Note icon style: outline vs filled, custom vs library.\n- Note hero treatment: full-bleed, overlaid text, etc.\n- Judge overall visual density: minimal/clean vs content-heavy.\n\n4. Logo\n- Find the logo image in header/nav (and favicon) and note if it is SVG, PNG, or text-based.\n- Note where it appears (header, nav, footer, multiple).\n- Note any light/dark variants if visible.\n\nYou must add a top-level field called brandvisualidentity in your JSON output. It must contain:\n- An array of named colors with hex codes and usage.\n- A typography object (heading font, body font, font source, weights used).\n- An imagery style object (photo type, icon style, hero treatment, visual density).\n- A logo object (format, location, variants, extraction confidence, gaps).\n\nIf some details cannot be confidently determined, set extractionconfidence to \"low\" and describe the uncertainty in gaps. Do NOT fabricate precise colors or fonts if they are not visible.\n\n------ OUTPUT RULES CRITICAL\n- Start your response with \n- End your response with \n- No text before the opening \n- No text after the closing \n- No json wrapper\n- No wrapper\n- No explanation\n- Raw JSON only in this structure, filled with real data:\n\n{\n  \"campaignid\": \"\",\n  \"companyprofile\": {\n    \"legalname\": \"\",\n    \"founded\": \"\",\n    \"headquarters\": \"\",\n    \"teamsize\": \"\",\n    \"funding\": \"\"\n  },\n  \"productsfound\": [\n    {\n      \"name\": \"\",\n      \"description\": \"\",\n      \"features\": [],\n      \"pricingfound\": \"\"\n    }\n  ],\n  \"socialprofiles\": {\n    \"linkedin\": \"\",\n    \"twitter\": \"\",\n    \"facebook\": null,\n    \"youtube\": null\n  },\n  \"existingmarketing\": {\n    \"hasblog\": false,\n    \"blogpostcount\": 0,\n    \"hasleadmagnet\": false,\n    \"hasemailcapture\": false,\n    \"hascasestudies\": false,\n    \"casestudycount\": 0,\n    \"hastestimonials\": false,\n    \"testimonialcount\": 0\n  },\n  \"existingads\": {\n    \"facebookadsrunning\": false,\n    \"googleadsrunning\": false,\n    \"linkedinadsrunning\": false\n  },\n  \"marketingaudit\": {\n    \"websitequalityscore\": 0,\n    \"strengths\": [],\n    \"gaps\": [],\n    \"recommendations\": []\n  },\n  \"discrepancieswithintake\": [],\n  \"brandvisualidentity\": {\n    \"colors\": [\n      {\n        \"name\": \"Primary\",\n        \"hex\": \"#000000\",\n        \"usage\": \"buttons, main CTAs\"\n      }\n    ],\n    \"typography\": {\n      \"headingfont\": \"\",\n      \"bodyfont\": \"\",\n      \"fontsource\": \"Google Fonts\",\n      \"weightsused\": [\"400\", \"600\", \"700\"]\n    },\n    \"imagerystyle\": {\n      \"phototype\": \"lifestyle | studio | stock | illustrated | mixed | unknown\",\n      \"iconstyle\": \"outline | filled | mixed | none | unknown\",\n      \"herotreatment\": \"full-bleed photo with overlaid text\",\n      \"visualdensity\": \"minimal | moderate | content-heavy | unknown\"\n    },\n    \"logo\": {\n      \"format\": \"svg | png | text-based | unknown\",\n      \"location\": \"header | nav | footer | multiple | unknown\",\n      \"variantsdetected\": \"e.g. dark and light logo versions, favicon present\",\n      \"extractionconfidence\": \"high | medium | low\",\n      \"gaps\": \"notes about anything you could not determine reliably\"\n    }\n  }\n}\n\nAfter completing all tool calls, immediately return a single JSON object in exactly this structure. Do not add any commentary before or after the JSON. Do not summarize what you found before writing JSON. Go directly from tool results to JSON output.",
+          "maxIterations": 15
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2320,
+        -80
+      ],
+      "id": "69acf726-6868-4f92-80fd-4d8f84b05791",
+      "name": "Company Intelligence Agent 0C"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    campaign_id: $input.first().json.campaign_id,\n    drive_folder_id: $input.first().json.drive_folder_id\n    \n  }\n}];\n;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4192,
+        -80
+      ],
+      "id": "399cee57-50d1-4add-85fa-41554c3e7f56",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KhEQxliEy4p9BdyQ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KhEQxliEy4p9BdyQ",
+          "cachedResultName": "Phase 1(1)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3968,
+        -80
+      ],
+      "id": "d148e611-71ce-4d0b-b9d3-e4b360edfc59",
+      "name": "Call Phase 1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    campaign_id: $input.first().json.campaign_id,\n    drive_folder_id: $input.first().json.drive_folder_id\n    \n  }\n}];\n;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        -80
+      ],
+      "id": "cbb0996c-35d9-4868-8424-290d330558ff",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    campaign_id: $input.first().json.campaign_id,\n    drive_folder_id: $input.first().json.drive_folder_id,\n    asana_project_id:$('Create a project').first().json.gid\n    \n  }\n}];\n;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5040,
+        -80
+      ],
+      "id": "ae767c3b-215f-4858-b0b8-ef9552633617",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "nv1iKyAg2iFLMShL",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/nv1iKyAg2iFLMShL",
+          "cachedResultName": "Phase 3(1)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        4832,
+        -80
+      ],
+      "id": "3670cddb-221c-46e4-b67c-b5a10c7e7c2d",
+      "name": "Call 'Phase 3(1)'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "OB0zf3nUD55EfcoN",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/OB0zf3nUD55EfcoN",
+          "cachedResultName": "Phase 4 (1)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        5216,
+        -80
+      ],
+      "id": "36b3d7f1-5895-44dd-9175-abe3afb63523",
+      "name": "Call 'Phase 4 (1)'"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "growthdriven.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (compatible; Google-Apps-Script; beanserver; +https://script.google.com; id: UAEmdDd8oBIpc9RZ-YWFpKEDdMzIR-CErTlQ)",
+            "content-length": "31917",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "107.178.203.160",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9e0dde514c82eb3d-SEA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "107.178.203.160, 172.71.147.208",
+            "x-forwarded-host": "growthdriven.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-91-5f899f4c95-48mrg",
+            "x-is-trusted": "yes",
+            "x-real-ip": "107.178.203.160"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "spreadsheetId": "1gabCCyLPuMyNA5HzSXcB4wSIQrUHs2LbwxFS1mJX0CE",
+            "spreadsheetName": "Client Onboarding Questionnaire Studio AOP (Responses)",
+            "sheetName": "Form responses 1",
+            "rowIndex": 87,
+            "changeType": "EDIT",
+            "timestamp": "2026-03-23T13:44:01.198Z",
+            "rowData": {
+              "Timestamp": "2026-03-20T19:50:52.299Z",
+              "First_Name": "Barry",
+              "Last_Name": "Coziahr",
+              "Email": "",
+              "Mobile": 13143987269,
+              "Full_Address": "602 Olive Tree court ",
+              "Company_Name": "Stamped Branding",
+              "Company_Website": "stampedebranding.com",
+              "Company_Facebook": "https://www.facebook.com/stampedebranding",
+              "Company_Instagram": "",
+              "Company_LinkedIn": "https://www.linkedin.com/company/stampede-branding/?viewAsMember=true",
+              "Company_Twitter": "",
+              "How_long_has_your_company_been_in_business?": "10 years",
+              "What_cities_does_your_business_serve?_Please_list_all_of_them:": "USA",
+              "What_is_your_company's_mission_statement?": "Our mission is to help business owners and experts turn their knowledge into scalable authority, predictable lead flow, and real revenue using proven marketing systems, publishing, and strategic leverage.",
+              "What_is_your_company's_vision_statement?": "We’re building a world where every expert with real value can dominate their niche without relying on outdated marketing, overpriced agencies, or guesswork. Stampede Branding exists to become the go-to authority engine behind thousands of businesses, powering growth through books, systems, AI, and elite execution.",
+              "What_are_the_values_your_company_stands_for?": "Results over theory\n\nClarity over confusion\n\nSpeed of execution wins\n\nAuthority beats noise\n\nEthical, transparent marketing\n\nSystems over hustle\n\nPartnerships over transactions\n\nContinuous optimization and learning\n\nRespect for the client’s time and money\n\nReal value, no fluff",
+              "Please_write_a_short_100-200_word_bio_about_your_company_(who_you_are,_your_history,_where_you_came_from,_why_you're_different,_the_value_you_provide)._If_you_have_this_already_written_on_the_'About_Us'_page_of_your_website,_feel_free_to_copy_and_paste_that_here:": "Stampede Branding was built to solve a simple but massive problem: great businesses struggle to get consistent attention, leads, and authority in a crowded market.\n\nFounded by Barry Coziahr, a serial entrepreneur with over two decades in marketing, publishing, and nonprofit leadership, the company combines real-world experience with modern systems that actually work. After building and selling a marketing company and helping scale multiple ventures, Barry created Stampede Branding to give business owners a faster, smarter path to growth.\n\nWhat makes us different is execution. We don’t just give advice. We build assets. Books that position you as an authority. Funnels that convert. Outreach systems that generate conversations. Virtual assistants and AI that scale it all without burning you out.\n\nOur clients don’t just “market more.” They become known, trusted, and in demand.",
+              "Please_provide_us_with_five_testimonials_from_your_past_customers_(please_include_their_name)": "\"Barry and his team completely changed how we generate business. Within the first 60 days, we went from inconsistent referrals to a steady pipeline of qualified leads. The systems just work.\"\n— Jason Dean\n\n\"Stampede Branding helped me turn my expertise into a real authority platform. The book, the positioning, the outreach… everything lined up and I started getting opportunities I never had before.\"\n— Edwin Dearborn\n\n\"I’ve worked with a lot of marketing people, and most of it is fluff. Barry is different. He focuses on results and actually builds things that produce revenue.\"\n— Travis Bond\n\n\"The VA and outreach systems alone paid for themselves almost immediately. We now have consistent conversations happening every week without me having to manage it.\"\n— Marcelo Russo\n\n\"Barry understands both strategy and execution. That’s rare. He helped us clarify our message and then backed it up with real systems that brought in measurable growth.\"\n— Tanya Cameron",
+              "If_applicable_to_your_business:_do_you_have_any_case_studies,_where_a_customer_was_taken_to_a_successful_and_MEASURABLE_outcome,_such_as:_\"They_put_in_solar_panels_and_we_now_save_$500_a_month_on_our_power_bill\".": "Client: Professional Services Firm\nOutcome: Implemented LinkedIn outreach + VA system\nResult: Generated 40+ qualified conversations in 60 days, leading to multiple new client contracts and a consistent pipeline moving forward\n\nClient: Author / Thought Leader\nOutcome: Full publishing + positioning strategy\nResult: Book launched with strong category placement, increased speaking opportunities, and inbound leads within 30 days of release\n\nClient: Marketing Agency Partner\nOutcome: White-labeled lead generation system\nResult: Added a new recurring revenue stream and increased monthly revenue by 20% within one quarter\n\nClient: Local Service Business\nOutcome: Funnel + follow-up automation system\nResult: Increased lead conversion rate by over 30% and reduced response time to under 5 minutes\n\nClient: Consultant / Coach\nOutcome: Authority build (book + content + outreach)\nResult: Went from inconsistent income to predictable monthly revenue with booked calls every week",
+              "We_need_to_display_'trust_logos'_on_your_website._Do_you_or_do_you_have:": "",
+              "If_you_answered_'yes'_to_any_of_the_above_trust_logos_question,_please_fully_list_them_out_here": "",
+              "List_all_the_products_&_services_you_currently_offer": "Products & Services Offered\n\nBrand Strategy & Creative\n\nBrand strategy\n\nCreative strategy\n\nBranding and design\n\nMessaging refinement\n\nContent strategy\n\nWebsite & eCommerce Development\n\nWebsite design\n\nWebsite development\n\nWebsite redesigns\n\nConversion-focused websites\n\nResponsive web development\n\nWebsite + eCommerce development\n\nWebsite optimization for user experience and performance\n\nLead Generation & Sales Systems\n\nLinkedIn appointment setting\n\nSales funnel development\n\nLead nurturing systems\n\nConversion-focused funnel strategy\n\nConsultation funnel setup\n\nLead capture and follow-up systems\n\nDigital Advertising\n\nGoogle Ads\n\nYouTube Ads\n\nSocial media ads\n\nPaid traffic strategy\n\nCampaign targeting and optimization\n\nSearch Engine Optimization\n\nSEO strategy\n\nOn-page SEO\n\nWebsite visibility optimization\n\nOrganic traffic growth\n\nSearch ranking improvement\n\nSocial Media & Content Marketing\n\nSocial media management\n\nSocial media strategy\n\nContent creation\n\nContent scheduling\n\nBrand voice alignment across social channels\n\nEngagement and performance optimization\n\nEmail Marketing & Automation\n\nEmail marketing\n\nEmail automation\n\nAutomated email sequences\n\nLead nurturing email campaigns\n\nSubscriber onboarding and re-engagement flows\n\nAuthority Building & Visibility\n\nPodcast guesting\n\nPodcast publicity\n\nInfluencer marketing\n\nBrand visibility campaigns\n\nAuthority positioning through media and strategic exposure\n\nPublishing & Brand Assets\n\nBook cover design\n\nLogo design\n\nBrand asset development\n\neBooks and downloadable marketing resources\n\nConsulting & Discovery Resources\n\nFree consultations\n\nIntake interviews\n\nSpeaker booking / book-a-speaker opportunities\n\nMarketing Systems & Integrations\n\nMarketing strategy development\n\nMulti-channel campaign planning\n\nWebsite, funnel, email, and ad integration\n\nCustom automation strategy\n\nAnd here’s the cleaner “official” version if you want it to sound tighter and more high-level:\n\nProducts & Services Offered\n\nStampede Branding offers a full range of brand-building, lead-generation, and digital growth services, including:\n\nBrand strategy and creative strategy\n\nBranding and design\n\nWebsite design, web development, and eCommerce development\n\nLinkedIn appointment setting\n\nSales funnel development\n\nGoogle Ads and YouTube Ads management\n\nSEO (Search Engine Optimization)\n\nSocial media management and social advertising\n\nContent creation and content strategy\n\nEmail marketing and email automation\n\nPodcast guesting and podcast publicity\n\nInfluencer marketing\n\nBook cover design, logo design, and brand asset creation\n\neBooks and other lead-generation resources\n\nMarketing systems, automations, and integrated digital campaigns\n\nFree consultations, intake interviews, and speaker booking\n\nImportant note on CRM development: your current website does clearly support automation, funnels, lead nurturing, and integrated campaign systems, but CRM development is not called out by name on the site navigation or service pages I reviewed. So if you want to include CRM development in a formal answer, I’d phrase it as part of your marketing systems, automations, and integrations unless you want me to add it as a broader “what we also do in practice” item rather than a strict website-listed service.",
+              "Which_market_does_your_product/service_fall_under?": "Wealth",
+              "What_is_your_most_expensive_product_and_how_much_is_it_priced?": "20,000 websites - 50,000 - 100,000 retainiers",
+              "Do_you_have_a_low_priced/free_but_high_value_offer_for_attracting_new_customers?": "website, SEO or ad platform free evaluation",
+              "Do_you_have_a_subscription_service?": "Yes",
+              "What_is_the_cost_to_make_the_product/service?": "50% or less",
+              "What_is_the_selling_price_of_the_product/service?": "???",
+              "What_problems_does_it_solve_for_your_clients?": "Already discussed",
+              "What_are_the_actual_results_it_produces?": "new client, business growth, more profit and growth",
+              "List_at_least_five_features_of_your_products/services:": "Already discussed",
+              "List_at_least_five_benefits_of_your_products/services:": "Already discussed",
+              "What_is_unique/different/excellent_about_your_products/services?": "We don’t sell random marketing services. We build integrated systems that produce results.\n\nMost agencies are fragmented. One does ads, another does websites, another does content. Nothing talks to each other, and the client is left managing the chaos. We fix that by building a unified ecosystem where everything works together. Your positioning, your website, your funnel, your outreach, your content, your automation. All aligned, all driving toward revenue.\n\nWe also focus heavily on authority. Not just traffic. Not just clicks. Authority. That means books, podcast placements, content strategy, and visibility systems that position you as the obvious choice in your space.\n\nExecution is another major difference. We don’t just advise. We build, launch, and optimize. Our clients aren’t left with a strategy document they never implement. They get working systems.\n\nSpeed and leverage matter too. We combine automation, AI, and structured processes to move faster than traditional agencies without sacrificing quality.\n\nFinally, we’re results-first. Everything we do ties back to leads, conversations, and revenue. If it doesn’t move the needle, we don’t waste time on it.\n\nThat’s the differenc",
+              "List_out_the_different_publics_who_your_company_serves_or_can_potentially_serve:": "Small business owners\n\nEntrepreneurs and solopreneurs\n\nFounders and startup operators\n\nProfessional service providers (attorneys, CPAs, consultants, insurance agents)\n\nCoaches, consultants, and advisors\n\nAuthors and aspiring authors\n\nSpeakers and thought leaders\n\nMarketing agencies (white-label / partner relationships)\n\nReal estate professionals and investors\n\nE-commerce business owners\n\nLocal service businesses (home services, medical, wellness, etc.)\n\nB2B companies looking for lead generation systems\n\nExecutives and corporate leaders building personal brands\n\nInfluencers and content creators looking to monetize authority\n\nNonprofits and mission-driven organizations\n\nFranchises and multi-location businesses\n\nSales teams and organizations needing appointment setting systems\n\nBusinesses scaling from referral-based to predictable lead flow\n\nCompanies overwhelmed with inconsistent marketing and looking for systems\n\nHigh-income professionals wanting to “buy back their time” through leverage",
+              "Please_describe_in_detail_the_demographics_of_your_ideal_customer:": "Our ideal customer is typically between 30–55 years old, with the core sweet spot being 35–50. They are in a stage of life where they’ve already built something, but they know they should be further along.\n\nThey are primarily based in the United States, with strong concentrations in business-heavy and growth-oriented regions (Florida, Texas, California, New York), but we also work with English-speaking clients internationally (Canada, UK, Australia).\n\nGender is fairly balanced, though slightly male-leaning depending on industry (especially in professional services and B2B). In coaching, consulting, and author markets, it balances out more evenly.\n\nProfessionally, they are business owners, entrepreneurs, consultants, coaches, agency owners, or high-level professionals (attorneys, financial advisors, real estate investors, insurance professionals). Many are decision-makers or the primary revenue driver in their business.\n\nMost are married or in long-term relationships, often with 1–3 children. They value time highly because they’re balancing business growth with family responsibilities.\n\nAnnual household income typically ranges from $150,000 to $500,000+, with many clients in the $200K–$350K range. They have disposable income, but they’re highly conscious of ROI and expect results, not experiments.\n\nThey are not beginners. They’re established, capable, and ready to scale smarter.",
+              "What_need_or_want_does_your_product_or_service_fulfil_for_your_ideal_customer?": "Our ideal customer doesn’t need more “marketing.” They need a reliable, scalable way to grow.\n\nAt their core, they want three things:\n\nPredictable lead flow\nThey’re tired of inconsistent referrals and feast-or-famine cycles. We give them systems that consistently generate qualified conversations.\n\nAuthority and positioning\nThey know they’re good at what they do, but the market doesn’t fully recognize it. We help them become the obvious choice through books, content, and visibility strategies.\n\nLeverage and time freedom\nThey’re overworked and wearing too many hats. We build systems, automation, and delegated execution so the business grows without requiring more of their time.\n\nClarity and simplicity\nThey’re overwhelmed by too many marketing options. We simplify everything into a clear, focused strategy that actually gets executed.\n\nReal results, not theory\nThey’ve been burned by agencies or ideas that didn’t produce. We deliver working systems tied directly to leads, appointments, and revenue.\n\nBottom line:\nWe help them go from scattered, inconsistent growth to structured, scalable, and predictable business expansion.",
+              "What_difficulty_(or_unmet_need)_is_your_target_audience_experiencing_which_they_need_YOUR_product/service_to_solve?_(problem,_pain_point)": "Our target audience is stuck in a frustrating middle zone. They’re successful enough to know they should be growing faster, but their growth isn’t consistent or scalable.\n\nTheir biggest problems:\n\nInconsistent lead flow\nThey rely too heavily on referrals, word of mouth, or random bursts of marketing. Some months are great, others are dead. There’s no predictability.\n\nLack of clear positioning\nThey’re good at what they do, but they sound like everyone else. Their message doesn’t clearly communicate why they’re the best choice, so they blend into the noise.\n\nToo many disconnected marketing efforts\nThey’ve tried different tactics like ads, social media, email, websites, but nothing is integrated. It feels scattered, and results are inconsistent.\n\nWasted time and energy\nThey’re either doing too much themselves or managing too many vendors. Marketing becomes a drain instead of a growth engine.\n\nPoor ROI from past marketing\nThey’ve spent money on agencies, freelancers, or programs that didn’t deliver measurable results. Trust is low, skepticism is high.\n\nNo real authority or visibility\nThey know they should be more visible like writing, speaking, being on podcasts, publishing content, but they don’t have a system to make it happen consistently.\n\nStuck at a growth ceiling\nThey’ve hit a plateau. What got them here won’t get them to the next level, but they don’t have a clear path forward.\n\nBottom line:\nThey don’t need more tactics. They need a system that actually works, is fully integrated, and produces predictable growth without burning them out.",
+              "What_does_your_target_audience_fear_will_happen_if_they_don't_get_their_issue/problem_solved,_and_their_problem_continues?": "At a deeper level, they’re not just worried about “bad marketing.” They’re worried about staying stuck.\n\nRevenue stagnation or decline\nThey fear the inconsistency continues. Good months followed by dry spells. Eventually, growth stalls or even reverses.\n\nGetting outpaced by competitors\nThey know other people, sometimes less qualified, are winning simply because they’re more visible and better positioned. That stings.\n\nWasting more time and money\nThey’ve already been burned. Their fear is doubling down on the wrong strategy again and throwing more money at something that doesn’t work.\n\nBurnout from doing everything themselves\nIf nothing changes, they’re stuck being the marketer, salesperson, operator, and fulfillment all at once. That’s not sustainable.\n\nNever becoming the authority they know they could be\nThey don’t want to stay the “best kept secret.” The fear is that years go by and they never build the recognition, brand, or influence they’re capable of.\n\nMissing bigger opportunities\nSpeaking gigs, partnerships, media exposure, higher-ticket clients. All of that stays out of reach without proper positioning and visibility.\n\nBeing trapped in their business instead of scaling it\nThey don’t want a job they built for themselves. They want leverage. If they don’t fix this, they stay stuck in the day-to-day grind.\n\nLong-term financial and lifestyle impact\nLess income, less freedom, less time with family, and more stress. They feel that trajectory and don’t like where it leads.\n\nBottom line:\nThey’re not just afraid of bad marketing. They’re afraid of staying invisible, overworked, and capped while knowing they’re capable of a lot more.",
+              "What_are_they_angry_about?": "Marketing that doesn’t work\nThey’re fed up with spending money on agencies, freelancers, and “experts” who overpromise and underdeliver. They’ve heard it all before.\n\nGeneric, recycled advice\n“Post more content.” “Run ads.” “Build your brand.” They’re tired of vague strategies that sound good but don’t translate into results.\n\nWatching less qualified competitors win\nThis one really gets them. They see people with less experience, less skill, and weaker offers dominating simply because they’re louder or better positioned.\n\nFeeling invisible despite being good at what they do\nThey know they deliver real value, but the market isn’t responding the way it should. That disconnect creates frustration.\n\nHaving to do everything themselves\nThey didn’t build a business to become a full-time marketer, content creator, and tech manager. Yet that’s where they’ve ended up.\n\nWasted time\nNot just money. Time. Months or years trying things that didn’t move the needle. That’s harder to get back.\n\nOvercomplicated marketing ecosystems\nToo many tools, platforms, and moving parts. Nothing feels simple or cohesive, and they’re tired of duct-taping things together.\n\nLack of straight answers\nThey want someone to just tell them what works and execute. Instead, they’ve gotten ambiguity, jargon, and runaround.\n\nBottom line:\nThey’re angry because they know growth shouldn’t be this hard and deep down, they’re right.",
+              "What_are_their_top_daily_frustrations?": "Unpredictable leads and conversations\nThey don’t know where the next deal is coming from. Some days it’s busy, other days it’s dead quiet.\n\nToo many marketing tasks, not enough clarity\nThey know they should be posting, emailing, following up, building funnels… but it’s unclear what actually matters.\n\nConstant interruptions and context switching\nJumping between sales, operations, client work, and marketing. Nothing gets full focus.\n\nFollowing up inconsistently\nLeads slip through the cracks because there’s no clean system. They know money is being left on the table.\n\nManaging vendors or figuring things out alone\nEither they’re babysitting freelancers/agencies or trying to learn everything themselves. Neither is efficient.\n\nContent pressure\nThey feel like they “should” be posting, recording, or creating content, but it’s inconsistent and time-consuming.\n\nTech overwhelm\nCRMs, funnels, automations, integrations. It’s a mess of tools that don’t feel fully under control.\n\nLow conversion despite effort\nTraffic comes in, but it doesn’t consistently turn into calls or clients. That gap is frustrating.\n\nNot knowing what’s working\nThey’re spending money and time, but there’s no clear visibility into ROI or performance.\n\nNo real leverage in their business\nEverything still depends on them. If they stop, growth slows or stops completely.\n\nBottom line:\nTheir days feel busy, but not productive in a way that consistently grows the business. That’s the real frustration.",
+              "What_do_they_secretly_desire_most?": "To become the obvious authority in their space\nThey want people to know their name, trust them instantly, and come to them without hesitation.\n\nA steady stream of inbound opportunities\nThey don’t want to chase. They want qualified prospects reaching out, booking calls, and asking to work with them.\n\nLeverage without losing control\nThey want systems, automation, and team support running things… while they stay in control of the vision and outcomes.\n\nTo be paid what they’re actually worth\nHigher fees, better clients, less resistance. They want to stop competing on price and start being chosen on value.\n\nRecognition and validation\nSpeaking opportunities, podcasts, published books, visibility. They want to be seen as the expert they know they are.\n\nFreedom of time\nMore time with family, more flexibility, less being tied to every moving part of the business.\n\nSimplicity\nA clear path. A system that works. No more guessing, no more juggling a dozen disconnected strategies.\n\nConfidence in their growth engine\nThey want to wake up knowing leads, conversations, and revenue are being generated whether they’re working or not.\n\nBottom line:\nThey don’t just want more business. They want to feel established, in control, and finally operating at the level they know they’re capable of.",
+              "What_are_the_sources_of_information_they_use_to_get_advice_or_knowledge_regarding_your_industry/product/service?": "ur ideal customers are constantly consuming business, marketing, and growth content but they’re selective. They gravitate toward people and platforms that feel practical, results-driven, and proven.\n\nGurus / Influencers They Follow\n\nPerry Marshall\n\nRussell Brunson\n\nAlex Hormozi\n\nGary Vaynerchuk\n\nDan Kennedy\n\nTony Robbins\n\nGrant Cardone\n\nDonald Miller\n\nThey tend to follow people who are direct, tactical, and results-focused not academic or theoretical.\n\nWebsites, Blogs & Platforms\n\nHubSpot blog\n\nNeil Patel content and tools\n\nClickFunnels ecosystem content\n\nForbes business articles\n\nEntrepreneur online and print\n\nInc. content\n\nLinkedIn (major daily source of ideas and outreach strategy)\n\nYouTube (tutorials, ads strategy, funnels, AI tools)\n\nThey also consume a lot of YouTube breakdowns, short-form clips, and tactical walkthroughs.\n\nPodcasts\n\nThe Marketing Secrets Show\n\nThe GaryVee Audio Experience\n\nThe Game with Alex Hormozi\n\nOnline Marketing Made Easy\n\nSmart Passive Income\n\nThey prefer podcasts that mix mindset + tactics + real-world examples.\n\nCommunities & Forums\n\nFacebook business groups (marketing, lead gen, entrepreneurship)\n\nLinkedIn groups and comment threads\n\nPaid masterminds and networks (high-trust environments)\n\nIndustry-specific Slack or private communities\n\nThey trust peer conversations and case studies more than polished ads.\n\nBooks They Read\n\n80/20 Sales and Marketing – Perry Marshall\n\nDotCom Secrets – Russell Brunson\n\n$100M Offers – Alex Hormozi\n\nBuilding a StoryBrand – Donald Miller\n\nThe 4-Hour Workweek – Tim Ferriss\n\nThey prefer books that are actionable, strategic, and directly applicable to revenue growth.\n\nNewspapers / Publications\n\nThe Wall Street Journal\n\nThe New York Times (business sections primarily)\n\nBloomberg\n\nNot for tactics, but for macro trends, economy, and business insights.\n\nBottom line:\nThey are heavily influenced by results-driven marketers, real case studies, and platforms where they can see what’s actually working right now, not theory or academic content.",
+              "What_state_or_condition_is_your_customer_in_BEFORE_they_use_your_product_or_service_and_what_state_or_condition_are_they_in_AFTER_they_use_your_product_or_service?": "BEFORE\n\nWhat they have:\nInconsistent leads, scattered marketing efforts, a basic website that doesn’t convert, and no clear system driving growth.\n\nHow they feel:\nFrustrated, overwhelmed, skeptical, and stretched thin. They know they should be further along but can’t quite break through.\n\nHow their life looks:\nBusy all the time but not in control. Constantly switching between roles. Chasing opportunities instead of attracting them. Growth feels unpredictable.\n\nTheir status:\nSeen as “good” at what they do, but not widely recognized. Often the best-kept secret in their space.\n\nAFTER\n\nWhat they have:\nA fully integrated growth system. Clear positioning, a high-converting website and funnels, consistent lead flow, automated follow-up, and authority assets like books, content, and podcast presence.\n\nHow they feel:\nConfident, in control, and focused. They know what’s working and why. Less stress, more certainty.\n\nHow their life looks:\nStructured and scalable. Leads and conversations are happening consistently. They’re spending more time on high-value activities and less on scattered tasks.\n\nTheir status:\nRecognized authority in their niche. They attract better clients, command higher fees, and are seen as the go-to expert.\n\nBottom line:\nBefore, they’re working hard without leverage.\nAfter, they have systems, authority, and predictable growth working for them.",
+              "Have_you_done_survey_interviews_of_your_target_publics?_If_so,_please_attach_them.": "",
+              "List_the_hot_buttons_that_your_target_audience_has": "Yes, both formally and informally.  Our insights are based on a combination of direct client interactions, intake interviews, strategy sessions, and ongoing feedback loops with active clients and partners.  Details of Research Conducted  Client Intake Interviews Every new client goes through a structured intake process where we identify their current challenges, past marketing experiences, goals, and perceived obstacles.  Strategy Sessions & Discovery Calls We’ve conducted hundreds of one-on-one conversations with business owners, consultants, and professionals across multiple industries. These serve as real-time market research.  Ongoing Client Feedback We continuously gather feedback during implementation including what’s working, what’s not, and where friction exists in their marketing and growth systems.  Campaign Data & Performance Metrics We analyze real campaign results (lead flow, conversion rates, engagement) to validate assumptions and refine strategies based on measurable outcomes.  Partner & Affiliate Insights Through partnerships with agencies, consultants, and industry professionals, we gain additional perspective across different verticals and client types.  Summary of Findings (High-Level)  Across interviews and data, consistent patterns emerge:  Clients struggle with inconsistent lead flow  Messaging and positioning are unclear or too generic  Marketing efforts are fragmented and not systemized  There is strong demand for authority-building (books, content, visibility)  Time and bandwidth are major constraints  Clients prioritize ROI and are skeptical due to past experiences  Note on Documentation  While most of this research is conducted through direct interaction and internal processes rather than formal published surveys, we can provide anonymized summaries, call notes, or structured interview insights upon request.",
+              "List_at_least_10_of_your_competitors_and_their_websites": "Competitors (Direct & Indirect)\n\nClickFunnels\nhttps://www.clickfunnels.com\n\nHubSpot\nhttps://www.hubspot.com\n\nGoHighLevel\nhttps://www.gohighlevel.com\n\nNeil Patel Digital\nhttps://neilpatel.com\n\nLYFE Marketing\nhttps://www.lyfemarketing.com\n\nDisruptive Advertising\nhttps://www.disruptiveadvertising.com\n\nSmartSites\nhttps://www.smartsites.com\n\nThrive Internet Marketing Agency\nhttps://thriveagency.com\n\nBook Launchers\nhttps://booklaunchers.com\n\nScribe Media\nhttps://scribemedia.com\n\nReedsy\nhttps://reedsy.com\n\nUpwork\nhttps://www.upwork.com\n\nQuick framing (optional if you need it):\n\nDirect competitors: agencies + publishing services (Thrive, SmartSites, Scribe, Book Launchers)\n\nPlatform competitors: ClickFunnels, HubSpot, GoHighLevel\n\nIndirect competitors: freelancers + marketplaces (Upwork, Reedsy), influencer-style marketers (Neil Patel)\n\nIf you want the next level, I can break down:\n\nWhere you beat each one\n\nWhere they beat you\n\nAnd how to position against all of them cleanly\n\nThat’s where this gets dangerous (in a good way).",
+              "What_is_the_image_of_your_company?": " results-driven, no-fluff growth partner ",
+              "What_is_the_positioning_your_company_is_currently_following?": "creating a stampede",
+              "What_is_your_marketing_goal?": "Our marketing goal is to create a predictable, scalable pipeline of qualified prospects while positioning Stampede Branding as the go-to authority for business growth systems.\n\nSpecifically:\n\nGenerate consistent, high-quality leads\nNot just volume, but qualified business owners and decision-makers who are ready to invest in real growth.\n\nEstablish dominant authority positioning\nWe aim to be recognized as the team that actually builds systems that work, not just another agency. This includes content, publishing, podcast presence, and strategic visibility.\n\nConvert attention into booked conversations\nAll marketing efforts are designed to move prospects into meaningful conversations, not just passive engagement.\n\nBuild a scalable acquisition engine\nThrough funnels, outreach, content, and automation, we create a system that produces leads consistently without relying on referrals alone.\n\nAttract better clients, not just more clients\nWe want clients who value results, understand ROI, and are serious about scaling.\n\nBottom line:\nThe goal is not “more marketing.”\nThe goal is a self-sustaining growth engine that consistently produces authority, leads, and revenue.",
+              "How_big_is_your_email/contact_list?": "7000 and growing",
+              "Are_you_currently_using_an_email_marketing_software?": "constant contact",
+              "Do_you_already_have_a_domain_and_hosting_for_your_website?": "Yes",
+              "Please_list_out_the_current_content_assets_you_have_existing:": "all on website",
+              "Are_you_currently_running_ads?": "No",
+              "Please_provide_us_with_the_username,_password,_and_login_page_for_your_website,_google_analytics,_google_my_business,_facebook_ads_manager,": "n/a",
+              "Email_address": "barry@stampedebranding.com",
+              "col_58": "",
+              "col_59": ""
+            }
+          },
+          "webhookUrl": "https://growthdriven.app.n8n.cloud/webhook/master-sheet-data",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data": {
+      "main": [
+        [
+          {
+            "node": "Intake Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a project": {
+      "main": [
+        [
+          {
+            "node": "Clients Folder Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intake Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        [
+          {
+            "node": "Create a project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clients Folder Creation": {
+      "main": [
+        [
+          {
+            "node": "Intake Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intake Folder": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Company Intelligence Agent 0C",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Company Intelligence Agent 0C",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Company Intelligence Agent 0C",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Research Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Folder": {
+      "main": [
+        [
+          {
+            "node": "Create a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document1": {
+      "main": [
+        [
+          {
+            "node": "Update a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document1": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Call Phase 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Phase 2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intake Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Intelligence Agent 0C": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Call Phase 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Phase 1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Call 'Phase 3(1)'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Call 'Phase 4 (1)'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Phase 3(1)'": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "versionId": "aa8cd26c-d950-4a26-aecd-6c0fd119a2cf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a44d10a4b2711883b6434f7648eb0a4b5fb97a064aba14bd9cd3992ef0bf21bb"
+  },
+  "id": "WUiSdyRry9Eqj1xC",
+  "tags": []
+}

@@ -1,0 +1,1178 @@
+{
+  "name": "Phase 1(1)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        112
+      ],
+      "id": "84dad496-bc0f-4fdb-8721-fb86b885b4bd",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Run Product Research analysis for this client.\n\nYou have two data sources below.\nWhere they conflict use verified data and flag the discrepancy.\nCombine both for the most complete picture.\n\n---\n\nINTAKE DATA\n{{ JSON.stringify($json.intake) }}\n\n---\n\nCOMPANY INTELLIGENCE (verified from web)\n\nProducts Found:{{ JSON.stringify($json.company_intelligence.products_found, null, 2) }}\nExisting Marketing: {{ JSON.stringify($json.company_intelligence.existing_marketing, null, 2) }}\nExisting Ads: {{JSON.stringify( $json.company_intelligence.existing_ads, null, 2)  }}\nMarketing Audit: {{JSON.stringify( $json.company_intelligence.marketing_audit , null, 2)  }}\nDiscrepancies with Intake: {{ JSON.stringify($json.company_intelligence.discrepancies_with_intake , null, 2)  }}\n\n---\n\nCampaign ID: {{ $json.campaign_id }}\n\n\n",
+        "options": {
+          "systemMessage": "=You are a Product Research Agent.\n\nYour purpose is to establish complete REALITY on the product/service being marketed.\nThis is non-negotiable homework that must be completed before any copywriting or\ncampaign work begins.\n\n╔══════════════════════════════════════════════════════════════╗\n║  💡 THE VITAL DATA                                           ║\n║  The copywriter must have complete REALITY on the item       ║\n║  being sold. Without this, copy fails.                       ║\n╚══════════════════════════════════════════════════════════════╝\n\n\n📋 INPUTS REQUIRED\n──────────────────\n  ▸ Product/service name and URL (if applicable)\n  ▸ Access to: product documentation, demos, sales materials, onboarding materials\n  ▸ Customer testimonials and case studies (if available)\n  ▸ Access to team members for questions (or documentation of their knowledge)\n  ▸ Historical marketing materials and results (if available)\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🔬  RESEARCH FRAMEWORK                                      ║\n╚══════════════════════════════════════════════════════════════╝\n\n\n┌─────────────────────────────────────────────────────────────┐\n│  📦  SECTION 1 — CORE PRODUCT FACTS                         │\n└─────────────────────────────────────────────────────────────┘\n\n🔹 1.1  Product Definition\n    Answer as if explaining to someone who has never heard of this:\n\n    ❓ What exactly IS this product/service?\n    ❓ What category does it fall into?\n    ❓ What is the delivery mechanism? (Software, service, physical product, information, etc.)\n    ❓ What is the delivery timeline? (Instant access, shipping time, implementation period, etc.)\n\n\n🔹 1.2  Complete Feature Inventory\n    List EVERY feature, specification, and component:\n\n    | Feature                     | Description     | Technical Details |\n    |-----------------------------|-----------------|-------------------|\n    | [Feature 1]                 | [What it is]    | [Specs]           |\n    | [Feature 2]                 | [What it is]    | [Specs]           |\n    | [Continue for ALL features] |                 |                   |\n\n\n🔹 1.3  Delivery & Support\n\n    ▸ How is it delivered/accessed?\n    ▸ What onboarding is included?\n    ▸ What support is available?\n    ▸ What is the learning curve?\n    ▸ What ongoing maintenance/updates are included?\n\n\n🔹 1.4  Limitations & Constraints\n    Be HONEST — what are the real limitations?\n\n    ▸ What does this NOT do?\n    ▸ Who is this NOT for?\n    ▸ What are the requirements to use it effectively?\n    ▸ What common expectations does it NOT meet?\n\n\n┌─────────────────────────────────────────────────────────────┐\n│  🔄  SECTION 2 — FEATURE-TO-BENEFIT TRANSLATION             │\n└─────────────────────────────────────────────────────────────┘\n\n    For EACH feature, complete this translation:\n\n    | Feature   | Functional Benefit       | Emotional Benefit        | Proof Point             |\n    |-----------|--------------------------|--------------------------|-------------------------|\n    | [Feature] | [What it DOES for them]  | [How it makes them FEEL] | [Evidence this is true] |\n\n\n    📊 Benefit Hierarchy — Rank by importance to the buyer:\n\n        1️⃣  [Most important benefit]\n        2️⃣  [Second most important]\n        3️⃣  [Third most important]\n        ➕  [Continue]\n\n\n    🎯 The Dream Outcome\n    If this product works perfectly, what is the ultimate transformation/result?\n\n        ❌  Before state:  [Where they are now]\n        ✅  After state:   [Where they'll be after]\n\n\n┌─────────────────────────────────────────────────────────────┐\n│  🏆  SECTION 3 — PROOF LIBRARY                              │\n└─────────────────────────────────────────────────────────────┘\n\n    ⚠️  CRITICAL: Every claim needs proof. Build the proof library now.\n\n\n    🔹 3.1  Results & Data\n\n        | Claim     | Specific Proof           | Source                  |\n        |-----------|--------------------------|-------------------------|\n        | [Claim 1] | [Specific number/result] | [Where this comes from] |\n        | [Claim 2] | [Specific number/result] | [Where this comes from] |\n\n        📌 SPECIFICITY amplifies proof:\n            ❌  Weak   →  \"Great results\"\n            ✅  Strong →  \"47.3% increase in 23 days\"\n\n\n    🔹 3.2  Case Studies\n\n        | Client      | Situation         | Problem               | Solution                     | Result              | Timeline  |\n        |-------------|-------------------|-----------------------|------------------------------|---------------------|-----------|\n        | [Name/Type] | [Where they were] | [What wasn't working] | [What they did with product] | [Specific outcomes] | [How long]|\n\n\n    🔹 3.3  Testimonials\n\n        | Theme         | Quote (Verbatim) | Source                 | Specificity Level |\n        |---------------|------------------|------------------------|-------------------|\n        | [Results]     | \"[Exact quote]\"  | [Name, title, company] | [High/Medium/Low] |\n        | [Ease of use] | \"[Exact quote]\"  | [Name, title, company] | [High/Medium/Low] |\n        | [Support]     | \"[Exact quote]\"  | [Name, title, company] | [High/Medium/Low] |\n\n\n    🔹 3.4  Credentials & Authority\n\n        🏅  Awards/recognition:       [List]\n        📰  Media mentions:           [List]\n        📜  Industry certifications:  [List]\n        🌟  Notable clients:          [List]\n        📅  Years in business:        [Number]\n        👥  Team credentials:         [Relevant expertise]\n\n\n    🔹 3.5  Demonstrations\n\n        ▸ Can the product be demonstrated live?\n        ▸ What screenshots/videos show it working?\n        ▸ What before/after visuals exist?\n\n\n    📊 Proof Hierarchy (Strength Ranking):\n\n        | Rank | Proof Type             | Available? | Assets        |\n        |------|------------------------|------------|---------------|\n        | 🥇 1 | Demonstration          | [Yes/No]   | [List assets] |\n        | 🥈 2 | Data/Statistics        | [Yes/No]   | [List assets] |\n        | 🥉 3 | Case Studies           | [Yes/No]   | [List assets] |\n        |  4   | Testimonials           | [Yes/No]   | [List assets] |\n        |  5   | Social Proof Numbers   | [Yes/No]   | [List assets] |\n        |  6   | Credentials/Authority  | [Yes/No]   | [List assets] |\n        |  7   | Borrowed Credibility   | [Yes/No]   | [List assets] |\n        |  8   | Logical Argument       | [Yes/No]   | [List assets] |\n\n\n┌─────────────────────────────────────────────────────────────┐\n│  ⚡  SECTION 4 — DIFFERENTIATORS                            │\n└─────────────────────────────────────────────────────────────┘\n\n    🔹 4.1  Unique Mechanism\n\n        ▸ What is the unique approach/method/technology?\n        ▸ Why does this approach work better?\n        ▸ What is the \"secret sauce\"?\n\n\n    🔹 4.2  Competitive Differentiation\n        What can this product do that alternatives cannot?\n\n        | Differentiator   | Why It Matters    | Proof      |\n        |------------------|-------------------|------------|\n        | [Unique thing 1] | [Why buyer cares] | [Evidence] |\n        | [Unique thing 2] | [Why buyer cares] | [Evidence] |\n\n\n    🔹 4.3  Reason Why\n        For each major claim, what is the REASON WHY it's true?\n\n        | Claim            | Reason Why                     |\n        |------------------|--------------------------------|\n        | \"Lowest price\"   | \"Because we [specific reason]\" |\n        | \"Faster results\" | \"Because our [mechanism]\"      |\n        | \"Better quality\" | \"Because we [process]\"         |\n\n\n┌─────────────────────────────────────────────────────────────┐\n│  📈  SECTION 5 — HISTORICAL PERFORMANCE                     │\n└─────────────────────────────────────────────────────────────┘\n\n    🔹 5.1  Past Marketing Review\n\n        | Campaign/Channel | What Worked | What Failed | Key Learning |\n        |------------------|-------------|-------------|--------------|\n        | [Campaign 1]     | [Successes] | [Failures]  | [Insight]    |\n        | [Campaign 2]     | [Successes] | [Failures]  | [Insight]    |\n\n\n    🔹 5.2  Sales Data\n\n        ▸ What messaging has converted in sales conversations?\n        ▸ What objections come up repeatedly?\n        ▸ What questions do prospects always ask?\n        ▸ What makes people buy?\n        ▸ What makes people NOT buy?\n\n\n    🔹 5.3  Winning Elements\n\n        🏆  Winning headlines:   [List]\n        🏆  Winning offers:      [List]\n        🏆  Winning channels:    [List]\n        🏆  Winning audiences:   [List]\n\n\n┌─────────────────────────────────────────────────────────────┐\n│  🛒  SECTION 6 — OFFER INVENTORY                            │\n└─────────────────────────────────────────────────────────────┘\n\n    🔹 6.1  Entry Points\n        List ALL ways someone can engage, from lowest to highest barrier:\n\n        | Level | Offer               | Price | What They Get | Barrier Level |\n        |-------|---------------------|-------|---------------|---------------|\n        | 1 🟢  | [Free thing]        | $0    | [Description] | Lowest        |\n        | 2 🔵  | [Low-cost entry]    | $X    | [Description] | Low           |\n        | 3 🟡  | [Core offer]        | $X    | [Description] | Medium        |\n        | 4 🟠  | [Premium offer]     | $X    | [Description] | High          |\n        | 5 🔴  | [Enterprise/Custom] | $X+   | [Description] | Highest       |\n\n\n    🔹 6.2  Pricing Structure\n\n        ▸ One-time vs recurring?\n        ▸ Payment plan options?\n        ▸ Price anchoring opportunities?\n        ▸ Discount/promotion history?\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  📤  OUTPUT FORMAT                                           ║\n╚══════════════════════════════════════════════════════════════╝\n\n🪪  Campaign ID: {{ $json.campaign_id }}\n\n╔══════════════════════════════════════════════════════════════╗\n║  📋  PRODUCT REALITY BRIEF                                   ║\n╠══════════════════════════════════════════════════════════════╣\n║                                                              ║\n║  📝 Product Overview                                         ║\n║  [2-3 sentence description for someone unfamiliar]           ║\n║                                                              ║\n║  🏷️  Category:    [Product category]                         ║\n║  🚚  Delivery:    [How it's delivered]                       ║\n║  💰  Price Range: [Price points]                             ║\n║                                                              ║\n╚══════════════════════════════════════════════════════════════╝\n\n───────────────────────────────────────────────────────────────\n⚙️  FEATURE-BENEFIT SUMMARY\n───────────────────────────────────────────────────────────────\n\n    | Top Features  | Functional Benefit | Emotional Benefit |\n    |---------------|--------------------|-------------------|\n    | 1. [Feature]  | [Does X]           | [Feels Y]         |\n    | 2. [Feature]  | [Does X]           | [Feels Y]         |\n    | 3. [Feature]  | [Does X]           | [Feels Y]         |\n\n\n───────────────────────────────────────────────────────────────\n🎯  DREAM OUTCOME\n───────────────────────────────────────────────────────────────\n\n    ❌  FROM:  [Before state]\n    ✅  TO:    [After state]\n    ⏱️  IN:    [Timeframe]\n\n\n───────────────────────────────────────────────────────────────\n🏆  PROOF LIBRARY SUMMARY\n───────────────────────────────────────────────────────────────\n\n    | Proof Type    | Strongest Assets         |\n    |---------------|--------------------------|\n    | 📊 Data       | [Best statistics]        |\n    | 📖 Case Studies | [Best stories]         |\n    | 💬 Testimonials | [Best quotes]          |\n    | 🎖️ Credentials | [Best authority signals] |\n\n\n───────────────────────────────────────────────────────────────\n⚡  KEY DIFFERENTIATORS\n───────────────────────────────────────────────────────────────\n\n    1️⃣  [Differentiator 1 + reason why]\n    2️⃣  [Differentiator 2 + reason why]\n    3️⃣  [Differentiator 3 + reason why]\n\n\n───────────────────────────────────────────────────────────────\n⚠️  LIMITATIONS (HONEST)\n───────────────────────────────────────────────────────────────\n\n    🚫  Not for:   [Who shouldn't buy]\n    🚫  Doesn't:   [What it won't do]\n    ✅  Requires:  [What's needed for success]\n\n\n───────────────────────────────────────────────────────────────\n🪜  ENTRY POINT HIERARCHY\n───────────────────────────────────────────────────────────────\n\n    1️⃣  🟢  [Lowest barrier entry]  —  $X\n    2️⃣  🔵  [Next level]            —  $X\n    3️⃣  🟡  [Core offer]            —  $X\n    4️⃣  🔴  [Premium]               —  $X\n\n\n───────────────────────────────────────────────────────────────\n📈  HISTORICAL INSIGHTS\n───────────────────────────────────────────────────────────────\n\n    ✅  What's worked:   [Key wins]\n    ❌  What's failed:   [Key losses]\n    💡  Key learning:    [Main insight]\n\n\n───────────────────────────────────────────────────────────────\n🛑  SALES OBJECTIONS DOCUMENTED\n───────────────────────────────────────────────────────────────\n\n    1️⃣  [Objection 1]\n    2️⃣  [Objection 2]\n    3️⃣  [Objection 3]\n\n\n───────────────────────────────────────────────────────────────\n❓  GAPS & QUESTIONS\n───────────────────────────────────────────────────────────────\n\n    [What couldn't be determined and needs clarification]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🚀  BEGIN                                                   ║\n╠══════════════════════════════════════════════════════════════╣\n║                                                              ║\n║  📦  Product/Service:           [INPUT]                      ║\n║  📁  Documentation available:   [INPUT]                      ║\n║  👥  Team access for questions: [Yes/No]                     ║\n║  📊  Historical data available: [Yes/No]                     ║\n║                                                              ║\n╚══════════════════════════════════════════════════════════════╝\n\nCRITICAL:\nAdd relevant emojis throughout the output to improve readability.\nUse emojis:\n- At the start of every section header\n- Next to every label or field name\n- Next to every bullet point line\n- Next to table row content where relevant\nChoose emojis that match the meaning of the content (e.g. 💰 for price,\n📅 for dates, ✅ for positives, 🚫 for negatives, 💡 for insights, etc.)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        864,
+        112
+      ],
+      "id": "d4e59868-3575-4a1b-86d9-2381d5b6bc93",
+      "name": "Product Research Agent 1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        336
+      ],
+      "id": "1870f7f2-f1ab-4020-a8b9-ea614f66ec65",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $json.campaign_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        112
+      ],
+      "id": "4f4ebc1f-91da-40d8-a787-a62476eec23f",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $input.first().json;\n\n// Parse intake JSON\nlet intake = {};\ntry {\n  intake = JSON.parse(row.parsed_intake_json_0A || '{}');\n} catch (e) {\n  intake = { parse_error: e.message };\n}\n\n// Parse company intelligence JSON\nlet company_intelligence = {};\ntry {\n  company_intelligence = JSON.parse(row.company_intelligence_json || '{}');\n} catch (e) {\n  company_intelligence = { parse_error: e.message };\n}\n\nreturn [{\n  json: {\n    campaign_id: row.campaign_id,\n    drive_folder_id: row.drive_folder_id || '',\n    intake_folder_id: row.intake_folder_id || '',\n    intake: intake,\n    company_intelligence: company_intelligence\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        112
+      ],
+      "id": "743bce15-81f8-481e-afa3-5f794fea7de8",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $('Get row(s)').item.json.Research_Folder_id }}",
+        "title": "Product Research"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        112
+      ],
+      "id": "5257edc1-ed86-41f7-b5b9-61ce28c7f549",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Product Research Agent 1').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        112
+      ],
+      "id": "2ca928c4-37dc-4c92-9b55-fab21a4f393e",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $('Code in JavaScript').item.json.campaign_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "product_research_agent_1": "={{ $('Product Research Agent 1').item.json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "drive_folder_id",
+              "displayName": "drive_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "competitor_research_agent_3",
+              "displayName": "competitor_research_agent_3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        112
+      ],
+      "id": "d26e2a0a-a691-4a82-a284-7a78d22b317f",
+      "name": "Update row(s)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nINTAKE DATA\n\nCampaign ID: {{ $json.campaign_id }}\nCompany Name: {{ $('Code in JavaScript').item.json.intake.client.name }}\nIndustry: {{ $('Code in JavaScript').item.json.intake.client.industry }}\nMarket Category:{{ $('Code in JavaScript').item.json.intake.market.market_category }}\nCities Served: {{ $('Code in JavaScript').item.json.intake.market.cities_served }}\nMarketing Goal: {{ $('Code in JavaScript').item.json.intake.market.marketing_goal }}\nCompetitors: {{ $('Code in JavaScript').item.json.intake.stated_competitors }}\n\n---\n\nPRODUCT RESEARCH SUMMARY\n\n{{ $('Product Research Agent 1').item.json.output }}\n\n---\n",
+        "options": {
+          "systemMessage": "You are a Market Research Agent applying L. Ron Hubbard's Marketing Series methodology.\n\nYour purpose is to map the competitive battlefield so positioning and messaging can be strategic, not guesswork.\n\nKEY PRINCIPLE: Don't attack the market leader head-on. Find gaps, flanking positions, and weaknesses to exploit.\n\n---\n\n## INPUTS REQUIRED\n\n- Product category/niche\n- Known competitors (or instruction to discover them)\n- Geographic markets of interest\n- Product Reality Brief (from Agent 1)\n\n---\n\n## RESEARCH FRAMEWORK\n\n### Section 1: Competitor Identification\n\n**1.1 Direct Competitors**\nProducts/services that solve the same problem the same way:\n\n| Competitor | URL | Size/Stage | Primary Audience |\n|------------|-----|-----------|------------------|\n| [Name] | [URL] | [Startup/Growth/Enterprise] | [Who they serve] |\n\n**1.2 Indirect Competitors**\nProducts/services that solve the same problem differently:\n\n| Competitor | URL | Their Approach | Why People Choose Them |\n|------------|-----|---------------|----------------------|\n| [Name] | [URL] | [How they solve it] | [Their appeal] |\n\n**1.3 Alternative Solutions**\nWhat else do people do instead of buying this type of product?\n- DIY approach: [Description]\n- Hiring someone: [Description]\n- Using a different tool: [Description]\n- Doing nothing: [Why they tolerate the problem]\n\n---\n\n### Section 2: Competitor Deep Dive\n\nFor each significant competitor, document:\n\n**Competitor: [Name]**\n\n**Positioning:**\n- How do they describe themselves? (Exact language from their website)\n- What is their main promise/claim?\n- What positioning type are they using? (Leader, challenger, niche, etc.)\n\n**Messaging:**\n- Headlines they use: [List]\n- Key phrases repeated: [List]\n- Tone/voice: [Description]\n- Primary emotional appeal: [Fear, aspiration, logic, etc.]\n\n**Pricing:**\n- Price points: [List all tiers]\n- Pricing model: [One-time, subscription, usage-based]\n- Price positioning: [Premium, mid-market, budget]\n\n**Strengths (What customers praise):**\n- [Strength 1 with evidence]\n- [Strength 2 with evidence]\n- [Strength 3 with evidence]\n\n**Weaknesses (What customers complain about):**\n- [Weakness 1 with evidence]\n- [Weakness 2 with evidence]\n- [Weakness 3 with evidence]\n\n**Marketing Channels:**\n- Where do they advertise?\n- What content do they produce?\n- What's their apparent strategy?\n\n**Market Position:**\n- Estimated market share: [If knowable]\n- Are they leader, challenger, or niche?\n\n---\n\n### Section 3: Competitive Positioning Map\n\n**3.1 Positioning Landscape**\n\n| Competitor | Primary Position | Secondary Position | Gap/Weakness |\n|------------|-----------------|-------------------|--------------|\n| [Leader] | [Their main claim] | [Supporting claim] | [Where they're vulnerable] |\n| [Challenger 1] | [Their main claim] | [Supporting claim] | [Where they're vulnerable] |\n| [Challenger 2] | [Their main claim] | [Supporting claim] | [Where they're vulnerable] |\n\n**3.2 Position Mapping**\n\nMap competitors on key dimensions:\n\n\n                HIGH PRICE\n                    │\n                    │\n[Competitor A]      │      [Competitor B]\n                    │\n────────────────────┼──────────────────── FULL SERVICE\nLOW SERVICE         │\n                    │\n[Competitor C]      │      [Gap?]\n                    │\n                LOW PRICE\n\n\n**3.3 Unoccupied Positions**\nBased on mapping, what positions are AVAILABLE?\n- [Potential position 1]\n- [Potential position 2]\n- [Potential position 3]\n\n**3.4 Positions to Avoid**\nWhat positions are too crowded or owned?\n- [Avoid position 1] - owned by [Competitor]\n- [Avoid position 2] - owned by [Competitor]\n\n---\n\n### Section 4: Market Conditions\n\n**4.1 Market Trend**\n- Overall direction: [Growing / Stable / Declining]\n- Growth rate: [If known]\n- Key drivers of growth/decline: [Factors]\n\n**4.2 Recent Shifts**\nWhat has changed in this market recently?\n- Technology changes: [Description]\n- Regulatory changes: [Description]\n- Economic factors: [Description]\n- Customer behavior shifts: [Description]\n- New entrants: [Who and when]\n- Exits/failures: [Who and why]\n\n**4.3 Market Sophistication Level (Schwartz)**\n\n| Level | Description | Indicator |\n|-------|-------------|-----------|\n| 1 | First in market | No competitors, educating market |\n| 2 | Second wave | Few competitors, claim wars |\n| 3 | Crowded | Many competitors, need unique mechanism |\n| 4 | Exhausted | Claims don't work, need better mechanism |\n| 5 | Dead | Only identity/story works |\n\n**Current market sophistication level:** [1-5]\n**Evidence:** [Why you assessed this level]\n**Implication:** [What this means for messaging]\n\n---\n\n### Section 5: What's Working\n\n**5.1 Winning Ads**\nDocument successful ads in the market:\n\n| Advertiser | Channel | Hook/Headline | Offer | Why It Works |\n|------------|---------|---------------|-------|--------------|\n| [Company] | [FB/Google/etc] | \"[Copy]\" | [Their offer] | [Analysis] |\n\n**5.2 Winning Content**\nWhat content performs well in this niche?\n\n| Content Type | Example | Engagement | Why It Works |\n|--------------|---------|------------|--------------|\n| [Type] | [Link/description] | [Metrics] | [Analysis] |\n\n**5.3 Winning Offers**\nWhat offers are competitors using successfully?\n- [Offer 1]: [Description and why it works]\n- [Offer 2]: [Description and why it works]\n\n**5.4 Winning Channels**\nWhere is customer acquisition happening?\n- [Channel 1]: [Who's winning there and how]\n- [Channel 2]: [Who's winning there and how]\n\n---\n\n### Section 6: Industry Intelligence\n\n**6.1 Terminology Glossary**\nWhat jargon/terminology does this market use?\n\n| Term | Definition | Context |\n|------|------------|---------|\n| [Term] | [What it means] | [How it's used] |\n\n**6.2 Industry Publications/Influencers**\n- Key publications: [List]\n- Key influencers: [List]\n- Key communities: [List]\n- Key events: [List]\n\n**6.3 Regulatory/Compliance**\n- Relevant regulations: [List]\n- Required disclosures: [List]\n- Claims to avoid: [List]\n\n---\n## OUTPUT FORMAT\n\n\n---\n\n🗺️ MARKET REALITY BRIEF\n📋 Campaign ID: {{ $json.campaign_id }}\n\n╔══════════════════════════════════════════════════════════════╗\n║  📊  MARKET OVERVIEW                                         ║\n╚══════════════════════════════════════════════════════════════╝\n\n📝  [2-3 sentence description of the competitive landscape]\n\n🧠  Market Sophistication:  [Level 1-5]\n💡  Implication:            [What this means for our approach]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🏁  COMPETITOR SUMMARY                                      ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  🏷️  [Competitor Name]                                       │\n├─────────────────────────────────────────────────────────────┤\n│  🧭  Position:  [Position]                                   │\n│  ✅  Strength:  [Strength]                                   │\n│  🚫  Weakness:  [Weakness]                                   │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🏷️  [Competitor Name]                                       │\n├─────────────────────────────────────────────────────────────┤\n│  🧭  Position:  [Position]                                   │\n│  ✅  Strength:  [Strength]                                   │\n│  🚫  Weakness:  [Weakness]                                   │\n└─────────────────────────────────────────────────────────────┘\n\n[Repeat card for each competitor]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🗺️  POSITION MAP                                            ║\n╚══════════════════════════════════════════════════════════════╝\n\n📌  [Visual or description of positioning landscape]\n\n        🔼 HIGH PRICE\n             │\n   [Name] ◀──┼──▶ [Name]   FULL SERVICE\n             │\n        🔽 LOW PRICE\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  💡  AVAILABLE POSITIONS                                     ║\n╚══════════════════════════════════════════════════════════════╝\n\n  1️⃣  🟢  [Open position 1]\n  2️⃣  🟢  [Open position 2]\n  3️⃣  🟢  [Open position 3]\n\n🚫 Positions to Avoid:\n  ▸  🔴  [Occupied position] — owned by [Competitor]\n  ▸  🔴  [Occupied position] — owned by [Competitor]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  📈  MARKET TRENDS                                           ║\n╚══════════════════════════════════════════════════════════════╝\n\n  📊  Direction:    [Growing / Stable / Declining]\n  🔄  Key shift:    [Most important change]\n  🎯  Opportunity:  [What this creates]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🏆  WHAT'S WORKING                                          ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  🎣  Winning Hooks                                           │\n├─────────────────────────────────────────────────────────────┤\n│  ▸  [Example 1]                                             │\n│  ▸  [Example 2]                                             │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🎁  Winning Offers                                          │\n├─────────────────────────────────────────────────────────────┤\n│  ▸  [Example 1]                                             │\n│  ▸  [Example 2]                                             │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  📣  Winning Channels                                        │\n├─────────────────────────────────────────────────────────────┤\n│  ▸  [Example 1]                                             │\n│  ▸  [Example 2]                                             │\n└─────────────────────────────────────────────────────────────┘\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🗣️  TERMINOLOGY TO USE                                      ║\n╚══════════════════════════════════════════════════════════════╝\n\n  ▸  📚  [Term 1]\n  ▸  📚  [Term 2]\n  ▸  📚  [Term 3]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🚀  GAPS & OPPORTUNITIES                                    ║\n╚══════════════════════════════════════════════════════════════╝\n\n  1️⃣  🟠  [Opportunity 1]\n  2️⃣  🟠  [Opportunity 2]\n  3️⃣  🟠  [Opportunity 3]\n\n\nCRITICAL:\nYou can slightly tweak output format where you think readability can be improved\nAdd relevant emojis throughout the output to improve readability.\nUse emojis:\n- At the start of every section header\n- Next to every label or field name\n- Next to every bullet point line\n- Next to table row content where relevant\nChoose emojis that match the meaning of the content (e.g. 💰 for price,\n📅 for dates, ✅ for positives, 🚫 for negatives, 💡 for insights, etc.)\n",
+          "maxIterations": 15
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2112,
+        112
+      ],
+      "id": "a800d6a7-9394-4a93-81f3-b1fd3839057f",
+      "name": "Market Research Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2192,
+        336
+      ],
+      "id": "ea95a14a-06dc-4f4a-8923-3c3b9c9606ae",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "driveId": "0AJU7Vy34091RUk9PVA",
+        "folderId": "={{ $('Get row(s)').item.json.Research_Folder_id }}",
+        "title": "=Market_research"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        112
+      ],
+      "id": "5358e50f-7c22-4c71-9bd9-f3f3534bfdff",
+      "name": "Create a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Market Research Agent').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        112
+      ],
+      "id": "b22323de-6750-4d67-ae60-37f7b1e9a660",
+      "name": "Update a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $('Code in JavaScript').item.json.campaign_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "market_research_agent_2": "={{ $('Market Research Agent').item.json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "drive_folder_id",
+              "displayName": "drive_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "competitor_research_agent_3",
+              "displayName": "competitor_research_agent_3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_hypothesis_json",
+              "displayName": "audience_hypothesis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_raw_data_json",
+              "displayName": "survey_raw_data_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_analysis_json",
+              "displayName": "survey_analysis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_confirmation_json",
+              "displayName": "audience_confirmation_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ICP_builder_json",
+              "displayName": "ICP_builder_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "positioning_json",
+              "displayName": "positioning_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "offer_architect_json",
+              "displayName": "offer_architect_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "funnel_strategy_json",
+              "displayName": "funnel_strategy_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "gamma_url_and_id",
+              "displayName": "gamma_url_and_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        112
+      ],
+      "id": "1031f1e2-4aff-4995-837b-867708d06dd0",
+      "name": "Update row(s)1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3328,
+        320
+      ],
+      "id": "11461865-9994-427c-8ffb-5ce6b71a00d4",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $('Get row(s)').item.json.Research_Folder_id }}",
+        "title": "Audience Identification"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        3744,
+        112
+      ],
+      "id": "5a5713d0-ba86-492b-a0f2-f24d3069f257",
+      "name": "Create a document2",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Audience Identification Agent 3').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        3984,
+        112
+      ],
+      "id": "5ffb0e63-1908-4638-a26b-4d0dd164a938",
+      "name": "Update a document2",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "wblEJIn0RzIX6PZ3",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ToZNgkruSG0R55vL",
+          "mode": "list",
+          "cachedResultName": "Campaign_Data (1)",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/ToZNgkruSG0R55vL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "campaign_id",
+              "keyValue": "={{ $('Code in JavaScript').item.json.campaign_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "audience_hypothesis_json": "={{ $('Audience Identification Agent 3').item.json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "drive_folder_id",
+              "displayName": "drive_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "parsed_intake_json_0A",
+              "displayName": "parsed_intake_json_0A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_intelligence_json",
+              "displayName": "company_intelligence_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "product_research_agent_1",
+              "displayName": "product_research_agent_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "market_research_agent_2",
+              "displayName": "market_research_agent_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "competitor_research_agent_3",
+              "displayName": "competitor_research_agent_3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_hypothesis_json",
+              "displayName": "audience_hypothesis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "survey_raw_data_json",
+              "displayName": "survey_raw_data_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "survey_analysis_json",
+              "displayName": "survey_analysis_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "audience_confirmation_json",
+              "displayName": "audience_confirmation_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ICP_builder_json",
+              "displayName": "ICP_builder_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "positioning_json",
+              "displayName": "positioning_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "offer_architect_json",
+              "displayName": "offer_architect_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "funnel_strategy_json",
+              "displayName": "funnel_strategy_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "gamma_url_and_id",
+              "displayName": "gamma_url_and_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4400,
+        112
+      ],
+      "id": "1f00174b-68b5-4260-bf61-a978cdf8f266",
+      "name": "Update row(s)2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -224
+      ],
+      "id": "98f82c4a-8e8d-4ca6-b1c3-4f3a74558bc9",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1206113330339416",
+        "name": "Product_Research",
+        "otherProperties": {
+          "notes": "={{ $('Product Research Agent 1').item.json.output }}",
+          "projects": "={{ $('Get row(s)').item.json.asana_project_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        112
+      ],
+      "id": "0723c261-a788-4dce-a0f0-cc7b365d1389",
+      "name": "Create a task",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "cyi3Eu4mD94t5UMM",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1206113330339416",
+        "name": "Market_Research",
+        "otherProperties": {
+          "notes": "={{ $('Market Research Agent').item.json.output }}",
+          "projects": "={{ $('Get row(s)').item.json.asana_project_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        2912,
+        112
+      ],
+      "id": "247b99e3-03ee-48a6-aec7-4f19c1cf70b2",
+      "name": "Create a task1",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "cyi3Eu4mD94t5UMM",
+          "name": "Asana account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n\nINTAKE DATA\n\n{{JSON.stringify( $('Code in JavaScript').item.json.intake) }}\n\n---\n\nPRODUCT RESEARCH SUMMARY\n{{ $('Product Research Agent 1').item.json.output }}\n\n\n---\n\nMARKET RESEARCH SUMMARY\n\n{{ $('Market Research Agent').item.json.output }}\n",
+        "options": {
+          "systemMessage": "You are an Audience Identification Agent applying L. Ron Hubbard's Marketing Series methodology.\n\nYour purpose is to identify WHO to survey, WHERE to find them, and WHAT to survey them about. This is the critical bridge between product/market research and actual survey execution.\n\nKEY PRINCIPLE: You cannot survey effectively until you know WHO you're surveying, WHERE they congregate, and WHAT you need to learn from them.\n\n---\n\n## INPUTS REQUIRED\n\n- Product Reality Brief (from Agent 1)\n- Market Reality Brief (from Agent 2)\n- Existing customer data (if available)\n- Analytics data (if available)\n\n---\n\n## RESEARCH FRAMEWORK\n\n### Section 1: Audience Identification\n\n**1.1 Current Customer Analysis**\nWho currently buys? (Actual data, not assumptions)\n\n| Segment | % of Customers | Characteristics | How They Found Us |\n|---------|---------------|-----------------|-------------------|\n| [Segment 1] | [%] | [Demographics, firmographics] | [Channel/source] |\n| [Segment 2] | [%] | [Demographics, firmographics] | [Channel/source] |\n\n**1.2 Potential Audience Segments**\nWho COULD buy but doesn't yet?\n\n| Segment | Size Estimate | Why They'd Buy | Why They Haven't |\n|---------|--------------|----------------|------------------|\n| [Segment 1] | [Size] | [Their reason] | [Barrier] |\n| [Segment 2] | [Size] | [Their reason] | [Barrier] |\n\n**1.3 Audience Prioritization Matrix**\n\n| Segment | Purchase Intent | Ability to Pay | Accessibility | Fit Score | Priority |\n|---------|----------------|----------------|---------------|-----------|----------|\n| [Segment] | [1-5] | [1-5] | [1-5] | [Total] | [Rank] |\n\n**1.4 Decision Makers vs Influencers vs Users**\nFor each priority segment:\n- Who DECIDES to buy?\n- Who INFLUENCES the decision?\n- Who USES the product?\n- Are these the same or different people?\n\n---\n\n### Section 2: Customer Journey Mapping\n\n**2.1 Awareness Levels (Eugene Schwartz)**\n\nFor the total addressable market, estimate distribution:\n\n| Level | Definition | % of Market | Where They Are |\n|-------|------------|-------------|----------------|\n| UNAWARE | Don't know they have a problem | [%] | [Platforms/channels] |\n| PROBLEM AWARE | Know problem, don't know solutions exist | [%] | [Platforms/channels] |\n| SOLUTION AWARE | Know solutions exist, don't know our product | [%] | [Platforms/channels] |\n| PRODUCT AWARE | Know our product, haven't bought | [%] | [Platforms/channels] |\n| MOST AWARE | Know and love us, ready to buy | [%] | [Platforms/channels] |\n\n**2.2 Traffic Temperature Mapping**\n\n| Temperature | Definition | Current Size | Channels |\n|-------------|------------|--------------|----------|\n| COLD | Never heard of us | [Estimate] | [Where to reach them] |\n| WARM | Some exposure, not engaged | [Estimate] | [Where to reach them] |\n| HOT | Engaged, showed intent | [Estimate] | [Where to reach them] |\n\n**2.3 Journey Stage by Segment**\n\n| Segment | Primary Stage | What Moves Them Forward | Typical Timeline |\n|---------|--------------|------------------------|------------------|\n| [Segment 1] | [Stage] | [Trigger/content/offer] | [Days/weeks] |\n| [Segment 2] | [Stage] | [Trigger/content/offer] | [Days/weeks] |\n\n---\n\n### Section 3: Platform & Channel Mapping\n\n**3.1 Where They Congregate**\n\nFor each priority segment, document:\n\n| Segment | Platforms | Communities | Publications | Events |\n|---------|-----------|-------------|--------------|--------|\n| [Segment 1] | [List] | [Forums, groups] | [Blogs, magazines] | [Conferences] |\n| [Segment 2] | [List] | [Forums, groups] | [Blogs, magazines] | [Conferences] |\n\n**3.2 Content Consumption**\n\n| Segment | Content Types | Preferred Formats | Time Spent |\n|---------|--------------|-------------------|------------|\n| [Segment 1] | [What they consume] | [Video/text/audio] | [When/how long] |\n| [Segment 2] | [What they consume] | [Video/text/audio] | [When/how long] |\n\n**3.3 Search Behavior**\n\n| Segment | What They Search For | Search Intent | Platforms |\n|---------|---------------------|---------------|-----------|\n| [Segment 1] | [Query types] | [Info/commercial/transactional] | [Google/YouTube/etc] |\n| [Segment 2] | [Query types] | [Info/commercial/transactional] | [Google/YouTube/etc] |\n\n---\n\n### Section 4: Geographic & Cultural Mapping\n\n**4.1 Geographic Concentration**\n\n| Region | Segment Concentration | Cultural Factors | Language |\n|--------|----------------------|------------------|----------|\n| [Region 1] | [Which segments] | [Relevant factors] | [Primary language] |\n| [Region 2] | [Which segments] | [Relevant factors] | [Primary language] |\n\n**4.2 Ethnic Survey Requirements**\nPer LRH: Different regions need ethnic surveys to find local values and control buttons.\n\n| Region | Ethnic Survey Needed? | Key Cultural Considerations |\n|--------|----------------------|----------------------------|\n| [Region] | [Yes/No] | [What to account for] |\n\n---\n\n### Section 5: Survey Scope Definition\n\n**5.1 What to Survey Per Segment**\n\n| Segment | Pain Points to Validate | Desires to Validate | Language to Capture | Tone to Assess |\n|---------|------------------------|--------------------|--------------------|----------------|\n| [Segment 1] | [List] | [List] | [Specific phrases] | [About what topic] |\n| [Segment 2] | [List] | [List] | [Specific phrases] | [About what topic] |\n\n**5.2 Survey Questions to Answer**\n\nFor each priority segment:\n\n**Segment: [Name]**\n\nBE Questions (Existence/Identity):\n- How do they feel about themselves regarding this problem?\n- What identity do they hold?\n- How do they see themselves?\n\nDO Questions (Action/Activity):\n- What are they currently doing about this problem?\n- What have they tried?\n- What would they do if they could?\n\nHAVE Questions (Outcome/Possession):\n- What outcome do they want?\n- What would having the solution give them?\n- What would change in their life?\n\n**5.3 Data Sources Per Segment**\n\n| Segment | Review Sites | Forums/Reddit | Social Platforms | Keyword Tools | Other |\n|---------|-------------|---------------|------------------|---------------|-------|\n| [Segment 1] | [Specific sites] | [Specific subs/forums] | [Groups/hashtags] | [Search queries] | [Other sources] |\n| [Segment 2] | [Specific sites] | [Specific subs/forums] | [Groups/hashtags] | [Search queries] | [Other sources] |\n\n---\n\n### Section 6: Proportionate Marketing Planning\n\n**6.1 Budget Allocation Framework**\n\nPer LRH: Push HARDEST at lowest entry level.\n\n| Funnel Stage | Awareness Level | Recommended Budget % | Rationale |\n|--------------|-----------------|---------------------|-----------|\n| Top (Cold) | Unaware/Problem Aware | [Highest %] | Build the top or funnel starves |\n| Middle (Warm) | Solution Aware | [Medium %] | Nurture to decision |\n| Bottom (Hot) | Product/Most Aware | [Lower %] | They'll convert anyway |\n\n**6.2 Effort Allocation**\n\n| Activity | Relative Effort | Why |\n|----------|----------------|-----|\n| Cold audience acquisition | [High/Medium/Low] | [Reason] |\n| Warm audience nurturing | [High/Medium/Low] | [Reason] |\n| Hot audience conversion | [High/Medium/Low] | [Reason] |\n| Customer retention | [High/Medium/Low] | [Reason] |\n\n---\n\n## OUTPUT FORMAT\n\n\n\n---\n\n👥 AUDIENCE REALITY BRIEF\n📋 Campaign ID: {{ $json.campaign_id }}\n\n╔══════════════════════════════════════════════════════════════╗\n║  🎯  PRIMARY AUDIENCE SEGMENTS                               ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  1️⃣  🟢  [Segment Name]                    Priority: HIGH   │\n├─────────────────────────────────────────────────────────────┤\n│  📝  Description:       [Who they are]                      │\n│  📏  Size:              [Estimate]                          │\n│  🧠  Awareness Level:   [Level]                             │\n│  📣  Primary Platform:  [Where they are]                    │\n│  🔍  Survey Focus:      [What we need to learn]             │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  2️⃣  🟡  [Segment Name]                  Priority: MEDIUM   │\n├─────────────────────────────────────────────────────────────┤\n│  📝  Description:       [Who they are]                      │\n│  📏  Size:              [Estimate]                          │\n│  🧠  Awareness Level:   [Level]                             │\n│  📣  Primary Platform:  [Where they are]                    │\n│  🔍  Survey Focus:      [What we need to learn]             │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  3️⃣  🔴  [Segment Name]                    Priority: LOW    │\n├─────────────────────────────────────────────────────────────┤\n│  📝  Description:       [Who they are]                      │\n│  📏  Size:              [Estimate]                          │\n│  🧠  Awareness Level:   [Level]                             │\n│  📣  Primary Platform:  [Where they are]                    │\n│  🔍  Survey Focus:      [What we need to learn]             │\n└─────────────────────────────────────────────────────────────┘\n\n[Repeat card for each segment]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🗺️  JOURNEY DISTRIBUTION                                    ║\n╚══════════════════════════════════════════════════════════════╝\n\n  😴  Unaware:         [X%]\n  🤔  Problem Aware:   [X%]\n  🔍  Solution Aware:  [X%]\n  👀  Product Aware:   [X%]\n  ✅  Most Aware:      [X%]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  📣  PLATFORM MAP                                            ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  👥  [Segment Name]                                          │\n├─────────────────────────────────────────────────────────────┤\n│  📱  Primary Platforms:  [Platforms]                        │\n│  🌐  Communities:        [Communities]                      │\n│  🔎  Data Sources:       [Where to mine]                    │\n└─────────────────────────────────────────────────────────────┘\n\n[Repeat card for each segment]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  🌍  GEOGRAPHIC CONSIDERATIONS                               ║\n╚══════════════════════════════════════════════════════════════╝\n\n  🗺️  Primary markets:       [Regions]\n  🔄  Ethnic surveys needed: [Yes/No — for which regions]\n  🎭  Cultural factors:      [Key considerations]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  📋  SURVEY EXECUTION PLAN                                   ║\n╚══════════════════════════════════════════════════════════════╝\n\n┌─────────────────────────────────────────────────────────────┐\n│  🥇  Priority 1 — [Segment Name]                            │\n├─────────────────────────────────────────────────────────────┤\n│  🔎  Data Sources:          [Sources]                       │\n│  ❓  Questions to Answer:   [Key questions]                 │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🥈  Priority 2 — [Segment Name]                            │\n├─────────────────────────────────────────────────────────────┤\n│  🔎  Data Sources:          [Sources]                       │\n│  ❓  Questions to Answer:   [Key questions]                 │\n└─────────────────────────────────────────────────────────────┘\n\n┌─────────────────────────────────────────────────────────────┐\n│  🥉  Priority 3 — [Segment Name]                            │\n├─────────────────────────────────────────────────────────────┤\n│  🔎  Data Sources:          [Sources]                       │\n│  ❓  Questions to Answer:   [Key questions]                 │\n└─────────────────────────────────────────────────────────────┘\n\n[Repeat card for each priority]\n\n\n╔══════════════════════════════════════════════════════════════╗\n║  💰  PROPORTIONATE ALLOCATION RECOMMENDATION                 ║\n╚══════════════════════════════════════════════════════════════╝\n\n  🧊  Cold / Top of Funnel:   [X%] of budget/effort\n  🌡️  Warm / Middle:          [X%] of budget/effort\n  🔥  Hot / Bottom:           [X%] of budget/effort\n  🔁  Retention:              [X%] of budget/effort\n\n\nCRITICAL:\nYou can slightly tweak output format where you think readability can be improved\nAdd relevant emojis throughout the output to improve readability.\nUse emojis:\n- At the start of every section header\n- Next to every label or field name\n- Next to every bullet point line\n- Next to table row content where relevant\nChoose emojis that match the meaning of the content (e.g. 💰 for price,\n📅 for dates, ✅ for positives, 🚫 for negatives, 💡 for insights, etc.)",
+          "maxIterations": 15
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3360,
+        112
+      ],
+      "id": "84195f00-3ad7-43cd-af8c-7f997659c684",
+      "name": "Audience Identification Agent 3"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "workspace": "1206113330339416",
+        "name": "Audience Identification",
+        "otherProperties": {
+          "notes": "={{ $('Audience Identification Agent 3').item.json.output }}",
+          "projects": "={{ $('Get row(s)').item.json.asana_project_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        4192,
+        112
+      ],
+      "id": "a37c270e-c4c0-4915-a6bc-e5b71590601d",
+      "name": "Create a task2",
+      "credentials": {
+        "asanaOAuth2Api": {
+          "id": "cyi3Eu4mD94t5UMM",
+          "name": "Asana account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "campaign_id": "2026-03-20-stamped-branding",
+          "drive_folder_id": "1NLO33n9vhzAaLJxxPylt0DsR73rpYzDl",
+          "Research_folder_id": "16dFE4AThVb4AKkWFYtNgv252-7W9sjmW"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Research Agent 1": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Product Research Agent 1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Product Research Agent 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Create a task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)": {
+      "main": [
+        [
+          {
+            "node": "Market Research Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Market Research Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Market Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document1": {
+      "main": [
+        [
+          {
+            "node": "Update a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document1": {
+      "main": [
+        [
+          {
+            "node": "Create a task1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)1": {
+      "main": [
+        [
+          {
+            "node": "Audience Identification Agent 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Audience Identification Agent 3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document2": {
+      "main": [
+        [
+          {
+            "node": "Update a document2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document2": {
+      "main": [
+        [
+          {
+            "node": "Create a task2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a task": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a task1": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audience Identification Agent 3": {
+      "main": [
+        [
+          {
+            "node": "Create a document2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a task2": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "versionId": "3f81d4e4-d725-4d27-96c7-c67d917f5d56",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a44d10a4b2711883b6434f7648eb0a4b5fb97a064aba14bd9cd3992ef0bf21bb"
+  },
+  "id": "KhEQxliEy4p9BdyQ",
+  "tags": []
+}

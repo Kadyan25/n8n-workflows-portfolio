@@ -1,0 +1,487 @@
+{
+  "name": "Website Checker",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5a942321-387c-4ae9-a572-2d129cf0e6a1",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "lBh58toelsSnWPzr",
+          "mode": "list",
+          "cachedResultName": "Leads_table",
+          "cachedResultUrl": "/projects/A0ctUNc3TuokwYq9/datatables/lBh58toelsSnWPzr"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a8893863-02e0-4c23-987c-048b152bc205",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9985a25a-42cc-4f2b-93ad-86e02408f3d1",
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "3af37539-d53f-4a4d-a96e-2d3c83f4445b",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f428f0d3-7e0a-4586-b4bb-1c4918c3b9c0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Lead data from previous node:\n\nCompany name: {{ $json.company_name || \"Unknown Company\" }}\n\nCity: {{ $json.city || \"\" }}\n\nState: {{ $json.state || \"\" }}\n\nCountry: {{ $json.country || \"\" }}\n\nWebsite: {{ $json.website || \"\" }}\n\nLinkedIn URL: {{ $json.linkedin_url || \"\" }}\n\nSource: {{ $json.source || \"\" }}\n\nBased on this data and your general knowledge, write:\n\nCOMPANY OVERVIEW\n\n2–3 bullet points describing what this company most likely does, who it serves, and roughly how it operates (local vs broader, B2B vs B2C, etc.).\n\nPOSSIBLE COMPETITORS\n\n2–4 bullet points describing the kinds of competitors it probably has and how those competitors typically present themselves online.\n\nTYPICAL WEBSITE PATTERNS\n\n3–5 bullet points describing typical website / landing page patterns for companies like this (sections, messaging, CTAs, trust elements).\n\nLANDING PAGE RECOMMENDATIONS\n\n3–5 bullet points with concrete suggestions for what a new or improved landing page for this company should emphasize.\n\nIf the company name and data make the niche obvious, you may talk specifically about that niche. If it’s unclear, keep the description slightly more general but still practical.\n\n",
+        "options": {
+          "systemMessage": "You are a research agent helping a web agency.\nYour job is to analyze a company using the data provided and your general knowledge of businesses and websites.\nAlways output your answer in these 4 sections with the exact headings:\n\nCOMPANY OVERVIEW\n\nPOSSIBLE COMPETITORS\n\nTYPICAL WEBSITE PATTERNS\n\nLANDING PAGE RECOMMENDATIONS\n\nFocus on what matters for designing an effective landing page: how the company likely presents itself, who it serves, and what should be highlighted.\nIf something is unclear, make a reasonable, concise assumption instead of saying nothing.\nDo not contradict the given data (location, size hints, etc.).\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        736,
+        -80
+      ],
+      "id": "9f8b0d0c-8774-476b-90a0-3844532f3a31",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        160
+      ],
+      "id": "7b0575a2-e996-4769-9e3e-de3681ddad08",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here is the research from the previous agent about this company:\n\n{{ $json.output }}\n\nBased on this research:\n\nInfer what the company does, who it serves, and what should matter on its landing page.\n\nUse COMPANY OVERVIEW to guide the title, description, and the tone of the sections.\n\nUse POSSIBLE COMPETITORS and TYPICAL WEBSITE PATTERNS to decide which sections to include and in what order.\n\nUse LANDING PAGE RECOMMENDATIONS directly to shape headings, bullets, and CTAs.\n\nNow fill the JSON schema described in the system message. Do not include any styling or layout decisions (no colors, layout variants, or animation settings). Output only valid JSON.\n",
+        "options": {
+          "systemMessage": "You are a landing page content spec generator.\n\nInput:\n- Research about a specific company produced by a previous agent.\n\nOutput:\n- ONE JSON object describing the landing page content for that company.\n- NO styling, NO layout instructions (no colors, no variants). Content only.\n\nJSON schema (keys and nesting must match):\n\n{\n  \"slug\": \"\",\n  \"content\": {\n    \"company_name\": \"\",\n    \"niche\": \"\",\n    \"location_label\": \"\",\n    \"hero\": {\n      \"headline\": \"\",\n      \"subheadline\": \"\",\n      \"primary_cta\": \"\",\n      \"secondary_cta\": \"\"\n    },\n    \"sections\": [\n      {\n        \"id\": \"\",\n        \"kind\": \"\",\n        \"heading\": \"\",\n        \"body\": \"\",\n        \"bullets\": []\n      }\n    ]\n  }\n}\n\nField rules:\n\n- slug:\n  - Lowercase, URL-safe slug you would use in /generated/<slug>.\n  - Usually derived from company_name (e.g., \"Allied Siding & Windows\" -> \"allied-siding-windows\").\n\n- content.company_name:\n  - Human-readable company name.\n\n- content.niche:\n  - Short phrase for the niche (e.g., \"residential siding and window replacement\").\n\n- content.location_label:\n  - Short location string like \"Houston, TX\" or \"\" if unknown.\n\n- hero:\n  - headline: strong one-line value proposition for this specific company.\n  - subheadline: 1–2 sentences expanding why it matters.\n  - primary_cta: action-focused, e.g., \"Request a free estimate\".\n  - secondary_cta: softer action, e.g., \"See service areas\" or \"\".\n\n- sections:\n  - 4–7 sections. Order = desired order on page.\n  - Each object must have id, kind, heading, body, bullets.\n  - For fields not needed in a section, use \"\" or [].\n\nRequired logical sections (can reuse wording):\n- One \"services\" kind section (what they offer).\n- One \"benefits\" kind section (why choose them).\n- One \"social_proof\" kind section (testimonials / trust).\n- One final \"cta\" kind section (closing call to action).\n- Optional \"faq\" kind section if research suggests common questions.\n\nContent rules:\n- Use research to make everything specific to this company and niche.\n- Avoid generic filler.\n- Don’t include any styling or layout decisions (no colors, variants, or animation instructions).\n\nOutput rules:\n- Output only the JSON object.\n- No markdown, no backticks.\n- JSON must be valid and parseable.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1088,
+        -80
+      ],
+      "id": "963c2bd4-2ec8-4c29-8c2a-6dbe831227d5",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        128
+      ],
+      "id": "5ac1bf97-4042-48d2-a128-f1aab598de60",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nlet spec;\ntry {\n  spec = JSON.parse($('AI Agent1').first().json.output);\n} catch {\n  spec = $('AI Agent1').first().json.output;\n}\n\nconst slug = spec.slug || 'company-' + Date.now();\n\n\nconst fileContent = $json.output; \n\nreturn {\n  slug,\n  fileContent,\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        -80
+      ],
+      "id": "932ca95a-ca24-4bdd-9c3c-322a641914e4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7cf0fb33-738f-4574-a2ef-7e53247d04d0",
+              "name": "live_url",
+              "value": "=https://sites-kohl.vercel.app/generated/{{ $('Code in JavaScript').item.json.slug }}1",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2496,
+        -80
+      ],
+      "id": "ac36cc7d-a301-4192-b53c-25905833d49b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nYou receive a JSON content spec with this exact shape. You must embed it into a const page = { ... } inside the component, and then build a styled page using page.content.\n\n{{ $json.output }}\n\nYour job:\n- Generate a complete Next.js page component in TypeScript (TSX) for this company.\n- The page must be visually appealing and styled with Tailwind CSS.\n- It will live in pages/generated/<slug>.tsx.\n\nImportant:\n- Do NOT include imports for React or Next.js types; assume this is inside a standard Next.js file.\n- Do NOT use getStaticProps or getStaticPaths; they will be added separately or not used.\n- The component must be the default export: `export default function Page() { ... }`\n- Use only React function components, no hooks, no state, no side effects.\n- Use Tailwind CSS classes for styling, including layout and animations (e.g., transitions, transforms, basic keyframe utility classes).\n- You may define small helper components inside the file if needed.\n\nUse the JSON strictly as input:\n- Read slug and content: hero, sections, etc.\n- Build a strong hero section (headline, subheadline, CTAs).\n- Build additional sections for services, benefits, social proof, FAQ, and final CTA based on the \"kind\" field in sections.\n\nDesign rules:\n- Use a modern layout: large hero, clear hierarchy, good spacing.\n- Vary the design based on the content:\n  - For home services / local trades: more bold, trust-focused, slightly “rugged” feel.\n  - For professional services: cleaner, more minimal.\n- Include subtle animations (hover effects, fade-in via Tailwind utilities) but keep everything accessible.\n\nConstraints:\n- Do NOT output any JSON.\n- Do NOT wrap the TSX in markdown or backticks.\n- Output only the TSX code for the file body (starting with the default export).\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1440,
+        -80
+      ],
+      "id": "a8589fc2-bc89-4180-b289-f2601fb3f03b",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.3-codex",
+          "mode": "list",
+          "cachedResultName": "gpt-5.3-codex"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1312,
+        128
+      ],
+      "id": "31a0d4fd-3e2f-4b48-b0d2-9e8865f44169",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "nA7cobqPcnTcbuCV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "mohit02026",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "Sites",
+          "mode": "list",
+          "cachedResultName": "Sites",
+          "cachedResultUrl": "https://github.com/Mohit02026/Sites"
+        },
+        "filePath": "=pages/generated/{{ $json.slug }}1.tsx",
+        "fileContent": "={{ $json.fileContent }}",
+        "commitMessage": "=Add landing page for {{ $('If').item.json.company_name }} 2"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        -80
+      ],
+      "id": "a41bdf6e-e5dd-47d6-bb91-d2dea30dd6e6",
+      "name": "Create a file",
+      "webhookId": "b32e5746-6bc0-4721-b406-da2d309f2f5d",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "6Nx4vV028kP5hvvb",
+          "name": "GitHub account Mohit"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        2352,
+        -288
+      ],
+      "id": "66906eab-a1d0-45a1-93d1-8023f41f6c40",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/upsert",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"locationId\": \"js2FCIyjvNKQ8DS6axxu\",\n  \"firstName\": \"{{ $('If').item.json.first_name }}test\",\n  \"companyName\": \"{{ $('If').item.json.company_name }}\",\n  \"email\": \"{{ $('If').item.json.email }}boltgit26@proton.me\",\n  \"phone\": \"{{ $('If').item.json.phone }}\",\n  \"tags\": [\"website-checker-flow\"],\n  \"customFields\": [\n    {\n      \"id\": \"aFHify4qP4Hssqr03WFs\",\n      \"key\": \"contact.live_url\",\n      \"field_value\": \"{{ $json.live_url }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2752,
+        -80
+      ],
+      "id": "d4a7814f-8354-4e33-a7a1-f48a52d733c8",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "ckxWQw0TFCGCw9tZ",
+          "name": "Growthdriven Bearer mk"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "cmpaign_id": "CMP-YQMPGJFY"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a file": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "17fa42ba-04b8-4c7f-a02a-9bf66cb2e87d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a44d10a4b2711883b6434f7648eb0a4b5fb97a064aba14bd9cd3992ef0bf21bb"
+  },
+  "id": "NSq5R5I3tpEFl7pI",
+  "tags": []
+}
