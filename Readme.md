@@ -65,6 +65,12 @@ This repository showcases real n8n workflows I've built for AI, automation, and 
 - **CRMs & Platforms:** GoHighLevel/LeadConnector, social posting APIs, webhooks  
 - **Patterns:** Event-driven flows, API orchestration, error-safe designs, and reusable templates.
 
+## Newly Added Workflow
+
+14. **LinkedIn DMs Campaign System**  
+   - Folder: `linkedin-dms-campaign-system/`  
+   - Three connected workflows for campaign launch, scheduled invite/DM/reply processing, and daily send-counter reset.
+
 
 
 

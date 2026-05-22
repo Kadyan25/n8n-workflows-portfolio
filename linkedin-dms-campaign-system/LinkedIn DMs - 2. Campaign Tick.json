@@ -1,0 +1,2980 @@
+{
+  "name": "LinkedIn DMs - 2. Campaign Tick",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "806dd809-6144-4805-bbb3-ee6ced79d069",
+      "name": "Every 30 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -736,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1965143640,
+          "mode": "list",
+          "cachedResultName": "Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=1965143640"
+        },
+        "options": {}
+      },
+      "id": "c096cb86-e114-4078-a3cc-015ba3b07f44",
+      "name": "Read Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -512,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 326602531,
+          "mode": "list",
+          "cachedResultName": "Campaign",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=326602531"
+        },
+        "options": {}
+      },
+      "id": "f64c1585-1453-4e47-b291-eff9fe178858",
+      "name": "Read Campaigns",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -288,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "de5cf4e1-382a-48cf-85c7-6e03def736cb",
+      "name": "Read Accounts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -64,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build a unified context that all branches will use.\n// Keep the earlier working fetch/join logic, but output compact field names\n// that match B1 to B6 in the current Workflow 2.\n\nconst dbRows = $('Read Database').all().map(i => i.json);\nconst campaignRows = $('Read Campaigns').all().map(i => i.json);\nconst accountRows = $('Read Accounts').all().map(i => i.json);\n\nconst campaignsById = {};\nfor (const c of campaignRows) {\n  campaignsById[String(c.campaign_id ?? c.campaignid ?? '').trim()] = c;\n}\n\nconst accountsByName = {};\nfor (const a of accountRows) {\n  accountsByName[String(a.account_name ?? a.accountname ?? '').trim()] = a;\n}\n\nfunction pick(obj, ...keys) {\n  for (const k of keys) {\n    if (obj && obj[k] !== undefined && obj[k] !== null) return obj[k];\n  }\n  return '';\n}\n\nfunction clean(v) {\n  return (v ?? '').toString().trim();\n}\n\nfunction num(v, fallback = 0) {\n  const n = Number(v);\n  return Number.isFinite(n) ? n : fallback;\n}\n\nfunction slugFromUrl(url) {\n  if (!url) return null;\n  const m = String(url).match(/\\/in\\/([^\\/?#]+)/i);\n  return m ? m[1] : null;\n}\n\n// Parse 'DD/MM/YYYY HH:mm:ss IST' to a Date\nfunction parseIST(s) {\n  if (!s) return null;\n  const m = String(s).match(/(\\d{2})\\/(\\d{2})\\/(\\d{4})\\s+(\\d{2}):(\\d{2}):(\\d{2})/);\n  if (!m) return null;\n  const [, dd, mm, yyyy, h, mi, sec] = m;\n  const iso = `${yyyy}-${mm}-${dd}T${h}:${mi}:${sec}+05:30`;\n  const d = new Date(iso);\n  return isNaN(d.getTime()) ? null : d;\n}\n\nconst now = new Date();\nconst out = [];\n\nfor (const row of dbRows) {\n  const campaignIdRaw = pick(row, 'campaign_id', 'campaignid');\n  const sendingAccountRaw = pick(row, 'sending_account', 'sendingaccount');\n\n  const campaignid = clean(campaignIdRaw);\n  const sendingaccount = clean(sendingAccountRaw);\n\n  const campaign = campaignsById[campaignid];\n  const account = accountsByName[sendingaccount];\n\n  if (!campaign || !account) continue;\n\n  const linkedinurl = clean(pick(row, 'linkedin_url', 'linkedinurl'));\n  const message1senttime = clean(pick(row, 'message_1_sent_time', 'message1senttime'));\n  const message2senttime = clean(pick(row, 'message_2_sent_time', 'message2senttime'));\n  const message3senttime = clean(pick(row, 'message_3_sent_time', 'message3senttime'));\n  const connectionrequesttime = clean(pick(row, 'connection_request_time', 'connectionrequesttime'));\n\n  const connectionrequesttimeparsed = parseIST(connectionrequesttime);\n  const message1senttimeparsed = parseIST(message1senttime);\n  const message2senttimeparsed = parseIST(message2senttime);\n  const message3senttimeparsed = parseIST(message3senttime);\n\n  out.push({\n    json: {\n      // Identity\n      linkedinurl,\n      firstname: clean(pick(row, 'first_name', 'firstname')),\n      lastname: clean(pick(row, 'last_name', 'lastname')),\n      campaignid,\n      campaignname: clean(pick(row, 'campaign_name', 'campaignname', 'campaignname')),\n      sendingaccount,\n      publicidentifier: slugFromUrl(linkedinurl),\n      providerid: clean(pick(row, 'provider_id', 'providerid')),\n\n      // Statuses\n      connectionrequeststatus: clean(pick(row, 'connection_request_status', 'connectionrequeststatus')),\n      connectionrequesttime,\n      connectionrequesttimeparsed: connectionrequesttimeparsed ? connectionrequesttimeparsed.toISOString() : '',\n      connectionaccepted: clean(pick(row, 'connection_accepted', 'connectionaccepted')),\n      connectionacceptedtime: clean(pick(row, 'connection_accepted_time', 'connectionacceptedtime')),\n\n      message1status: clean(pick(row, 'message_1_status', 'message1status')),\n      message1senttime,\n      message1senttimeparsed: message1senttimeparsed ? message1senttimeparsed.toISOString() : '',\n\n      message2status: clean(pick(row, 'message_2_status', 'message2status')),\n      message2senttime,\n      message2senttimeparsed: message2senttimeparsed ? message2senttimeparsed.toISOString() : '',\n\n      message3status: clean(pick(row, 'message_3_status', 'message3status')),\n      message3senttime,\n      message3senttimeparsed: message3senttimeparsed ? message3senttimeparsed.toISOString() : '',\n\n      replyreceived: clean(pick(row, 'reply_received', 'replyreceived')),\n      replytext: clean(pick(row, 'reply_text', 'replytext')),\n      replytime: clean(pick(row, 'reply_time', 'replytime')),\n      failedreason: clean(pick(row, 'failed_reason', 'failedreason')),\n\n      // Campaign config\n      campaignstatus: clean(pick(campaign, 'campaign_status', 'campaignstatus')),\n      connectionnote: clean(pick(campaign, 'connection_note', 'connectionnote')),\n      message1: clean(pick(campaign, 'message_1', 'message1')),\n      message2: clean(pick(campaign, 'message_2', 'message2')),\n      message3: clean(pick(campaign, 'message_3', 'message3')),\n      message2delayhours: num(pick(campaign, 'message_2_delay_hours', 'message2delayhours'), 48),\n      message3delayhours: num(pick(campaign, 'message_3_delay_hours', 'message3delayhours'), 48),\n\n      // Account config\n      accountname: clean(pick(account, 'account_name', 'accountname')),\n      unipileid: clean(pick(account, 'unipile_id', 'unipileid')),\n      unipileapi: clean(pick(account, 'unipile_api', 'unipileapi')),\n      unipiledsn: clean(pick(account, 'unipile_dsn', 'unipiledsn')),\n      accountstatus: clean(pick(account, 'status')),\n      connectionssenttoday: num(pick(account, 'connections_sent_today', 'connectionssenttoday'), 0),\n      connectionsdailylimit: num(pick(account, 'connections_daily_limit', 'connectionsdailylimit'), 0),\n      dmssenttoday: num(pick(account, 'dms_sent_today', 'dmssenttoday'), 0),\n      dmsdailylimit: num(pick(account, 'dms_daily_limit', 'dmsdailylimit'), 0),\n\n      // Runtime\n      nowiso: now.toISOString()\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "ecf1c407-6a75-4bb2-a519-f75d80123f7e",
+      "name": "Build Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Branch 1: Check connection acceptances\n// Pick rows where: connectionrequeststatus='Sent' AND connectionaccepted is empty\n\nconst items = $input.all().map(i => i.json);\nconst out = [];\n\nfor (const p of items) {\n  if (p.connectionrequeststatus !== 'Sent') continue;\n  if (p.connectionaccepted) continue;\n  if (!p.providerid) continue;\n  if (p.accountstatus !== 'active') continue;\n\n  out.push({ json: p });\n}\n\nreturn out;"
+      },
+      "id": "94dffc05-a5a5-4ec3-babf-e80ab7178b6a",
+      "name": "B1: Filter Pending Invites",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $json.unipiledsn }}/api/v1/users/relations",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $json.unipileid }}"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $json.unipileapi }}"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "a5d04c8f-dbd3-4fb3-936c-725fc552adac",
+      "name": "B1: List Relations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        608,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('B1: Filter Pending Invites').item.json;\nconst response = $input.all().map(i => i.json);\n\n// Flatten all pages: each item is a page like { object: 'UserRelationsList', items: [...] }\nconst relations = response\n  .flatMap(page => Array.isArray(page.items) ? page.items : [])\n  .filter(r => r && (r.member_id || r.provider_id || r.id));\n\nconst targetId = String(prospect.providerid || '').trim();\n\nconst isAccepted = relations.some(r => {\n  const relationId = String(\n    r.provider_id || r.member_id || r.id || ''\n  ).trim();\n  return relationId && relationId === targetId;\n});\n\nif (!targetId || !isAccepted) {\n  // Nothing matched, return no update\n  return [];\n}\n\n// Build timestamp\nconst now = new Date();\nconst opts = {\n  timeZone: 'Asia/Kolkata',\n  hour12: false,\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit',\n};\nconst parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(now);\nconst get = (t) => parts.find(p => p.type === t)?.value || '';\nconst ts = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n\nreturn [\n  {\n    json: {\n      linkedinurl: prospect.linkedinurl,\n      connectionaccepted: 'Accepted',\n      connectionacceptedtime: ts,\n    },\n  },\n];"
+      },
+      "id": "931276b0-a243-4b9c-911f-4e5d44e6ef24",
+      "name": "B1: Check If Accepted",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1965143640,
+          "mode": "list",
+          "cachedResultName": "Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=1965143640"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_accepted": "={{ $json.connectionaccepted }}",
+            "connection_accepted_time": "={{ $json.connectionacceptedtime }}",
+            "linkedin_url": "={{ $json.linkedinurl }}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sending_account",
+              "displayName": "sending_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_status",
+              "displayName": "connection_request_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_time",
+              "displayName": "connection_request_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted",
+              "displayName": "connection_accepted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "connection_accepted_time",
+              "displayName": "connection_accepted_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message_1_status",
+              "displayName": "message_1_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_sent_time",
+              "displayName": "message_1_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_status",
+              "displayName": "message_2_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_sent_time",
+              "displayName": "message_2_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_status",
+              "displayName": "message_3_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_sent_time",
+              "displayName": "message_3_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_text",
+              "displayName": "reply_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_time",
+              "displayName": "reply_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "failed_reason",
+              "displayName": "failed_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "creation_date",
+              "displayName": "creation_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "7375b633-8aae-4c0c-8611-c11325cfb82b",
+      "name": "B1: Update DB",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1056,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst out = [];\nconst sentTodayByAccount = {};\n\nfor (const p of items) {\n  if (p.connectionaccepted !== 'Accepted') continue;\n\n  const m1 = String(p.message1status || '').trim();\n  if (m1 && m1 !== 'Not Yet') continue;\n\n  if (String(p.replyreceived || '').trim() === 'Yes') continue;\n  if (!p.providerid) continue;\n  if (String(p.accountstatus || '').trim() !== 'active') continue;\n\n  const acct = String(p.sendingaccount || '').trim();\n  if (!acct) continue;\n\n  if (!(acct in sentTodayByAccount)) {\n    sentTodayByAccount[acct] = Number(p.dmssenttoday || 0);\n  }\n\n  if (sentTodayByAccount[acct] >= Number(p.dmsdailylimit || 0)) continue;\n  sentTodayByAccount[acct] += 1;\n\n  out.push({\n    json: {\n      ...p,\n      messagetosend: p.message1,\n      messageslot: 1\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "1ac94770-f1c3-4834-b861-7fcc6ff279b8",
+      "name": "B2: Filter Ready for Msg 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst out = [];\nconst sentTodayByAccount = {};\nconst nowMs = Date.now();\n\nfor (const p of items) {\n  if (String(p.message1status || '').trim() !== 'Sent') continue;\n\n  const m2 = String(p.message2status || '').trim();\n  if (m2 && m2 !== 'Not Yet') continue;\n\n  if (String(p.replyreceived || '').trim() === 'Yes') continue;\n  if (!p.providerid) continue;\n  if (String(p.accountstatus || '').trim() !== 'active') continue;\n  if (!p.message1senttimeparsed) continue;\n\n  const sentMs = new Date(p.message1senttimeparsed).getTime();\n  if (Number.isNaN(sentMs)) continue;\n\n  const delayMs = Number(p.message2delayhours || 48) * 60 * 60 * 1000;\n  if ((nowMs - sentMs) < delayMs) continue;\n\n  const acct = String(p.sendingaccount || '').trim();\n  if (!acct) continue;\n\n  if (!(acct in sentTodayByAccount)) {\n    sentTodayByAccount[acct] = Number(p.dmssenttoday || 0);\n  }\n\n  if (sentTodayByAccount[acct] >= Number(p.dmsdailylimit || 0)) continue;\n  sentTodayByAccount[acct] += 1;\n\n  out.push({\n    json: {\n      ...p,\n      messagetosend: p.message2,\n      messageslot: 2\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "7986fea8-048e-4cfe-8ba7-4f9f53aab7ea",
+      "name": "B3: Filter Ready for Msg 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst out = [];\nconst sentTodayByAccount = {};\nconst nowMs = Date.now();\n\nfor (const p of items) {\n  if (String(p.message2status || '').trim() !== 'Sent') continue;\n\n  const m3 = String(p.message3status || '').trim();\n  if (m3 && m3 !== 'Not Yet') continue;\n\n  if (String(p.replyreceived || '').trim() === 'Yes') continue;\n  if (!p.providerid) continue;\n  if (String(p.accountstatus || '').trim() !== 'active') continue;\n  if (!p.message2senttimeparsed) continue;\n\n  const sentMs = new Date(p.message2senttimeparsed).getTime();\n  if (Number.isNaN(sentMs)) continue;\n\n  const delayMs = Number(p.message3delayhours || 48) * 60 * 60 * 1000;\n  if ((nowMs - sentMs) < delayMs) continue;\n\n  const acct = String(p.sendingaccount || '').trim();\n  if (!acct) continue;\n\n  if (!(acct in sentTodayByAccount)) {\n    sentTodayByAccount[acct] = Number(p.dmssenttoday || 0);\n  }\n\n  if (sentTodayByAccount[acct] >= Number(p.dmsdailylimit || 0)) continue;\n  sentTodayByAccount[acct] += 1;\n\n  out.push({\n    json: {\n      ...p,\n      messagetosend: p.message3,\n      messageslot: 3\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "141752dd-86bd-4f2b-9def-126a898622b9",
+      "name": "B4: Filter Ready for Msg 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge B2, B3, B4 outputs into a single stream feeding the shared 'send DM' subflow\nreturn $input.all();\n"
+      },
+      "id": "e4f24dc8-5a33-47a0-bd59-e69ad08c3ed2",
+      "name": "Merge: All DMs to Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "3ac9a5e0-7aa2-4501-ae5d-2c5a5033dd97",
+      "name": "Split DMs",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        832,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('Merge: All DMs to Send').item.json.unipiledsn }}/api/v1/chats",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $('Merge: All DMs to Send').item.json.unipileapi }}"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $('Merge: All DMs to Send').item.json.unipileid }}"
+            },
+            {
+              "name": "attendees_ids",
+              "value": "={{ $('Merge: All DMs to Send').item.json.providerid }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('Merge: All DMs to Send').item.json.messagetosend }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "7255a21e-b121-4198-87b5-e36d525df6a0",
+      "name": "Unipile: Send DM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1056,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "ok-ge",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "ok-le",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 299,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c7771c51-2335-422c-bd1c-58cdcc582fde",
+      "name": "DM success?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Split DMs').item.json;\nconst slot = Number(prospect.messageslot);\n\nconst now = new Date();\nconst opts = {\n  timeZone: 'Asia/Kolkata',\n  hour12: false,\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n};\n\nconst parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(now);\nconst get = (t) => parts.find(p => p.type === t)?.value || '';\nconst ts = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n\nconst out = {\n  linkedinurl: prospect.linkedinurl,\n  sendingaccount: prospect.sendingaccount\n};\n\nout[`message${slot}status`] = 'Sent';\nout[`message${slot}senttime`] = ts;\n\nreturn [{ json: out }];"
+      },
+      "id": "e47f1477-4f80-49c3-871c-3917dfd1488e",
+      "name": "Build DM Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1965143640,
+          "mode": "list",
+          "cachedResultName": "Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=1965143640"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "linkedin_url": "{{ $json.linkedinurl }}",
+            "sending_account": "={{ $json.sendingaccount }}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sending_account",
+              "displayName": "sending_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_status",
+              "displayName": "connection_request_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_time",
+              "displayName": "connection_request_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted",
+              "displayName": "connection_accepted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted_time",
+              "displayName": "connection_accepted_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_status",
+              "displayName": "message_1_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_sent_time",
+              "displayName": "message_1_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_status",
+              "displayName": "message_2_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_sent_time",
+              "displayName": "message_2_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_status",
+              "displayName": "message_3_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_sent_time",
+              "displayName": "message_3_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_text",
+              "displayName": "reply_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_time",
+              "displayName": "reply_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "failed_reason",
+              "displayName": "failed_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "creation_date",
+              "displayName": "creation_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "6fd4a4bb-8fdb-4c4d-b58e-9f5cd1b0af6d",
+      "name": "Update DB: DM Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1728,
+        224
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Split DMs').item.json;\nconst accountRows = $('Read Accounts').all().map(i => i.json);\n\nconst acct = accountRows.find(a =>\n  String(a.account_name || '').trim() === String(prospect.sendingaccount || '').trim()\n);\n\nif (!acct) {\n  return [];\n}\n\nconst current = Number(acct.dmssenttoday || 0);\n\nreturn [\n  {\n    json: {\n      accountname: acct.account_name,\n      dmssenttoday: current + 1\n    }\n  }\n];"
+      },
+      "id": "f7be3a45-0e39-4890-bf8a-7cbcb0cafb95",
+      "name": "Build DM Counter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "account_name": "{{ $json.accountname}}",
+            "dms_sent_today": "={{ $json.dmssenttoday}}"
+          },
+          "matchingColumns": [
+            "account_name"
+          ],
+          "schema": [
+            {
+              "id": "account_name",
+              "displayName": "account_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unipile_id",
+              "displayName": "unipile_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "unipile_api",
+              "displayName": "unipile_api",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "unipile_dsn",
+              "displayName": "unipile_dsn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connections_sent_today",
+              "displayName": "connections_sent_today",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connections_daily_limit",
+              "displayName": "connections_daily_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "dms_sent_today",
+              "displayName": "dms_sent_today",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dms_daily_limit",
+              "displayName": "dms_daily_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_checked",
+              "displayName": "last_checked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "error_count",
+              "displayName": "error_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "7a8bb8c6-0ee0-4552-9663-ade24b18ccac",
+      "name": "Update DM Counter",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2176,
+        224
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Split DMs').item.json;\nconst response = $input.first().json;\nconst slot = prospect.messageslot;\n\nconst now = new Date();\nconst opts = {\n  timeZone: 'Asia/Kolkata',\n  hour12: false,\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n};\n\nconst parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(now);\nconst get = (t) => parts.find(p => p.type === t)?.value || '';\nconst ts = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n\nlet reason = '';\nif (response.body) {\n  reason = typeof response.body === 'string' ? response.body : JSON.stringify(response.body);\n} else if (response.error) {\n  reason = typeof response.error === 'string' ? response.error : JSON.stringify(response.error);\n} else {\n  reason = `HTTP ${response.statusCode || 'unknown'}`;\n}\n\nreason = `[${ts}] message${slot} failed: ${reason}`.slice(0, 500);\n\nconst out = {\n  linkedinurl: prospect.linkedinurl,\n  failedreason: reason\n};\n\nout[`message${slot}status`] = 'Failed';\nout[`message${slot}senttime`] = ts;\n\nreturn [{ json: out }];"
+      },
+      "id": "c00d99eb-f46e-447b-86ff-0acdc051ec5d",
+      "name": "Build DM Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1965143640,
+          "mode": "list",
+          "cachedResultName": "Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=1965143640"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "linkedin_url": "{{$json.linkedinurl}}",
+            "failed_reason": "={{$json.failedreason}}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sending_account",
+              "displayName": "sending_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_status",
+              "displayName": "connection_request_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_time",
+              "displayName": "connection_request_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted",
+              "displayName": "connection_accepted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted_time",
+              "displayName": "connection_accepted_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_status",
+              "displayName": "message_1_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_sent_time",
+              "displayName": "message_1_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_status",
+              "displayName": "message_2_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_sent_time",
+              "displayName": "message_2_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_status",
+              "displayName": "message_3_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_sent_time",
+              "displayName": "message_3_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_text",
+              "displayName": "reply_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_time",
+              "displayName": "reply_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "failed_reason",
+              "displayName": "failed_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "creation_date",
+              "displayName": "creation_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "3d23336c-d7e3-45a9-94f6-5f71fe97b0dc",
+      "name": "Update DB: DM Failed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2176,
+        464
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * 60) + 30 }}"
+      },
+      "id": "be3f7e63-d3ed-4ddf-9c89-086fc9782510",
+      "name": "Wait 30-90s (DM)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        416
+      ],
+      "webhookId": "wait-dm-tick"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Split Reply Checks').item.json;\nconst chatsResp = $input.first().json;\n\nconst chats = chatsResp.items || chatsResp.data || [];\n\nconst chat = chats.find(c => {\n  const attendees = c.attendees || c.attendeeproviderids || [];\n  const ids = attendees.map(a =>\n    typeof a === 'string' ? a : (a.provider_id || a.providerid || a.id || '')\n  );\n  return ids.includes(prospect.providerid);\n});\n\nif (!chat) {\n  return [];\n}\n\nconst last = chat.last_message || chat.lastmessage || chat.latest_message || chat.latestmessage;\nif (!last) {\n  return [];\n}\n\nconst senderId = last.sender_id || last.senderid || last.from_provider_id || last.fromproviderid || last.author_id || last.authorid || last.provider_id || last.providerid;\nconst isFromProspect =\n  String(senderId || '').trim() === String(prospect.providerid || '').trim() ||\n  last.is_sender === false ||\n  last.issender === false ||\n  last.from_me === false ||\n  last.fromme === false;\n\nif (!isFromProspect) {\n  return [];\n}\n\nconst replyText = last.text || last.body || last.content || '';\nconst replyTimeRaw = last.timestamp || last.created_at || last.createdat || last.date || '';\n\nlet replyTime = '';\nif (replyTimeRaw) {\n  const d = new Date(replyTimeRaw);\n  if (!Number.isNaN(d.getTime())) {\n    const opts = {\n      timeZone: 'Asia/Kolkata',\n      hour12: false,\n      year: 'numeric',\n      month: '2-digit',\n      day: '2-digit',\n      hour: '2-digit',\n      minute: '2-digit',\n      second: '2-digit',\n    };\n    const parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(d);\n    const get = (t) => parts.find(p => p.type === t)?.value || '';\n    replyTime = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n  }\n}\n\nreturn [\n  {\n    json: {\n      linkedinurl: prospect.linkedinurl,\n      replyreceived: 'Yes',\n      replytext: String(replyText).slice(0, 500),\n      replytime: replyTime\n    }\n  }\n];"
+      },
+      "id": "b17451d4-14f0-4826-aef1-4b7457874b1a",
+      "name": "B5: Filter Reply Candidates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "101c62e8-c8e9-42a8-be01-efc6081824ea",
+      "name": "Split Reply Checks",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        608,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $json.unipiledsn }}/api/v1/chats",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $json.unipileid }}"
+            },
+            {
+              "name": "account_type",
+              "value": "LINKEDIN"
+            },
+            {
+              "name": "limit",
+              "value": "50"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $json.unipile_api }}"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "723635c4-3e44-41b2-af68-358f9017adf3",
+      "name": "B5: List Chats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Split Reply Checks').item.json;\nconst chatsResp = $input.first().json;\nconst chats = chatsResp.items || chatsResp.data || [];\n\n// Find chat matching the prospect\nconst chat = chats.find(c => {\n  const ids = (c.attendees || c.attendeeproviderids || []).map(a =>\n    typeof a === 'string' ? a : (a.providerid || a.id)\n  );\n  return ids.includes(prospect.providerid);\n});\n\nif (!chat) return [];\n\n// Get last message details\nconst last = chat.lastmessage || chat.latestmessage;\nif (!last) return [];\n\n// Determine if last message is from the prospect\nconst senderId = last.senderid || last.fromproviderid || last.authorid || last.providerid;\nconst isFromProspect =\n  senderId === prospect.providerid ||\n  last.issender === false ||\n  last.fromme === false;\n\nif (!isFromProspect) return [];\n\nconst replyText = last.text || last.body || last.content || '';\nconst replyTimeRaw = last.timestamp || last.createdat || last.date;\n\n// Format replytime as IST\nlet replyTime = '';\nif (replyTimeRaw) {\n  const d = new Date(replyTimeRaw);\n  if (!isNaN(d.getTime())) {\n    const opts = {\n      timeZone: 'Asia/Kolkata',\n      hour12: false,\n      year: 'numeric',\n      month: '2-digit',\n      day: '2-digit',\n      hour: '2-digit',\n      minute: '2-digit',\n      second: '2-digit'\n    };\n    const parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(d);\n    const get = (t) => parts.find(p => p.type === t)?.value || '';\n    replyTime = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n  }\n}\n\nreturn [\n  {\n    json: {\n      linkedinurl: prospect.linkedinurl,\n      replyreceived: 'Yes',\n      replytext: String(replyText).slice(0, 500),\n      replytime: replyTime\n    }\n  }\n];"
+      },
+      "id": "e33a3437-87e8-4cd4-be47-3b06e63d5139",
+      "name": "B5: Detect Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1965143640,
+          "mode": "list",
+          "cachedResultName": "Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=1965143640"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "linkedin_url": "={{ $json.linkedinurl }}",
+            "reply_received": "={{ $json.replyreceived }}",
+            "reply_text": "={{ $json.replytext }}",
+            "reply_time": "={{ $json.replytime }}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sending_account",
+              "displayName": "sending_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_status",
+              "displayName": "connection_request_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_time",
+              "displayName": "connection_request_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted",
+              "displayName": "connection_accepted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted_time",
+              "displayName": "connection_accepted_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_status",
+              "displayName": "message_1_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_sent_time",
+              "displayName": "message_1_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_status",
+              "displayName": "message_2_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_sent_time",
+              "displayName": "message_2_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_status",
+              "displayName": "message_3_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_sent_time",
+              "displayName": "message_3_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reply_text",
+              "displayName": "reply_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reply_time",
+              "displayName": "reply_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "failed_reason",
+              "displayName": "failed_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "creation_date",
+              "displayName": "creation_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "40ba1bbd-c300-431c-8693-14764f3cb29d",
+      "name": "B5: Update DB",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1280,
+        768
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst out = [];\nconst nowMs = Date.now();\nconst sevenDaysMs = 7 * 24 * 60 * 60 * 1000;\n\nfor (const p of items) {\n  if (String(p.connectionrequeststatus || '').trim() !== 'Sent') continue;\n  if (String(p.connectionaccepted || '').trim()) continue;\n  if (!p.connectionrequesttimeparsed) continue;\n  if (!p.providerid) continue;\n\n  const reqMs = new Date(p.connectionrequesttimeparsed).getTime();\n  if (Number.isNaN(reqMs)) continue;\n\n  if ((nowMs - reqMs) < sevenDaysMs) continue;\n\n  out.push({ json: p });\n}\n\nreturn out;"
+      },
+      "id": "9bbaeced-afe6-4aee-84bc-f85c46bddb46",
+      "name": "B6: Filter 7d Expired",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "5bf46bee-58b9-4ed5-84c2-fc8fbf98ac0e",
+      "name": "Split Expiries",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        608,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $json.unipiledsn }}/api/v1/users/invite/sent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $json.unipileid }}"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $json.unipile_api }}"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "3353b451-ccc4-4f4e-b33b-61d8d5619922",
+      "name": "B6: List Pending Invites",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Split Expiries').item.json;\nconst response = $input.first().json;\nconst invites = response.items || response.data || [];\n\nconst match = invites.find(i =>\n  (i.recipientproviderid || i.providerid || i.recipientid) === prospect.providerid\n);\n\nif (!match) {\n  return [\n    {\n      json: {\n        ...prospect,\n        invitationid: null,\n        skipwithdraw: true\n      }\n    }\n  ];\n}\n\nreturn [\n  {\n    json: {\n      ...prospect,\n      invitationid: match.id || match.invitationid,\n      skipwithdraw: false\n    }\n  }\n];"
+      },
+      "id": "c1f35b4b-c1b6-49de-8b60-99b98a7fca34",
+      "name": "B6: Find Invitation ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "skip-withdraw",
+              "leftValue": "={{ $json._skip_withdraw }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c428fe29-1bb0-4ebe-b19c-3d473827a01f",
+      "name": "B6: Should Withdraw?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://{{ $json.unipiledsn }}/api/v1/users/invite/{{ $json._invitation_id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $json.unipileid }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $json.unipile_api }}"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "97b38828-c49c-4670-bda6-35fb2e5fa7ba",
+      "name": "B6: Withdraw Invite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1504,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Split Expiries').item.json;\n\nconst now = new Date();\nconst opts = {\n  timeZone: 'Asia/Kolkata',\n  hour12: false,\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n};\n\nconst parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(now);\nconst get = (t) => parts.find(p => p.type === t)?.value || '';\nconst ts = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n\nreturn [\n  {\n    json: {\n      linkedinurl: prospect.linkedinurl,\n      connectionrequeststatus: 'Expired',\n      failedreason: `[${ts}] No acceptance after 7 days; invite withdrawn`\n    }\n  }\n];"
+      },
+      "id": "d2aeac5a-dd17-456e-9ce6-fb6ef2088a2a",
+      "name": "B6: Build Expired Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Database",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "linkedin_url": "{{ $json.linkedinurl}}",
+            "failedreason": "{{ $json.failedreason}}",
+            "connection_request_status": "={{ $json.connectionrequeststatus}}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sending_account",
+              "displayName": "sending_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_status",
+              "displayName": "connection_request_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "connection_request_time",
+              "displayName": "connection_request_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted",
+              "displayName": "connection_accepted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted_time",
+              "displayName": "connection_accepted_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_status",
+              "displayName": "message_1_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_sent_time",
+              "displayName": "message_1_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_status",
+              "displayName": "message_2_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_sent_time",
+              "displayName": "message_2_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_status",
+              "displayName": "message_3_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_sent_time",
+              "displayName": "message_3_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_text",
+              "displayName": "reply_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_time",
+              "displayName": "reply_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "failed_reason",
+              "displayName": "failed_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "creation_date",
+              "displayName": "creation_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedinurl",
+              "displayName": "linkedinurl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connectionrequeststatus",
+              "displayName": "connectionrequeststatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connectionrequesttime",
+              "displayName": "connectionrequesttime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "failedreason",
+              "displayName": "failedreason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "3aae17c4-7390-48e8-9ef9-81b42eee200e",
+      "name": "B6: Update DB Expired",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1952,
+        960
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Every 30 min": [
+      {
+        "json": {
+          "timestamp": "2026-05-12T17:45:08.181+05:30",
+          "Readable date": "May 12th 2026, 5:45:08 pm",
+          "Readable time": "5:45:08 pm",
+          "Day of week": "Tuesday",
+          "Year": "2026",
+          "Month": "May",
+          "Day of month": "12",
+          "Hour": "17",
+          "Minute": "45",
+          "Second": "08",
+          "Timezone": "Asia/Kolkata (UTC+05:30)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Every 30 min": {
+      "main": [
+        [
+          {
+            "node": "Read Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Database": {
+      "main": [
+        [
+          {
+            "node": "Read Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Read Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Accounts": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "B1: Filter Pending Invites",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "B2: Filter Ready for Msg 1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "B3: Filter Ready for Msg 2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "B4: Filter Ready for Msg 3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "B5: Filter Reply Candidates",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "B6: Filter 7d Expired",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B1: Filter Pending Invites": {
+      "main": [
+        [
+          {
+            "node": "B1: List Relations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B1: List Relations": {
+      "main": [
+        [
+          {
+            "node": "B1: Check If Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B1: Check If Accepted": {
+      "main": [
+        [
+          {
+            "node": "B1: Update DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B2: Filter Ready for Msg 1": {
+      "main": [
+        [
+          {
+            "node": "Merge: All DMs to Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B3: Filter Ready for Msg 2": {
+      "main": [
+        [
+          {
+            "node": "Merge: All DMs to Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B4: Filter Ready for Msg 3": {
+      "main": [
+        [
+          {
+            "node": "Merge: All DMs to Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: All DMs to Send": {
+      "main": [
+        [
+          {
+            "node": "Split DMs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split DMs": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Unipile: Send DM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Send DM": {
+      "main": [
+        [
+          {
+            "node": "DM success?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DM success?": {
+      "main": [
+        [
+          {
+            "node": "Build DM Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build DM Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build DM Success": {
+      "main": [
+        [
+          {
+            "node": "Update DB: DM Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update DB: DM Sent": {
+      "main": [
+        [
+          {
+            "node": "Build DM Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build DM Counter": {
+      "main": [
+        [
+          {
+            "node": "Update DM Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update DM Counter": {
+      "main": [
+        [
+          {
+            "node": "Wait 30-90s (DM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build DM Failure": {
+      "main": [
+        [
+          {
+            "node": "Update DB: DM Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update DB: DM Failed": {
+      "main": [
+        [
+          {
+            "node": "Wait 30-90s (DM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30-90s (DM)": {
+      "main": [
+        [
+          {
+            "node": "Split DMs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B5: Filter Reply Candidates": {
+      "main": [
+        [
+          {
+            "node": "Split Reply Checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Reply Checks": {
+      "main": [
+        [
+          {
+            "node": "B5: List Chats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B5: List Chats": {
+      "main": [
+        [
+          {
+            "node": "B5: Detect Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B5: Detect Reply": {
+      "main": [
+        [
+          {
+            "node": "B5: Update DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B6: Filter 7d Expired": {
+      "main": [
+        [
+          {
+            "node": "Split Expiries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Expiries": {
+      "main": [
+        [
+          {
+            "node": "B6: List Pending Invites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B6: List Pending Invites": {
+      "main": [
+        [
+          {
+            "node": "B6: Find Invitation ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B6: Find Invitation ID": {
+      "main": [
+        [
+          {
+            "node": "B6: Should Withdraw?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B6: Should Withdraw?": {
+      "main": [
+        [
+          {
+            "node": "B6: Withdraw Invite",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "B6: Build Expired Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B6: Withdraw Invite": {
+      "main": [
+        [
+          {
+            "node": "B6: Build Expired Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B6: Build Expired Update": {
+      "main": [
+        [
+          {
+            "node": "B6: Update DB Expired",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "versionId": "9ab0ad3d-68d6-478d-9b2d-95dff023ae1f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b045cc43a936e8dae5503de0430356c35c5c8a36cfb7da656f8ef0afed7fa15f"
+  },
+  "id": "EGsF6NkuXtHCFVBG",
+  "tags": []
+}

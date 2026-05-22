@@ -1,0 +1,291 @@
+{
+  "name": "LinkedIn DMs - 3. Daily Counter Reset",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 0 * * *"
+            }
+          ]
+        }
+      },
+      "id": "e491e454-720b-4f51-8301-90387160499c",
+      "name": "Every Day at 00:00 IST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "notes": "Make sure n8n's timezone is set to Asia/Kolkata in Settings, or change the cron to convert from UTC (e.g. '0 30 18 * * *' for 00:00 IST = 18:30 UTC)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "61e62adb-2982-4dc2-a7bf-82f9cbe98964",
+      "name": "Read Accounts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst opts = {\n  timeZone: 'Asia/Kolkata',\n  hour12: false,\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n};\n\nconst parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(now);\nconst get = (t) => parts.find(p => p.type === t).value;\nconst ts = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n\nconst accounts = $input.all().map(i => i.json);\n\nreturn accounts.map(a => ({\n  json: {\n    accountname: a.account_name,\n    connectionssenttoday: 0,\n    dmssenttoday: 0,\n    lastchecked: ts\n  }\n}));"
+      },
+      "id": "e24df8e8-16bf-4eb4-8f30-98dea20f6f16",
+      "name": "Build Reset Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y",
+          "mode": "list",
+          "cachedResultName": "Linkedin Dm Sheet M",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Accounts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "account_name": "={{ $json.accountname }}",
+            "connections_sent_today": "={{ $json.connectionssenttoday }}",
+            "dms_sent_today": "={{ $json.dmssenttoday }}",
+            "last_checked": "={{ $json.lastchecked }}"
+          },
+          "matchingColumns": [
+            "account_name"
+          ],
+          "schema": [
+            {
+              "id": "account_name",
+              "displayName": "account_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "unipile_id",
+              "displayName": "unipile_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "unipile_api",
+              "displayName": "unipile_api",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "unipile_dsn",
+              "displayName": "unipile_dsn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connections_sent_today",
+              "displayName": "connections_sent_today",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "connections_daily_limit",
+              "displayName": "connections_daily_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "dms_sent_today",
+              "displayName": "dms_sent_today",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dms_daily_limit",
+              "displayName": "dms_daily_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_checked",
+              "displayName": "last_checked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_count",
+              "displayName": "error_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "166b214f-b916-4ef1-bbaf-44c1cf247926",
+      "name": "Reset Counters in Accounts Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        672,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every Day at 00:00 IST": {
+      "main": [
+        [
+          {
+            "node": "Read Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Accounts": {
+      "main": [
+        [
+          {
+            "node": "Build Reset Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reset Payload": {
+      "main": [
+        [
+          {
+            "node": "Reset Counters in Accounts Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "versionId": "1b9ce3cc-195b-4f8d-a3ac-0f06c32f1430",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b045cc43a936e8dae5503de0430356c35c5c8a36cfb7da656f8ef0afed7fa15f"
+  },
+  "id": "WBz5Ki0ekUMAj4vu",
+  "tags": []
+}

@@ -1,0 +1,2271 @@
+{
+  "name": "LinkedIn DMs - 1. Start Campaign",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "8600147b-3675-4e49-a1e3-2d99fac01385",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Database"
+        },
+        "options": {}
+      },
+      "id": "0b17b405-0f26-45e4-8615-62c1aba578c5",
+      "name": "Read Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        160,
+        240
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Campaign"
+        },
+        "options": {}
+      },
+      "id": "b9604ae9-77d9-4060-945f-eb73dd67b278",
+      "name": "Read Campaigns",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        368,
+        240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Accounts"
+        },
+        "options": {}
+      },
+      "id": "5435c71b-10dc-41af-9f90-96dd5c127797",
+      "name": "Read Accounts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        208
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const dbRows = $('Read Database').all().map(i => i.json);\nconst campaignRows = $('Read Campaigns').all().map(i => i.json);\nconst accountRows = $('Read Accounts').all().map(i => i.json);\n\n// Index campaigns and accounts\nconst campaignsById = {};\nfor (const c of campaignRows) {\n  const id = String(c.campaign_id ?? '').trim();\n  if (id) campaignsById[id] = c;\n}\n\nconst accountsByName = {};\nfor (const a of accountRows) {\n  const name = String(a.account_name ?? '').trim();\n  if (name) accountsByName[name] = a;\n}\n\n// Track sent today by account\nconst sentTodayByAccount = {};\nfor (const name in accountsByName) {\n  sentTodayByAccount[name] = Number(accountsByName[name].connections_sent_today ?? 0);\n}\n\nfunction slugFromUrl(url) {\n  if (!url) return null;\n  const m = String(url).match(/\\/in\\/([^\\/\\?#]+)/i);\n  return m ? m[1] : null;\n}\n\nconst eligible = [];\n\nfor (const row of dbRows) {\n  // Skip prospects that already have a connection attempt or reply logged\n  const status = String(row.connection_request_status ?? '').trim();\n  if (status !== '') continue;\n\n  const reply = String(row.reply_received ?? '').trim();\n  if (reply === 'Yes') continue;\n\n  const cid = String(row.campaign_id ?? '').trim();\n  const campaign = campaignsById[cid];\n  if (!campaign) continue;\n\n  const campaignStatus = String(campaign.campaign_status ?? '').trim();\n  if (campaignStatus !== 'Active') continue;\n\n  const sa = String(row.sending_account ?? '').trim();\n  const account = accountsByName[sa];\n  if (!account) continue;\n\n  const accountStatus = String(account.status ?? '').trim();\n  if (accountStatus !== 'active') continue;\n\n  const acctName = String(account.account_name ?? '').trim();\n  const limit = Number(account.connections_daily_limit ?? 0);\n  const sent = Number(sentTodayByAccount[acctName] ?? 0);\n  if (limit > 0 && sent >= limit) continue;\n\n  sentTodayByAccount[acctName] = sent + 1;\n\n  eligible.push({\n    json: {\n      campaignid: row.campaign_id,\n      linkedinurl: row.linkedin_url,\n      firstname: row.first_name,\n      lastname: row.last_name,\n      sendingaccount: row.sending_account,\n      publicidentifier: slugFromUrl(row.linkedin_url),\n      connectionnote: campaign.connection_note,\n      unipileid: String(account.unipile_id ?? ''),\n      unipileapi: account.unipile_api,\n      unipiledsn: String(account.unipile_dsn ?? '')\n    }\n  });\n}\n\nreturn eligible;"
+      },
+      "id": "a5dd63a3-5276-469d-a9aa-2e7616a6740d",
+      "name": "Filter & Gate by Daily Limit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        192
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "33725ae9-8745-4895-a86b-2c501dd3e3c4",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $json.unipiledsn }}/api/v1/users/{{ $json.publicidentifier }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "account_id",
+              "value": "={{ $json.unipileid }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $json.unipileapi }}"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "7e281361-98e3-4753-9a92-5f704d321e9b",
+      "name": "Unipile: Get Provider ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1344,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check",
+              "leftValue": "={{ $json.provider_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cf94e2d6-1d10-4ca9-b927-114d2c155c10",
+      "name": "Provider ID found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1568,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('Split In Batches').item.json.unipiledsn }}/api/v1/users/invite",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $('Split In Batches').item.json.unipileapi }}"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"provider_id\": \"{{ $json.provider_id }}\", \"account_id\": \"{{ $('Split In Batches').item.json.unipileid }}\", \"message\": \"{{ $('Split In Batches').item.json.connectionnote }}\" }",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "ec040031-273d-4286-a8d5-2523a70e8d3b",
+      "name": "Unipile: Send Invite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1792,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ok-ge",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "ok-le",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 299,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "05ca8813-b379-4a9b-bc3f-59b9ff74e500",
+      "name": "Invite success?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2016,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst opts = {\n  timeZone: 'Asia/Kolkata',\n  hour12: false,\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n};\n\nconst parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(now);\nconst get = (t) => parts.find(p => p.type === t)?.value || '';\nconst ts = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n\nconst prospect = $('Split In Batches').item.json;\n\nreturn [\n  {\n    json: {\n      linkedinurl: prospect.linkedinurl,\n      providerid:$('Unipile: Get Provider ID').first().json.provider_id,\n      connectionrequeststatus: 'Sent',\n      connectionrequesttime: ts,\n      failedreason: ''\n    }\n  }\n];"
+      },
+      "id": "80eafdb3-41e8-4d0b-ae30-f0f557a3e6cf",
+      "name": "Build Success Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Database"
+        },
+        "columns": {
+          "0": "{",
+          "1": "\"",
+          "2": "m",
+          "3": "a",
+          "4": "p",
+          "5": "p",
+          "6": "i",
+          "7": "n",
+          "8": "g",
+          "9": "M",
+          "10": "o",
+          "11": "d",
+          "12": "e",
+          "13": "\"",
+          "14": ":",
+          "15": "\"",
+          "16": "a",
+          "17": "u",
+          "18": "t",
+          "19": "o",
+          "20": "M",
+          "21": "a",
+          "22": "p",
+          "23": "I",
+          "24": "n",
+          "25": "p",
+          "26": "u",
+          "27": "t",
+          "28": "D",
+          "29": "a",
+          "30": "t",
+          "31": "a",
+          "32": "\"",
+          "33": ",",
+          "34": "\"",
+          "35": "m",
+          "36": "a",
+          "37": "t",
+          "38": "c",
+          "39": "h",
+          "40": "i",
+          "41": "n",
+          "42": "g",
+          "43": "C",
+          "44": "o",
+          "45": "l",
+          "46": "u",
+          "47": "m",
+          "48": "n",
+          "49": "s",
+          "50": "\"",
+          "51": ":",
+          "52": "[",
+          "53": "\"",
+          "54": "l",
+          "55": "i",
+          "56": "n",
+          "57": "k",
+          "58": "e",
+          "59": "d",
+          "60": "i",
+          "61": "n",
+          "62": "_",
+          "63": "u",
+          "64": "r",
+          "65": "l",
+          "66": "\"",
+          "67": "]",
+          "68": ",",
+          "69": "\"",
+          "70": "s",
+          "71": "c",
+          "72": "h",
+          "73": "e",
+          "74": "m",
+          "75": "a",
+          "76": "\"",
+          "77": ":",
+          "78": "[",
+          "79": "]",
+          "80": "}",
+          "mappingMode": "defineBelow",
+          "value": {
+            "linkedin_url": "={{ $json.linkedinurl }}",
+            "connectionrequeststatus": "={{ $json.connectionrequeststatus }}",
+            "connectionrequesttime": "={{ $json.connectionrequesttime }}",
+            "provider_id": "={{ $json.providerid }}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sending_account",
+              "displayName": "sending_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "connection_request_status",
+              "displayName": "connection_request_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_time",
+              "displayName": "connection_request_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted",
+              "displayName": "connection_accepted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted_time",
+              "displayName": "connection_accepted_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_status",
+              "displayName": "message_1_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_sent_time",
+              "displayName": "message_1_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_status",
+              "displayName": "message_2_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_sent_time",
+              "displayName": "message_2_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_status",
+              "displayName": "message_3_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_sent_time",
+              "displayName": "message_3_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_text",
+              "displayName": "reply_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_time",
+              "displayName": "reply_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "failed_reason",
+              "displayName": "failed_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "creation_date",
+              "displayName": "creation_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedinurl",
+              "displayName": "linkedinurl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connectionrequeststatus",
+              "displayName": "connectionrequeststatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "connectionrequesttime",
+              "displayName": "connectionrequesttime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "failedreason",
+              "displayName": "failedreason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "4dbafd0f-2b9f-4ff0-adb3-1a627e23f6dc",
+      "name": "Update DB: Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2464,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Split In Batches').item.json;\nconst accountRows = $('Read Accounts').all().map(i => i.json);\n\nconst acct = accountRows.find(a => a.account_name === prospect.sendingaccount);\nif (!acct) return [];\n\nreturn [\n  {\n    json: {\n      accountname: acct.account_name,\n      connectionssenttoday: Number(acct.connectionssenttoday || 0) + 1\n    }\n  }\n];"
+      },
+      "id": "7bf23692-537b-4bf1-b895-5870b6139958",
+      "name": "Build Counter Increment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Accounts"
+        },
+        "columns": {
+          "0": "{",
+          "1": "\"",
+          "2": "m",
+          "3": "a",
+          "4": "p",
+          "5": "p",
+          "6": "i",
+          "7": "n",
+          "8": "g",
+          "9": "M",
+          "10": "o",
+          "11": "d",
+          "12": "e",
+          "13": "\"",
+          "14": ":",
+          "15": "\"",
+          "16": "a",
+          "17": "u",
+          "18": "t",
+          "19": "o",
+          "20": "M",
+          "21": "a",
+          "22": "p",
+          "23": "I",
+          "24": "n",
+          "25": "p",
+          "26": "u",
+          "27": "t",
+          "28": "D",
+          "29": "a",
+          "30": "t",
+          "31": "a",
+          "32": "\"",
+          "33": ",",
+          "34": "\"",
+          "35": "m",
+          "36": "a",
+          "37": "t",
+          "38": "c",
+          "39": "h",
+          "40": "i",
+          "41": "n",
+          "42": "g",
+          "43": "C",
+          "44": "o",
+          "45": "l",
+          "46": "u",
+          "47": "m",
+          "48": "n",
+          "49": "s",
+          "50": "\"",
+          "51": ":",
+          "52": "[",
+          "53": "\"",
+          "54": "a",
+          "55": "c",
+          "56": "c",
+          "57": "o",
+          "58": "u",
+          "59": "n",
+          "60": "t",
+          "61": "_",
+          "62": "n",
+          "63": "a",
+          "64": "m",
+          "65": "e",
+          "66": "\"",
+          "67": "]",
+          "68": ",",
+          "69": "\"",
+          "70": "s",
+          "71": "c",
+          "72": "h",
+          "73": "e",
+          "74": "m",
+          "75": "a",
+          "76": "\"",
+          "77": ":",
+          "78": "[",
+          "79": "]",
+          "80": "}",
+          "mappingMode": "defineBelow",
+          "value": {
+            "account_name": "={{ $json.accountname }}",
+            "connections_sent_today": "={{ $json.connectionssenttoday }}"
+          },
+          "matchingColumns": [
+            "account_name"
+          ],
+          "schema": [
+            {
+              "id": "account_name",
+              "displayName": "account_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unipile_id",
+              "displayName": "unipile_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "unipile_api",
+              "displayName": "unipile_api",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "unipile_dsn",
+              "displayName": "unipile_dsn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connections_sent_today",
+              "displayName": "connections_sent_today",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "connections_daily_limit",
+              "displayName": "connections_daily_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "dms_sent_today",
+              "displayName": "dms_sent_today",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "dms_daily_limit",
+              "displayName": "dms_daily_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_checked",
+              "displayName": "last_checked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "error_count",
+              "displayName": "error_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "4cde30e9-fb13-494f-b413-3c5eea187e4c",
+      "name": "Update Account Counter",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2912,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * 60) + 30 }}"
+      },
+      "id": "fcd9aa74-9f12-4957-8d08-9392395c34fd",
+      "name": "Wait 30-90s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        288
+      ],
+      "webhookId": "15376919-65d5-40ba-9b01-64233ae8fdb6"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "44cb6eba-36fe-4334-a065-5eae2f743600",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst opts = {\n  timeZone: 'Asia/Kolkata',\n  hour12: false,\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n};\n\nconst parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(now);\nconst get = (t) => parts.find(p => p.type === t).value;\nconst ts = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n\nconst prospect = $('Split In Batches').item.json;\nconst response = $input.first().json;\nconst reason = response.body\n  ? (typeof response.body === 'string' ? response.body : JSON.stringify(response.body))\n  : `HTTP ${response.statusCode || 'unknown'}`;\n\nreturn [\n  {\n    json: {\n      linkedinurl: prospect.linkedinurl,\n      connectionrequeststatus: 'Failed',\n      connectionrequesttime: ts,\n      failedreason: `[${ts}] Invite failed: ${reason}`.slice(0, 500)\n    }\n  }\n];"
+      },
+      "id": "8b023a42-39c5-4b62-8782-e88ecce3c7d5",
+      "name": "Build Failure Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Database"
+        },
+        "columns": {
+          "0": "{",
+          "1": "\"",
+          "2": "m",
+          "3": "a",
+          "4": "p",
+          "5": "p",
+          "6": "i",
+          "7": "n",
+          "8": "g",
+          "9": "M",
+          "10": "o",
+          "11": "d",
+          "12": "e",
+          "13": "\"",
+          "14": ":",
+          "15": "\"",
+          "16": "a",
+          "17": "u",
+          "18": "t",
+          "19": "o",
+          "20": "M",
+          "21": "a",
+          "22": "p",
+          "23": "I",
+          "24": "n",
+          "25": "p",
+          "26": "u",
+          "27": "t",
+          "28": "D",
+          "29": "a",
+          "30": "t",
+          "31": "a",
+          "32": "\"",
+          "33": ",",
+          "34": "\"",
+          "35": "m",
+          "36": "a",
+          "37": "t",
+          "38": "c",
+          "39": "h",
+          "40": "i",
+          "41": "n",
+          "42": "g",
+          "43": "C",
+          "44": "o",
+          "45": "l",
+          "46": "u",
+          "47": "m",
+          "48": "n",
+          "49": "s",
+          "50": "\"",
+          "51": ":",
+          "52": "[",
+          "53": "\"",
+          "54": "l",
+          "55": "i",
+          "56": "n",
+          "57": "k",
+          "58": "e",
+          "59": "d",
+          "60": "i",
+          "61": "n",
+          "62": "_",
+          "63": "u",
+          "64": "r",
+          "65": "l",
+          "66": "\"",
+          "67": "]",
+          "68": ",",
+          "69": "\"",
+          "70": "s",
+          "71": "c",
+          "72": "h",
+          "73": "e",
+          "74": "m",
+          "75": "a",
+          "76": "\"",
+          "77": ":",
+          "78": "[",
+          "79": "]",
+          "80": "}",
+          "mappingMode": "defineBelow",
+          "value": {
+            "connectionrequeststatus": "={{ $json.connectionrequeststatus }}",
+            "connectionrequesttime": "={{ $json.connectionrequesttime }}",
+            "failedreason": "={{ $json.failedreason }}",
+            "linkedin_url": "={{ $json.linkedinurl }}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sending_account",
+              "displayName": "sending_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_status",
+              "displayName": "connection_request_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_time",
+              "displayName": "connection_request_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted",
+              "displayName": "connection_accepted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted_time",
+              "displayName": "connection_accepted_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_status",
+              "displayName": "message_1_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_sent_time",
+              "displayName": "message_1_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_status",
+              "displayName": "message_2_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_sent_time",
+              "displayName": "message_2_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_status",
+              "displayName": "message_3_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_sent_time",
+              "displayName": "message_3_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_text",
+              "displayName": "reply_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_time",
+              "displayName": "reply_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "failed_reason",
+              "displayName": "failed_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "creation_date",
+              "displayName": "creation_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedinurl",
+              "displayName": "linkedinurl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connectionrequeststatus",
+              "displayName": "connectionrequeststatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "connectionrequesttime",
+              "displayName": "connectionrequesttime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "failedreason",
+              "displayName": "failedreason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "58c6fe77-0c70-4f10-ba19-67b5c0a8076c",
+      "name": "Update DB: Failed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2912,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst opts = {\n  timeZone: 'Asia/Kolkata',\n  hour12: false,\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  second: '2-digit'\n};\n\nconst parts = new Intl.DateTimeFormat('en-GB', opts).formatToParts(now);\nconst get = (t) => parts.find(p => p.type === t).value;\nconst ts = `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}:${get('second')} IST`;\n\nconst prospect = $('Split In Batches').item.json;\n\nreturn [\n  {\n    json: {\n      linkedinurl: prospect.linkedinurl,\n      connectionrequeststatus: 'Failed',\n      connectionrequesttime: ts,\n      failedreason: `[${ts}] Could not resolve provider_id from LinkedIn URL`\n    }\n  }\n];"
+      },
+      "id": "8255299e-57cb-45d6-89e0-348277262b9a",
+      "name": "Build Provider Lookup Fail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1JJaCTH06vkIt_IJ_s_cK28YSD_maD2hEG-_jaWVjj3Y"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Database"
+        },
+        "columns": {
+          "0": "{",
+          "1": "\"",
+          "2": "m",
+          "3": "a",
+          "4": "p",
+          "5": "p",
+          "6": "i",
+          "7": "n",
+          "8": "g",
+          "9": "M",
+          "10": "o",
+          "11": "d",
+          "12": "e",
+          "13": "\"",
+          "14": ":",
+          "15": "\"",
+          "16": "a",
+          "17": "u",
+          "18": "t",
+          "19": "o",
+          "20": "M",
+          "21": "a",
+          "22": "p",
+          "23": "I",
+          "24": "n",
+          "25": "p",
+          "26": "u",
+          "27": "t",
+          "28": "D",
+          "29": "a",
+          "30": "t",
+          "31": "a",
+          "32": "\"",
+          "33": ",",
+          "34": "\"",
+          "35": "m",
+          "36": "a",
+          "37": "t",
+          "38": "c",
+          "39": "h",
+          "40": "i",
+          "41": "n",
+          "42": "g",
+          "43": "C",
+          "44": "o",
+          "45": "l",
+          "46": "u",
+          "47": "m",
+          "48": "n",
+          "49": "s",
+          "50": "\"",
+          "51": ":",
+          "52": "[",
+          "53": "\"",
+          "54": "l",
+          "55": "i",
+          "56": "n",
+          "57": "k",
+          "58": "e",
+          "59": "d",
+          "60": "i",
+          "61": "n",
+          "62": "_",
+          "63": "u",
+          "64": "r",
+          "65": "l",
+          "66": "\"",
+          "67": "]",
+          "68": ",",
+          "69": "\"",
+          "70": "s",
+          "71": "c",
+          "72": "h",
+          "73": "e",
+          "74": "m",
+          "75": "a",
+          "76": "\"",
+          "77": ":",
+          "78": "[",
+          "79": "]",
+          "80": "}",
+          "mappingMode": "defineBelow",
+          "value": {
+            "linkedin_url": "{{ $json.linkedinurl }}",
+            "connectionrequeststatus": "={{ $json.connectionrequeststatus }}",
+            "connectionrequesttime": "={{ $json.connectionrequesttime }}",
+            "failedreason": "={{ $json.failedreason }}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "sending_account",
+              "displayName": "sending_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_status",
+              "displayName": "connection_request_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_request_time",
+              "displayName": "connection_request_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted",
+              "displayName": "connection_accepted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connection_accepted_time",
+              "displayName": "connection_accepted_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_status",
+              "displayName": "message_1_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_1_sent_time",
+              "displayName": "message_1_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_status",
+              "displayName": "message_2_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_2_sent_time",
+              "displayName": "message_2_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_status",
+              "displayName": "message_3_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message_3_sent_time",
+              "displayName": "message_3_sent_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_text",
+              "displayName": "reply_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_time",
+              "displayName": "reply_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "failed_reason",
+              "displayName": "failed_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "creation_date",
+              "displayName": "creation_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "linkedinurl",
+              "displayName": "linkedinurl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connectionrequeststatus",
+              "displayName": "connectionrequeststatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "connectionrequesttime",
+              "displayName": "connectionrequesttime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "failedreason",
+              "displayName": "failedreason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "809ef9ce-8185-4c2d-9ef3-2c24b797c43b",
+      "name": "Update DB: Provider Fail",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2912,
+        384
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qzTf6RIA9HmF80r4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        240
+      ],
+      "id": "5faf439f-caf9-4eca-97bf-89bded89e5c4",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {
+    "Manual Trigger": [
+      {
+        "json": {},
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "When Executed by Another Workflow": [
+      {
+        "json": {},
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Unipile: Send Invite": [
+      {
+        "json": {
+          "body": {
+            "object": "UserInvitationSent",
+            "invitation_id": "7461002425844305921"
+          },
+          "headers": {
+            "server": "nginx/1.29.5",
+            "date": "Fri, 15 May 2026 10:39:57 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "content-length": "69",
+            "connection": "close",
+            "x-powered-by": "Express",
+            "vary": "Origin",
+            "access-control-allow-credentials": "true",
+            "cache-control": "no-cache, no-store, must-revalidate, proxy-revalidate",
+            "pragma": "no-cache",
+            "expires": "0"
+          },
+          "statusCode": 201,
+          "statusMessage": "Created"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Read Database": {
+      "main": [
+        [
+          {
+            "node": "Read Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Read Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Accounts": {
+      "main": [
+        [
+          {
+            "node": "Filter & Gate by Daily Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter & Gate by Daily Limit": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Get Provider ID": {
+      "main": [
+        [
+          {
+            "node": "Provider ID found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Provider ID found?": {
+      "main": [
+        [
+          {
+            "node": "Unipile: Send Invite",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Provider Lookup Fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unipile: Send Invite": {
+      "main": [
+        [
+          {
+            "node": "Invite success?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invite success?": {
+      "main": [
+        [
+          {
+            "node": "Build Success Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Failure Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Success Update": {
+      "main": [
+        [
+          {
+            "node": "Update DB: Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update DB: Sent": {
+      "main": [
+        [
+          {
+            "node": "Build Counter Increment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Counter Increment": {
+      "main": [
+        [
+          {
+            "node": "Update Account Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Account Counter": {
+      "main": [
+        [
+          {
+            "node": "Wait 30-90s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30-90s": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unipile: Get Provider ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Failure Update": {
+      "main": [
+        [
+          {
+            "node": "Update DB: Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update DB: Failed": {
+      "main": [
+        [
+          {
+            "node": "Wait 30-90s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Provider Lookup Fail": {
+      "main": [
+        [
+          {
+            "node": "Update DB: Provider Fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update DB: Provider Fail": {
+      "main": [
+        [
+          {
+            "node": "Wait 30-90s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Read Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "versionId": "dd00b7a9-10d1-4ff0-8a26-802b93b43c11",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "b045cc43a936e8dae5503de0430356c35c5c8a36cfb7da656f8ef0afed7fa15f"
+  },
+  "id": "JbxYtGOPnRlAAQ2a",
+  "tags": []
+}
